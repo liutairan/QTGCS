@@ -1357,40 +1357,6 @@ void MainWindow::on_serialConnectButton_clicked()
         qDebug() << "Connected";
         qDebug() << ui->comMethodComboBox->currentText();
         //ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
-
-        // Example use QSerialPort
-        //QSerialPort serial;
-        //QString serialPortName = ui->serialPortComboBox->currentText();
-
-        /*
-        serial.setPortName(serialPortName);
-        serial.open(QIODevice::ReadWrite);
-        serial.setBaudRate(QSerialPort::Baud115200);
-        serial.setDataBits(QSerialPort::Data8);
-        serial.setParity(QSerialPort::NoParity);
-        serial.setStopBits(QSerialPort::OneStop);
-        serial.setFlowControl(QSerialPort::HardwareControl);
-        */
-/*
-        if (serial.isOpen() && serial.isWritable())
-        {
-        qDebug() << "Serial is open";
-
-        QByteArray output;
-        QByteArray input;
-
-          while(true)
-          {
-          output = "1234\n";
-          serial.write(output);
-          serial.flush();
-          serial.waitForBytesWritten(1000);
-          serial.waitForReadyRead(1000);
-          input = serial.readAll();
-          qDebug() << input;
-          }
-        }
-*/
     }
     else if (serialConnectButtonText == "Disconnect")
     {

@@ -18,8 +18,6 @@
 #include <QSslConfiguration>
 #include <QSslCertificate>
 #include <QByteArray>
-#include <filedownloader.h>
-//#include <QProgressDialog>
 
 #define _EARTHPIX  268435456
 // Number of pixels in half the earth's circumference at zoom = 21

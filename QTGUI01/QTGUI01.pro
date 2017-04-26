@@ -25,7 +25,6 @@ SOURCES += main.cpp\
     serialcommunication.cpp \
     dataexchange.cpp \
     inputdialog.cpp \
-    filedownloader.cpp \
     qtxb.cpp \
     qtxb/digimeshpacket.cpp \
     qtxb/atcommandqueueparam.cpp \
@@ -52,7 +51,6 @@ HEADERS  += mainwindow.h \
     serialcommunication.h \
     dataexchange.h \
     inputdialog.h \
-    filedownloader.h \
     qtxb.h \
     qtxb/digimeshpacket.h \
     qtxb/atcommandqueueparam.h \
