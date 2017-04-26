@@ -586,7 +586,7 @@ AutoZoomGeoMapInfo Map::_find_zoomlevel(double min_lat, double max_lat, double m
     double len_lon = max_lon - min_lon;
 
     QList<int> _zoom_level;
-    _zoom_level << 22<<21<<20<<19<<18<<17<<16<<15<<14<<13<<12<<11<<10<<9;
+    _zoom_level <<21<<20<<19<<18<<17<<16<<15<<14<<13<<12<<11<<10<<9;
     QList<double> _lat_steps, _lon_steps;
     int level;
     foreach (level, _zoom_level)

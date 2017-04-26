@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QStandardItemModel>
 #include <QFileInfo>
+#include <QFileDialog>
 #include <QLineEdit>
 #include <QDateTime>
 #include <QCheckBox>
