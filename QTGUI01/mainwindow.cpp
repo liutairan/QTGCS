@@ -1,0 +1,2567 @@
+#include "mainwindow.h"
+#include "ui_mainwindow.h"
+#include <qpainter.h>
+#include <qstandarditemmodel.h>
+#include "multiwii.h"
+#include "quadstates.h"
+#include "dataexchange.h"
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    removeToolBar(ui->mainToolBar);
+    deHandle = new DataExchange();
+    connect(deHandle, &DataExchange::serialOnChanged, this, &MainWindow::deSlot);
+    connect(deHandle, &DataExchange::quadsStatesChanged, this, &MainWindow::updateQuadsStates);
+    InitMap();
+    InitOverviewPage();
+    InitQuad1Page();
+    InitQuad2Page();
+    InitQuad3Page();
+
+    currentTab = ui->tabWidget->currentIndex();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
+void MainWindow::deSlot(bool value)
+{
+    qDebug()<< value;
+}
+
+void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
+{
+    QString logString = "------------------\n";
+    logString = logString + QTime::currentTime().toString("hh:mm:ss.zzz") + ", ";
+    logString = logString + "\n---STA---\n";
+    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + ", ";
+    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
+    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
+    logString = logString + "\n---ATT---\n";
+    logString = logString + QString::number(tempObjList->at(0)->msp_attitude.roll/10.0, 'f', 1) + ", ";
+    logString = logString + QString::number(tempObjList->at(0)->msp_attitude.pitch/10.0, 'f', 1) + ", ";
+    logString = logString + QString::number(tempObjList->at(0)->msp_attitude.yaw, 10) + ", ";
+    logString = logString + "\n---GPS---\n";
+    logString = logString + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_numSat, 10) + ", ";
+    logString = logString + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_fixType, 10) + ", ";
+    ui->logTextBrowser->append(logString);
+    updateGUILabels(tempObjList);
+}
+
+void MainWindow::updateGUILabels(QList<QuadStates *> *tempObjList)
+{
+    updateOverviewLabels(tempObjList);
+    if (quad1ConnSwitch == true)
+    {
+        updateQuad1Labels(tempObjList);
+    }
+    if (quad2ConnSwitch == true)
+    {
+        updateQuad2Labels(tempObjList);
+    }
+    if (quad3ConnSwitch == true)
+    {
+        updateQuad3Labels(tempObjList);
+    }
+}
+
+void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
+{
+    if (quad1ConnSwitch == true)
+    {
+        if (tempObjList->at(0)->msp_sensor_flags.acc == true)
+        {
+            ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.mag == true)
+        {
+            ui->quad1MAGOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1MAGOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.baro == true)
+        {
+            ui->quad1BAROOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1BAROOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad1SONAROverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1SONAROverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.gps == true)
+        {
+            ui->quad1GPSOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1GPSOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad1PITOTOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1PITOTOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad1HWOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1HWOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(0)->msp_flight_modes.arm == true)
+        {
+            ui->quad1ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.angle == true)
+        {
+            ui->quad1LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad1ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad1POSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1POSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(0)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad1NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad1GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad1FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+    }
+    else  // set to unconnected color
+    {
+        ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+
+    if (quad2ConnSwitch == true)
+    {
+        if (tempObjList->at(1)->msp_sensor_flags.acc == true)
+        {
+            ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.mag == true)
+        {
+            ui->quad2MAGOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2MAGOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.baro == true)
+        {
+            ui->quad2BAROOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2BAROOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad2SONAROverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2SONAROverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.gps == true)
+        {
+            ui->quad2GPSOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2GPSOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad2PITOTOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2PITOTOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad2HWOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2HWOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(1)->msp_flight_modes.arm == true)
+        {
+            ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.angle == true)
+        {
+            ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad2POSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2POSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(1)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad2NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad2GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+    }
+    else  // set to unconnected color
+    {
+        ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+
+    if (quad3ConnSwitch == true)
+    {
+        if (tempObjList->at(2)->msp_sensor_flags.acc == true)
+        {
+            ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.mag == true)
+        {
+            ui->quad3MAGOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3MAGOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.baro == true)
+        {
+            ui->quad3BAROOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3BAROOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad3SONAROverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3SONAROverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.gps == true)
+        {
+            ui->quad3GPSOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3GPSOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad3PITOTOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3PITOTOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad3HWOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3HWOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(2)->msp_flight_modes.arm == true)
+        {
+            ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.angle == true)
+        {
+            ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad3POSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3POSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(2)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad3NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad3GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+    }
+    else  // set to unconnected color
+    {
+        ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+
+}
+
+void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
+{
+    if (quad1ConnSwitch == true)
+    {
+        if (tempObjList->at(0)->msp_sensor_flags.acc == true)
+        {
+            ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.mag == true)
+        {
+            ui->quad1MAG->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1MAG->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.baro == true)
+        {
+            ui->quad1BARO->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1BARO->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad1SONAR->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1SONAR->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.gps == true)
+        {
+            ui->quad1GPS->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1GPS->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad1PITOT->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1PITOT->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad1HW->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1HW->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(0)->msp_flight_modes.arm == true)
+        {
+            ui->quad1ARMMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1ARMMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.angle == true)
+        {
+            ui->quad1LEVELMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1LEVELMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad1ALTMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1ALTMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad1POSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1POSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(0)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad1NAVMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1NAVMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad1GCSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad1GCSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(0)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad1FAILMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad1FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // inner
+        ui->quad1Roll->setText("Roll: " + QString::number(tempObjList->at(0)->msp_attitude.roll/10.0, 'f', 1));
+        ui->quad1Pitch->setText("Pitch: " + QString::number(tempObjList->at(0)->msp_attitude.pitch/10.0, 'f', 1));
+        ui->quad1Yaw->setText("Yaw: " + QString::number(tempObjList->at(0)->msp_attitude.yaw, 10));
+        // outer
+        ui->quad1Lat->setText("Lat: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
+        ui->quad1Lon->setText("Lon: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
+        ui->quad1Alt->setText("Alt: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
+        ui->quad1SatNum->setText("No. Sat: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_numSat, 10));
+        ui->quad1FixType->setText("Fix Type: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_fixType, 10));
+        ui->quad1HDOP->setText("HDOP: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_hdop, 10));
+    }
+    else  // set to unconnected color
+    {
+        ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+}
+
+void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
+{
+    if (quad2ConnSwitch == true)
+    {
+        if (tempObjList->at(1)->msp_sensor_flags.acc == true)
+        {
+            ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.mag == true)
+        {
+            ui->quad2MAG->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2MAG->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.baro == true)
+        {
+            ui->quad2BARO->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2BARO->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad2SONAR->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2SONAR->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.gps == true)
+        {
+            ui->quad2GPS->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2GPS->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad2PITOT->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2PITOT->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad2HW->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2HW->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(1)->msp_flight_modes.arm == true)
+        {
+            ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.angle == true)
+        {
+            ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad2POSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2POSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(1)->msp_flight_modes.nav_wp == true) || (tempObjList->at(1)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad2NAVMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2NAVMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad2GCSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad2GCSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(1)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // inner
+        ui->quad2Roll->setText("Roll: " + QString::number(tempObjList->at(1)->msp_attitude.roll/10.0, 'f', 1));
+        ui->quad2Pitch->setText("Pitch: " + QString::number(tempObjList->at(1)->msp_attitude.pitch/10.0, 'f', 1));
+        ui->quad2Yaw->setText("Yaw: " + QString::number(tempObjList->at(1)->msp_attitude.yaw, 10));
+        // outer
+        ui->quad2Lat->setText("Lat: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
+        ui->quad2Lon->setText("Lon: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
+        ui->quad2Alt->setText("Alt: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
+        ui->quad2SatNum->setText("No. Sat: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_numSat, 10));
+        ui->quad2FixType->setText("Fix Type: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_fixType, 10));
+        ui->quad2HDOP->setText("HDOP: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_hdop, 10));
+    }
+    else  // set to unconnected color
+    {
+        ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+}
+
+void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
+{
+    if (quad3ConnSwitch == true)
+    {
+        if (tempObjList->at(2)->msp_sensor_flags.acc == true)
+        {
+            ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.mag == true)
+        {
+            ui->quad3MAG->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3MAG->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.baro == true)
+        {
+            ui->quad3BARO->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3BARO->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.sonar == true)
+        {
+            ui->quad3SONAR->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3SONAR->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.gps == true)
+        {
+            ui->quad3GPS->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3GPS->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.pitot == true)
+        {
+            ui->quad3PITOT->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3PITOT->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_sensor_flags.hardware == true)
+        {
+            ui->quad3HW->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3HW->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // status/modes
+        if (tempObjList->at(2)->msp_flight_modes.arm == true)
+        {
+            ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.angle == true)
+        {
+            ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.nav_althold == true)
+        {
+            ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.nav_poshold == true)
+        {
+            ui->quad3POSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3POSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if ((tempObjList->at(2)->msp_flight_modes.nav_wp == true) || (tempObjList->at(2)->msp_flight_modes.nav_rth == true))
+        {
+            ui->quad3NAVMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3NAVMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.gcs_nav == true)
+        {
+            ui->quad3GCSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else
+        {
+            ui->quad3GCSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        if (tempObjList->at(2)->msp_flight_modes.failsafe == true)
+        {
+            ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else
+        {
+            ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        // inner
+        ui->quad3Roll->setText("Roll: " + QString::number(tempObjList->at(2)->msp_attitude.roll/10.0, 'f', 1));
+        ui->quad3Pitch->setText("Pitch: " + QString::number(tempObjList->at(2)->msp_attitude.pitch/10.0, 'f', 1));
+        ui->quad3Yaw->setText("Yaw: " + QString::number(tempObjList->at(2)->msp_attitude.yaw, 10));
+        // outer
+        ui->quad3Lat->setText("Lat: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
+        ui->quad3Lon->setText("Lon: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
+        ui->quad3Alt->setText("Alt: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
+        ui->quad3SatNum->setText("No. Sat: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_numSat, 10));
+        ui->quad3FixType->setText("Fix Type: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_fixType, 10));
+        ui->quad3HDOP->setText("HDOP: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_hdop, 10));
+    }
+    else  // set to unconnected color
+    {
+        ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(220,220,220,1);}");
+    }
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton)
+    {
+        leftDown = true;
+        mouseX = event->x();
+        mouseY = event->y();
+        if (quad1WPsEditing == true)
+        {
+            QPoint clickPoint(mouseX, mouseY);
+            quad1WP_inside = insideWP(clickPoint, deHandle->wp_list[0]);
+        }
+        else if (quad2WPsEditing == true)
+        {
+            QPoint clickPoint(mouseX, mouseY);
+            quad2WP_inside = insideWP(clickPoint, deHandle->wp_list[1]);
+        }
+        else if (quad3WPsEditing == true)
+        {
+            QPoint clickPoint(mouseX, mouseY);
+            quad3WP_inside = insideWP(clickPoint, deHandle->wp_list[2]);
+        }
+        else
+        {}
+        //qDebug() << "Left Down "<<event->x()<<"  "<<event->y();
+        //qDebug() << ui->maplabel->rect().contains(event->pos());
+    }
+    if(event->button() == Qt::RightButton)
+    {
+        rightDown = true;
+        //qDebug() << "Right Down "<<event->x()<<"  "<<event->y() << deHandle->get_serialMode();
+    }
+}
+
+void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
+{
+    if(event->button() == Qt::LeftButton)
+    {
+        leftDown = false;
+        //qDebug() << "Left Up";
+    }
+    if(event->button() == Qt::RightButton)
+    {
+        rightDown = false;
+        //qDebug() << "Right Up";
+        if (ui->maplabel->rect().contains(event->pos()))
+        {
+            PixelPosition tempPoint;
+            tempPoint.x = event->pos().x();
+            tempPoint.y = event->pos().y();
+            GPSCoordinate tempCo = mapHandle->PostoGPS(tempPoint);
+            if (currentTab == 1)
+            {
+                try
+                {
+                    InputDialog *inputDialog = new InputDialog;
+                    inputDialog->setWindowTitle("Add WP");
+                    inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+                    inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+                    inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[0].wps.length()+1, 10));
+                    int dlgCode = inputDialog->exec();
+
+                    if (dlgCode == QDialog::Accepted)
+                    {
+                        qDebug() << "Accepted";
+                        WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                        tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                        tempWP.wp_action = inputDialog->typeCombo->currentText();
+                        tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                        tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                        tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                        tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                        tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                        tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                        deHandle->wp_list[0].wps.append(tempWP);
+                        emit updateQuad1TableViewRequest();
+                    }
+                    else if (dlgCode == QDialog::Rejected)
+                    {
+                        qDebug() << "Rejected";
+                    }
+                }
+                catch (...)
+                {
+                    qDebug() << "Caught exception";
+                }
+            }
+            else if (currentTab == 2)
+            {
+                try
+                {
+                    InputDialog *inputDialog = new InputDialog;
+                    inputDialog->setWindowTitle("Add WP");
+                    inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+                    inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+                    inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[1].wps.length()+1, 10));
+                    int dlgCode = inputDialog->exec();
+
+                    if (dlgCode == QDialog::Accepted)
+                    {
+                        qDebug() << "Accepted";
+                        WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                        tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                        tempWP.wp_action = inputDialog->typeCombo->currentText();
+                        tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                        tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                        tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                        tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                        tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                        tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                        deHandle->wp_list[1].wps.append(tempWP);
+                        emit updateQuad2TableViewRequest();
+                    }
+                    else if (dlgCode == QDialog::Rejected)
+                    {
+                        qDebug() << "Rejected";
+                    }
+                }
+                catch (...)
+                {
+                    qDebug() << "Caught exception";
+                }
+            }
+            else if (currentTab == 3)
+            {
+                try
+                {
+                    InputDialog *inputDialog = new InputDialog;
+                    inputDialog->setWindowTitle("Add WP");
+                    inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+                    inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+                    inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[2].wps.length()+1, 10));
+                    int dlgCode = inputDialog->exec();
+
+                    if (dlgCode == QDialog::Accepted)
+                    {
+                        qDebug() << "Accepted";
+                        WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                        tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                        tempWP.wp_action = inputDialog->typeCombo->currentText();
+                        tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                        tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                        tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                        tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                        tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                        tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                        deHandle->wp_list[2].wps.append(tempWP);
+                        emit updateQuad3TableViewRequest();
+                    }
+                    else if (dlgCode == QDialog::Rejected)
+                    {
+                        qDebug() << "Rejected";
+                    }
+                }
+                catch (...)
+                {
+                    qDebug() << "Caught exception";
+                }
+            }
+        }
+
+        if (ui->quad1TableView->rect().contains(event->pos()))
+        {
+            ;//qDebug() << "Inside table 1";
+        }
+    }
+}
+
+void MainWindow::mouseMoveEvent ( QMouseEvent * event )
+{
+    //Show x and y coordinate values of mouse cursor here
+    //this->setText("X:"+QString::number(event->x())+"-- Y:"+QString::number(event->y()));
+    if ((ui->maplabel->rect().contains((event->pos()))) && leftDown == true)
+    {
+        if (quad1WPsEditing)
+        {
+            if (quad1WP_inside > -1)
+            {
+                //qDebug() << "Inside" << quad1WP_inside;
+                PixelPosition tempPix;
+                tempPix.x = event->x();
+                tempPix.y = event->y();
+                GPSCoordinate tempCo;
+                tempCo = mapHandle->PostoGPS(tempPix);
+                WP tempWP;
+                tempWP = deHandle->wp_list[0].wps.at(quad1WP_inside - 1);
+                tempWP.wp_lat = tempCo.lat;
+                tempWP.wp_lon = tempCo.lon;
+                deHandle->wp_list[0].wps.replace(quad1WP_inside - 1, tempWP);
+                emit updateQuad1TableViewRequest();
+            }
+            else  // outside
+            {
+                ;
+            }
+        }
+        else if (quad2WPsEditing)
+        {
+            if (quad2WP_inside > -1)
+            {
+                //qDebug() << "Inside" << quad2WP_inside;
+                PixelPosition tempPix;
+                tempPix.x = event->x();
+                tempPix.y = event->y();
+                GPSCoordinate tempCo;
+                tempCo = mapHandle->PostoGPS(tempPix);
+                WP tempWP;
+                tempWP = deHandle->wp_list[1].wps.at(quad2WP_inside - 1);
+                tempWP.wp_lat = tempCo.lat;
+                tempWP.wp_lon = tempCo.lon;
+                deHandle->wp_list[1].wps.replace(quad2WP_inside - 1, tempWP);
+                emit updateQuad2TableViewRequest();
+            }
+            else  // outside
+            {
+                ;
+            }
+        }
+        else if (quad3WPsEditing)
+        {
+            if (quad3WP_inside > -1)
+            {
+                //qDebug() << "Inside" << quad3WP_inside;
+                PixelPosition tempPix;
+                tempPix.x = event->x();
+                tempPix.y = event->y();
+                GPSCoordinate tempCo;
+                tempCo = mapHandle->PostoGPS(tempPix);
+                WP tempWP;
+                tempWP = deHandle->wp_list[2].wps.at(quad3WP_inside - 1);
+                tempWP.wp_lat = tempCo.lat;
+                tempWP.wp_lon = tempCo.lon;
+                deHandle->wp_list[2].wps.replace(quad3WP_inside - 1, tempWP);
+                emit updateQuad3TableViewRequest();
+            }
+            else  // outside
+            {
+                ;
+            }
+        }
+        else
+        {
+            int dx = event->x() - mouseX;
+            int dy = event->y() - mouseY;
+            mapHandle->move(dx,dy);
+        }
+        emit paintRequest();
+    }
+}
+
+void MainWindow::updatePaint()
+{
+    QPixmap tempMap = mapHandle->retImage;
+
+    if (tempMap.isNull())
+    {
+        QString currentWorkingPath = QDir::currentPath();
+        QString blackPath = currentWorkingPath + "/res/black.jpg";
+        imageHandle->load(blackPath);
+    }
+    else
+    {
+        imageHandle = &tempMap;
+    }
+    QPainter painter(imageHandle);
+
+    draw(&painter);
+    ui->maplabel->setPixmap(*imageHandle);
+}
+
+void MainWindow::draw(QPainter *painter)
+{
+    QPen Red((QColor::QColor(255,0,0)),10);
+    QPen YellowDot((QColor::QColor(255,255,0)),10);
+    QPen GreenLine((QColor::QColor(0,255,0)),1);
+    QPen BlueLine((QColor::QColor(0,0,255)),1);
+    for (int i =0; i< 3; i++)
+    {
+        if (deHandle->wp_list[i].wps.length() > 0)
+        {
+            for (int j = 0; j < deHandle->wp_list[i].wps.length(); j++)
+            {
+                GPSCoordinate tempCo;
+                tempCo.lat = deHandle->wp_list[i].wps.at(j).wp_lat;
+                tempCo.lon = deHandle->wp_list[i].wps.at(j).wp_lon;
+
+                PixelPosition tempPix;
+                tempPix = mapHandle->GPStoImagePos(tempCo);
+                painter->setPen(Red);
+                painter->drawEllipse(tempPix.x, tempPix.y, 3, 3);
+
+                if (j == 0)
+                {
+                    painter->drawText(tempPix.x+10, tempPix.y+3, QString::number(i,10));
+                }
+            }
+            for (int j = 0; j < deHandle->wp_list[i].wps.length(); j++)
+            {
+                if (j < deHandle->wp_list[i].wps.length()-1)
+                {
+                    WP tempWP = deHandle->wp_list[i].wps.at(j);
+                    GPSCoordinate tempCo;
+                    tempCo.lat = tempWP.wp_lat;
+                    tempCo.lon = tempWP.wp_lon;
+                    PixelPosition tempPix;
+                    tempPix = mapHandle->GPStoImagePos(tempCo);
+
+                    WP tempWP_next = deHandle->wp_list[i].wps.at(j+1);
+                    GPSCoordinate tempCo_next;
+                    tempCo_next.lat = tempWP_next.wp_lat;
+                    tempCo_next.lon = tempWP_next.wp_lon;
+                    PixelPosition tempPix_next;
+                    tempPix_next = mapHandle->GPStoImagePos(tempCo_next);
+                    painter->setPen(GreenLine);
+                    painter->drawLine(tempPix.x, tempPix.y, tempPix_next.x, tempPix_next.y);
+                }
+                else
+                {
+                    WP tempWP = deHandle->wp_list[i].wps.at(j);
+                    GPSCoordinate tempCo;
+                    tempCo.lat = tempWP.wp_lat;
+                    tempCo.lon = tempWP.wp_lon;
+                    PixelPosition tempPix;
+                    tempPix = mapHandle->GPStoImagePos(tempCo);
+
+                    WP tempWP_next = deHandle->wp_list[i].wps.at(0);
+                    GPSCoordinate tempCo_next;
+                    tempCo_next.lat = tempWP_next.wp_lat;
+                    tempCo_next.lon = tempWP_next.wp_lon;
+                    PixelPosition tempPix_next;
+                    tempPix_next = mapHandle->GPStoImagePos(tempCo_next);
+                    painter->setPen(BlueLine);
+                    painter->drawLine(tempPix.x, tempPix.y, tempPix_next.x, tempPix_next.y);
+                }
+            }
+        }
+    }
+    if (quad1ConnSwitch == true)
+    {
+        PixelPosition tempPix;
+        tempPix = mapHandle->GPStoImagePos(deHandle->current_gps[0]);
+        painter->setPen(YellowDot);
+        painter->drawEllipse(tempPix.x, tempPix.y, 5, 5);
+    }
+    if (quad2ConnSwitch == true)
+    {
+        PixelPosition tempPix;
+        tempPix = mapHandle->GPStoImagePos(deHandle->current_gps[1]);
+        painter->setPen(YellowDot);
+        painter->drawEllipse(tempPix.x, tempPix.y, 5, 5);
+    }
+    if (quad3ConnSwitch == true)
+    {
+        PixelPosition tempPix;
+        tempPix = mapHandle->GPStoImagePos(deHandle->current_gps[2]);
+        painter->setPen(YellowDot);
+        painter->drawEllipse(tempPix.x, tempPix.y, 5, 5);
+    }
+}
+
+void MainWindow::InitMap()
+{
+    // Start of loading map
+    mapHandle = new Map(30.4081580, -91.1795330, 19, 640, 640);
+    connect(this, SIGNAL(paintRequest()), this, SLOT(updatePaint()));
+    emit paintRequest();
+    // End of loading map
+}
+
+void MainWindow::InitOverviewPage()
+{
+    // Start of Overview page
+    Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts())
+    {
+        ui->serialPortComboBox->addItem(port.portName());
+    }
+    QStringList comMethodList;
+    comMethodList << "USB" << "API" << "AT";
+    ui->comMethodComboBox->addItems(comMethodList);
+    // End of Overview page
+}
+
+void MainWindow::InitQuad1Page()
+{
+    // Start of Quad 1 page
+    QStringList quad1AddrList;
+    quad1AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    ui->quad1AddressComboBox->addItems(quad1AddrList);
+
+    // Start of Quad 1 table
+    model1 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
+    //model->setHorizontalHeaderItem(0, new QStandardItem(QString("ID")));
+    model1->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model1->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model1->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model1->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model1->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model1->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model1->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad1TableView->setModel(model1);
+    ui->quad1TableView->setColumnWidth(0,60);
+    ui->quad1TableView->setColumnWidth(1,80);
+    ui->quad1TableView->setColumnWidth(2,80);
+    ui->quad1TableView->setColumnWidth(3,70);
+    ui->quad1TableView->setColumnWidth(4,50);
+    ui->quad1TableView->setColumnWidth(5,50);
+    ui->quad1TableView->setColumnWidth(6,50);
+
+    ui->quad1TableView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(updateQuad1TableViewRequest()), this, SLOT(updateQuad1TableView()) );
+    // End of Quad 1 table
+
+    quad1WPsEditing = false;
+    quad1WP_inside = -1;
+    quad1ConnSwitch = false;
+    // End of Quad 1 page
+}
+
+void MainWindow::InitQuad2Page()
+{
+    // Start of Quad 2 page
+    QStringList quad2AddrList;
+    quad2AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    ui->quad2AddressComboBox->addItems(quad2AddrList);
+
+    // Start of Quad 2 table
+    model2 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
+    //model->setHorizontalHeaderItem(0, new QStandardItem(QString("ID")));
+    model2->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model2->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model2->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model2->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model2->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model2->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model2->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad2TableView->setModel(model2);
+    ui->quad2TableView->setColumnWidth(0,60);
+    ui->quad2TableView->setColumnWidth(1,80);
+    ui->quad2TableView->setColumnWidth(2,80);
+    ui->quad2TableView->setColumnWidth(3,70);
+    ui->quad2TableView->setColumnWidth(4,50);
+    ui->quad2TableView->setColumnWidth(5,50);
+    ui->quad2TableView->setColumnWidth(6,50);
+
+    ui->quad2TableView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(updateQuad2TableViewRequest()), this, SLOT(updateQuad2TableView()) );
+    // End of Quad 2 table
+
+    quad2WPsEditing = false;
+    quad2WP_inside = -1;
+    quad2ConnSwitch = false;
+    // End of Quad 2 page
+}
+
+void MainWindow::InitQuad3Page()
+{
+    // Start of Quad 3 page
+    QStringList quad3AddrList;
+    quad3AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    ui->quad3AddressComboBox->addItems(quad3AddrList);
+
+    // Start of Quad 3 table
+    model3 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
+    //model->setHorizontalHeaderItem(0, new QStandardItem(QString("ID")));
+    model3->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model3->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model3->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model3->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model3->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model3->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model3->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad3TableView->setModel(model3);
+    ui->quad3TableView->setColumnWidth(0,60);
+    ui->quad3TableView->setColumnWidth(1,80);
+    ui->quad3TableView->setColumnWidth(2,80);
+    ui->quad3TableView->setColumnWidth(3,70);
+    ui->quad3TableView->setColumnWidth(4,50);
+    ui->quad3TableView->setColumnWidth(5,50);
+    ui->quad3TableView->setColumnWidth(6,50);
+
+    ui->quad3TableView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(updateQuad3TableViewRequest()), this, SLOT(updateQuad3TableView()) );
+    // End of Quad 3 table
+
+    quad3WPsEditing = false;
+    quad3WP_inside = -1;
+    quad3ConnSwitch = false;
+    // End of Quad 3 page
+}
+
+void MainWindow::on_serialConnectButton_clicked()
+{
+    QString serialConnectButtonText;
+    serialConnectButtonText = ui->serialConnectButton->text();
+    if (serialConnectButtonText == "Connect")
+    {
+        deHandle->serialPortName = ui->serialPortComboBox->currentText();
+        deHandle->connectionMethod = ui->comMethodComboBox->currentText();
+        deHandle->set_serialOn(true);
+        ui->serialConnectButton->setText("Disconnect");
+        qDebug() << "Connected";
+        qDebug() << ui->comMethodComboBox->currentText();
+        //ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+
+        // Example use QSerialPort
+        //QSerialPort serial;
+        //QString serialPortName = ui->serialPortComboBox->currentText();
+
+        /*
+        serial.setPortName(serialPortName);
+        serial.open(QIODevice::ReadWrite);
+        serial.setBaudRate(QSerialPort::Baud115200);
+        serial.setDataBits(QSerialPort::Data8);
+        serial.setParity(QSerialPort::NoParity);
+        serial.setStopBits(QSerialPort::OneStop);
+        serial.setFlowControl(QSerialPort::HardwareControl);
+        */
+/*
+        if (serial.isOpen() && serial.isWritable())
+        {
+        qDebug() << "Serial is open";
+
+        QByteArray output;
+        QByteArray input;
+
+          while(true)
+          {
+          output = "1234\n";
+          serial.write(output);
+          serial.flush();
+          serial.waitForBytesWritten(1000);
+          serial.waitForReadyRead(1000);
+          input = serial.readAll();
+          qDebug() << input;
+          }
+        }
+*/
+    }
+    else if (serialConnectButtonText == "Disconnect")
+    {
+        deHandle->set_serialOn(false);
+        ui->serialConnectButton->setText("Connect");
+        qDebug() << "Disconnected";
+    }
+}
+
+void MainWindow::on_voiceButton_clicked()
+{
+
+}
+
+void MainWindow::on_radioButton_clicked()
+{
+    if (ui->radioButton->text() == "ON")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 0));
+        ui->radioButton->setText("OFF");
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->radioButton->text() == "OFF")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 0)));
+        ui->radioButton->setText("ON");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_armAllButton_clicked()
+{
+    if (ui->armAllButton->text() == "ARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 1) | (1 << 2) | (1 << 3));
+        ui->armAllButton->setText("DISARM");
+        ui->arm1Button->setText("DISARM");
+        ui->arm2Button->setText("DISARM");
+        ui->arm3Button->setText("DISARM");
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->armAllButton->text() == "DISARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ ((1 << 1) | (1 << 2) | (1 << 3))) );
+        ui->armAllButton->setText("ARM");
+        ui->arm1Button->setText("ARM");
+        ui->arm2Button->setText("ARM");
+        ui->arm3Button->setText("ARM");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_navAllButton_clicked()
+{
+    if (ui->navAllButton->text() == "NAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 4) | (1 << 5) | (1 << 6));
+        ui->navAllButton->setText("DISNAV");
+        ui->nav1Button->setText("DISNAV");
+        ui->nav2Button->setText("DISNAV");
+        ui->nav3Button->setText("DISNAV");
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->navAllButton->text() == "DISNAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ ((1 << 4) | (1 << 5) | (1 << 6))) );
+        ui->navAllButton->setText("NAV");
+        ui->nav1Button->setText("NAV");
+        ui->nav2Button->setText("NAV");
+        ui->nav3Button->setText("NAV");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_arm1Button_clicked()
+{
+    if (ui->arm1Button->text() == "ARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 1));
+        ui->arm1Button->setText("DISARM");
+        if ((newStatus & 0x000E) == 14)
+        {
+            ui->armAllButton->setText("DISARM");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->arm1Button->text() == "DISARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 1)));
+        ui->armAllButton->setText("ARM");
+        ui->arm1Button->setText("ARM");
+        deHandle->set_radioMode(newStatus);
+    }
+
+}
+
+void MainWindow::on_arm2Button_clicked()
+{
+    if (ui->arm2Button->text() == "ARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 2));
+        ui->arm2Button->setText("DISARM");
+        if ((newStatus & 0x000E) == 14)
+        {
+            ui->armAllButton->setText("DISARM");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->arm2Button->text() == "DISARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 2)));
+        ui->armAllButton->setText("ARM");
+        ui->arm2Button->setText("ARM");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_arm3Button_clicked()
+{
+    if (ui->arm3Button->text() == "ARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 3));
+        ui->arm3Button->setText("DISARM");
+        if ((newStatus & 0x000E) == 14)
+        {
+            ui->armAllButton->setText("DISARM");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->arm3Button->text() == "DISARM")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 3)));
+        ui->armAllButton->setText("ARM");
+        ui->arm3Button->setText("ARM");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_nav1Button_clicked()
+{
+    if (ui->nav1Button->text() == "NAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 4));
+        ui->nav1Button->setText("DISNAV");
+        if ((newStatus & 0x0070) == 112)
+        {
+            ui->navAllButton->setText("DISNAV");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->nav1Button->text() == "DISNAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 4)));
+        ui->navAllButton->setText("NAV");
+        ui->nav1Button->setText("NAV");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_nav2Button_clicked()
+{
+    if (ui->nav2Button->text() == "NAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 5));
+        ui->nav2Button->setText("DISNAV");
+        if ((newStatus & 0x0070) == 112)
+        {
+            ui->navAllButton->setText("DISNAV");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->nav2Button->text() == "DISNAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 5)));
+        ui->navAllButton->setText("NAV");
+        ui->nav2Button->setText("NAV");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_nav3Button_clicked()
+{
+    if (ui->nav3Button->text() == "NAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus | (1 << 6));
+        ui->nav3Button->setText("DISNAV");
+        if ((newStatus & 0x0070) == 112)
+        {
+            ui->navAllButton->setText("DISNAV");
+        }
+        deHandle->set_radioMode(newStatus);
+    }
+    else if (ui->nav3Button->text() == "DISNAV")
+    {
+        int tempStatus = deHandle->get_radioMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 6)));
+        ui->navAllButton->setText("NAV");
+        ui->nav3Button->setText("NAV");
+        deHandle->set_radioMode(newStatus);
+    }
+}
+
+void MainWindow::on_incZoomButton_clicked()
+{
+    mapHandle->zoom(1);
+    emit paintRequest();
+}
+
+void MainWindow::on_decZoomButton_clicked()
+{
+    mapHandle->zoom(-1);
+    emit paintRequest();
+}
+
+void MainWindow::on_returnHomeButton_clicked()
+{
+    mapHandle->return_origin();
+    emit paintRequest();
+}
+
+void MainWindow::on_autoZoomButton_clicked()
+{
+    _auto_zoom_and_center();
+    emit paintRequest();
+}
+
+void MainWindow::_auto_zoom_and_center()
+{
+    //QList<GPSCoordinate> gpsCoList;
+    QList<double> latList;
+    QList<double> lonList;
+    for (int i=0; i < 3; i++)
+    {
+        double cur_gps_lat = deHandle->current_gps[i].lat;
+        double cur_gps_lon = deHandle->current_gps[i].lon;
+        if (qSqrt(cur_gps_lat*cur_gps_lat+cur_gps_lon*cur_gps_lon) > 10.0)
+        {
+            latList.append(cur_gps_lat);
+            lonList.append(cur_gps_lon);
+        }
+
+        if (deHandle->wp_list[i].wps.length() > 0)
+        {
+            foreach (WP tempWP, deHandle->wp_list[i].wps) {
+                latList.append(tempWP.wp_lat);
+                lonList.append(tempWP.wp_lon);
+            }
+        }
+    }
+    qSort(latList.begin(), latList.end());
+    qSort(lonList.begin(), lonList.end());
+    double max_lat = latList.last();
+    double min_lat = latList.first();
+    double max_lon = lonList.last();
+    double min_lon = lonList.first();
+
+    AutoZoomGeoMapInfo tempInfo = mapHandle->_find_zoomlevel(min_lat, max_lat, min_lon, max_lon);
+    mapHandle->_reload(tempInfo);
+    emit paintRequest();
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    currentTab = index;
+    if (deHandle->get_serialOn() == true)
+    {
+        deHandle->set_serialMode(index);
+    }
+}
+
+void MainWindow::on_serialPortComboBox_currentIndexChanged(int index)
+{
+    qDebug() << index;
+}
+
+Mission_list MainWindow::WPsToMissions(WP_list tempWPList)
+{
+    Mission_list tempMissionList;
+    foreach (WP tempWP, tempWPList.wps) {
+        Mission tempMission;
+        tempMission.wp_no = tempWP.wp_no;
+        if (tempWP.wp_action == "WP")
+        {
+            tempMission.wp_action = 1;
+        }
+        else if (tempWP.wp_action == "RTH")
+        {
+            tempMission.wp_action = 4;
+        }
+        else if (tempWP.wp_action == "POS_UNLIM")
+        {
+            tempMission.wp_action = 2;
+        }
+        else if (tempWP.wp_action == "POS_LIM")
+        {
+            tempMission.wp_action = 3;
+        }
+        tempMission.wp_lat = int(tempWP.wp_lat * qPow(10, 7));
+        tempMission.wp_lon = int(tempWP.wp_lon * qPow(10, 7));
+        tempMission.wp_alt = int(tempWP.wp_alt);
+        tempMission.wp_p1 = int(tempWP.wp_p1);
+        tempMission.wp_p2 = int(tempWP.wp_p2);
+        tempMission.wp_p3 = int(tempWP.wp_p3);
+        tempMission.wp_flag = uint(0);
+        if (tempMission.wp_no == tempWPList.wps.length())
+        {
+            tempMission.wp_flag = uint(165);
+        }
+        tempMissionList.missions.append(tempMission);
+    }
+    return tempMissionList;
+}
+
+int MainWindow::insideWP(QPoint po,WP_list tempWPList)
+{
+    int statusInd = -1;
+    foreach (WP tempWP, tempWPList.wps) {
+        GPSCoordinate tempCo;
+        tempCo.lat = tempWP.wp_lat;
+        tempCo.lon = tempWP.wp_lon;
+
+        PixelPosition tempPix;
+        tempPix = mapHandle->GPStoImagePos(tempCo);
+
+        if (qSqrt((po.x() - tempPix.x)*(po.x() - tempPix.x) + (po.y() - tempPix.y)*(po.y() - tempPix.y)) < 10)
+        {
+            statusInd = tempWP.wp_no;
+            return statusInd;
+        }
+    }
+    return statusInd;
+}
+
+// quad 1 functions
+
+void MainWindow::on_quad1TableView_clicked(const QModelIndex &index)
+{
+    qDebug() << "single clicked";
+}
+
+void MainWindow::on_quad1TableView_doubleClicked(const QModelIndex &index)
+{
+    qDebug() << "double clicked";
+}
+
+void MainWindow::on_quad1TableView_customContextMenuRequested(const QPoint &pos)
+{
+    QAction actionAdd("Add", this);
+    QAction actionEdit("Edit", this);
+    QAction actionDelete("Delete", this);
+    QAction actionClear("Clear", this);
+    QAction actionSave("Save", this);
+    QAction actionLoad("Load", this);
+    connect(&actionAdd, SIGNAL(triggered()), this, SLOT(Quad1AddWP()));
+    connect(&actionEdit, SIGNAL(triggered()), this, SLOT(Quad1EditWP()));
+    connect(&actionDelete, SIGNAL(triggered()), this, SLOT(Quad1DeleteWP()));
+    connect(&actionClear, SIGNAL(triggered()), this, SLOT(Quad1ClearWP()));
+    connect(&actionSave, SIGNAL(triggered()), this, SLOT(Quad1SaveWP()));
+    connect(&actionLoad, SIGNAL(triggered()), this, SLOT(Quad1LoadWP()));
+    QMenu myMenu;
+    myMenu.addAction(&actionAdd);
+    myMenu.addAction(&actionEdit);
+    myMenu.addAction(&actionDelete);
+    myMenu.addAction(&actionClear);
+    myMenu.addAction(&actionSave);
+    myMenu.addAction(&actionLoad);
+
+    if (ui->quad1TableView->indexAt(pos).row() >= deHandle->wp_list[0].wps.length()) // empty line
+    {
+        actionEdit.setEnabled(false);
+        actionDelete.setEnabled(false);
+        if (deHandle->wp_list[0].wps.length() == 0)
+        {
+            actionClear.setEnabled(false);
+            actionSave.setEnabled(false);
+        }
+    }
+    else if (ui->quad1TableView->indexAt(pos).row() < deHandle->wp_list[0].wps.length()) // not empty line
+    {
+        actionAdd.setEnabled(false);
+    }
+    myMenu.exec(ui->quad1TableView->viewport()->mapToGlobal(pos));
+}
+
+void MainWindow::Quad1AddWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Add WP");
+        //inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+        //inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+        inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[0].wps.length()+1, 10));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[0].wps.append(tempWP);
+            emit updateQuad1TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad1EditWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Edit WP");
+        WP tempWP;
+        int index = ui->quad1TableView->currentIndex().row();
+        tempWP = deHandle->wp_list[0].wps.at(index);
+        inputDialog->idLineEdit->setText(QString::number(index+1, 10));
+        if (tempWP.wp_action == "WP")
+        {
+            inputDialog->typeCombo->setCurrentIndex(0);
+        }
+        else if (tempWP.wp_action == "RTH")
+        {
+            inputDialog->typeCombo->setCurrentIndex(1);
+        }
+        else if (tempWP.wp_action == "POS_UNLIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(2);
+        }
+        else if (tempWP.wp_action == "POS_LIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(3);
+        }
+
+        inputDialog->latLineEdit->setText(QString::number(tempWP.wp_lat, 'f', 7));
+        inputDialog->lonLineEdit->setText(QString::number(tempWP.wp_lon, 'f', 7));
+        inputDialog->altLineEdit->setText(QString::number(tempWP.wp_alt, 'f', 3));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[0].wps.replace(index, tempWP);
+            emit updateQuad1TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad1DeleteWP()
+{
+    int index = ui->quad1TableView->currentIndex().row();
+    deHandle->wp_list[0].wps.removeAt(index);
+    if (index < deHandle->wp_list[0].wps.length())
+    {
+        for (int i = index; i< deHandle->wp_list[0].wps.length(); i++)
+        {
+            WP tempWP = deHandle->wp_list[0].wps.at(i);
+            tempWP.wp_no = tempWP.wp_no - 1;
+            deHandle->wp_list[0].wps.replace(i, tempWP);
+        }
+    }
+
+    emit updateQuad1TableViewRequest();
+}
+
+void MainWindow::Quad1ClearWP() {}
+
+void MainWindow::Quad1SaveWP() {}
+
+void MainWindow::Quad1LoadWP() {}
+
+void MainWindow::updateQuad1TableView()
+{
+    model1->clear();
+    model1->setRowCount(30);
+    model1->setColumnCount(7);
+    model1->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model1->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model1->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model1->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model1->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model1->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model1->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad1TableView->setModel(model1);
+    ui->quad1TableView->setColumnWidth(0,60);
+    ui->quad1TableView->setColumnWidth(1,80);
+    ui->quad1TableView->setColumnWidth(2,80);
+    ui->quad1TableView->setColumnWidth(3,70);
+    ui->quad1TableView->setColumnWidth(4,50);
+    ui->quad1TableView->setColumnWidth(5,50);
+    ui->quad1TableView->setColumnWidth(6,50);
+
+    for (int i = 0; i< deHandle->wp_list[0].wps.length(); i++)
+    {
+        WP tempWP = deHandle->wp_list[0].wps.at(i);
+        QStandardItem *item;
+        item = new QStandardItem(QString(tempWP.wp_action));
+        model1->setItem(i,0,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lat, 'f', 7));
+        model1->setItem(i,1,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lon, 'f', 7));
+        model1->setItem(i,2,item);
+        item = new QStandardItem(QString::number(tempWP.wp_alt, 'f', 3));
+        model1->setItem(i,3,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p1, 10));
+        model1->setItem(i,4,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p2, 10));
+        model1->setItem(i,5,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p3, 10));
+        model1->setItem(i,6,item);
+    }
+    ui->quad1TableView->setModel(model1);
+    emit paintRequest();
+}
+
+void MainWindow::on_quad1ConnectButton_clicked()
+{
+    if (ui->quad1ConnectButton->text() == "Connect")
+    {
+        ui->quad1ConnectButton->setText("Disconnect");
+        quad1ConnSwitch = true;
+        deHandle->addressList[0] = ui->quad1AddressComboBox->currentText();
+    }
+    else if (ui->quad1ConnectButton->text() == "Disconnect")
+    {
+        ui->quad1ConnectButton->setText("Connect");
+        quad1ConnSwitch = false;
+        deHandle->addressList[0] = "";
+    }
+}
+
+void MainWindow::on_quad1UploadButton_clicked()
+{
+    if (deHandle->wp_list[0].wps.length() > 0)
+    {
+        deHandle->mi_list_air[0] = WPsToMissions(deHandle->wp_list[0]);
+        if (deHandle->get_serialOn() == true)
+        {
+            deHandle->set_serialMode(11);
+        }
+    }
+}
+
+void MainWindow::on_quad1DownloadButton_clicked()
+{
+    deHandle->set_serialMode(21);
+}
+
+void MainWindow::on_quad1LoadButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad1SaveButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad1EditButton_clicked()
+{
+    if (ui->quad1EditButton->text() == "Edit")
+    {
+        ui->quad1EditButton->setText("Editing");
+        quad1WPsEditing = true;
+        ui->quad2EditButton->setText("Edit");
+        quad2WPsEditing = false;
+        ui->quad3EditButton->setText("Edit");
+        quad3WPsEditing = false;
+    }
+    else if (ui->quad1EditButton->text() == "Editing")
+    {
+        ui->quad1EditButton->setText("Edit");
+        quad1WPsEditing = false;
+    }
+}
+
+// quad 2 functions
+
+void MainWindow::on_quad2TableView_clicked(const QModelIndex &index)
+{
+    qDebug() << "single clicked";
+}
+
+void MainWindow::on_quad2TableView_doubleClicked(const QModelIndex &index)
+{
+    qDebug() << "double clicked";
+}
+
+void MainWindow::on_quad2TableView_customContextMenuRequested(const QPoint &pos)
+{
+    QAction actionAdd("Add", this);
+    QAction actionEdit("Edit", this);
+    QAction actionDelete("Delete", this);
+    QAction actionClear("Clear", this);
+    QAction actionSave("Save", this);
+    QAction actionLoad("Load", this);
+    connect(&actionAdd, SIGNAL(triggered()), this, SLOT(Quad2AddWP()));
+    connect(&actionEdit, SIGNAL(triggered()), this, SLOT(Quad2EditWP()));
+    connect(&actionDelete, SIGNAL(triggered()), this, SLOT(Quad2DeleteWP()));
+    connect(&actionClear, SIGNAL(triggered()), this, SLOT(Quad2ClearWP()));
+    connect(&actionSave, SIGNAL(triggered()), this, SLOT(Quad2SaveWP()));
+    connect(&actionLoad, SIGNAL(triggered()), this, SLOT(Quad2LoadWP()));
+    QMenu myMenu;
+    myMenu.addAction(&actionAdd);
+    myMenu.addAction(&actionEdit);
+    myMenu.addAction(&actionDelete);
+    myMenu.addAction(&actionClear);
+    myMenu.addAction(&actionSave);
+    myMenu.addAction(&actionLoad);
+
+    if (ui->quad2TableView->indexAt(pos).row() >= deHandle->wp_list[1].wps.length()) // empty line
+    {
+        actionEdit.setEnabled(false);
+        actionDelete.setEnabled(false);
+        if (deHandle->wp_list[1].wps.length() == 0)
+        {
+            actionClear.setEnabled(false);
+            actionSave.setEnabled(false);
+        }
+    }
+    else if (ui->quad2TableView->indexAt(pos).row() < deHandle->wp_list[1].wps.length()) // not empty line
+    {
+        actionAdd.setEnabled(false);
+    }
+    myMenu.exec(ui->quad2TableView->viewport()->mapToGlobal(pos));
+}
+
+void MainWindow::Quad2AddWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Add WP");
+        //inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+        //inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+        inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[1].wps.length()+1, 10));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[1].wps.append(tempWP);
+            emit updateQuad2TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad2EditWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Edit WP");
+        WP tempWP;
+        int index = ui->quad2TableView->currentIndex().row();
+        tempWP = deHandle->wp_list[1].wps.at(index);
+        inputDialog->idLineEdit->setText(QString::number(index+1, 10));
+        if (tempWP.wp_action == "WP")
+        {
+            inputDialog->typeCombo->setCurrentIndex(0);
+        }
+        else if (tempWP.wp_action == "RTH")
+        {
+            inputDialog->typeCombo->setCurrentIndex(1);
+        }
+        else if (tempWP.wp_action == "POS_UNLIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(2);
+        }
+        else if (tempWP.wp_action == "POS_LIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(3);
+        }
+
+        inputDialog->latLineEdit->setText(QString::number(tempWP.wp_lat, 'f', 7));
+        inputDialog->lonLineEdit->setText(QString::number(tempWP.wp_lon, 'f', 7));
+        inputDialog->altLineEdit->setText(QString::number(tempWP.wp_alt, 'f', 3));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[1].wps.replace(index, tempWP);
+            emit updateQuad2TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad2DeleteWP()
+{
+    int index = ui->quad1TableView->currentIndex().row();
+    deHandle->wp_list[1].wps.removeAt(index);
+    if (index < deHandle->wp_list[1].wps.length())
+    {
+        for (int i = index; i< deHandle->wp_list[1].wps.length(); i++)
+        {
+            WP tempWP = deHandle->wp_list[1].wps.at(i);
+            tempWP.wp_no = tempWP.wp_no - 1;
+            deHandle->wp_list[1].wps.replace(i, tempWP);
+        }
+    }
+
+    emit updateQuad2TableViewRequest();
+}
+
+void MainWindow::Quad2ClearWP() {}
+
+void MainWindow::Quad2SaveWP() {}
+
+void MainWindow::Quad2LoadWP() {}
+
+void MainWindow::updateQuad2TableView()
+{
+    model2->clear();
+    model2->setRowCount(30);
+    model2->setColumnCount(7);
+    model2->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model2->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model2->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model2->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model2->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model2->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model2->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad2TableView->setModel(model2);
+    ui->quad2TableView->setColumnWidth(0,60);
+    ui->quad2TableView->setColumnWidth(1,80);
+    ui->quad2TableView->setColumnWidth(2,80);
+    ui->quad2TableView->setColumnWidth(3,70);
+    ui->quad2TableView->setColumnWidth(4,50);
+    ui->quad2TableView->setColumnWidth(5,50);
+    ui->quad2TableView->setColumnWidth(6,50);
+
+    for (int i = 0; i< deHandle->wp_list[1].wps.length(); i++)
+    {
+        WP tempWP = deHandle->wp_list[1].wps.at(i);
+        QStandardItem *item;
+        item = new QStandardItem(QString(tempWP.wp_action));
+        model2->setItem(i,0,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lat, 'f', 7));
+        model2->setItem(i,1,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lon, 'f', 7));
+        model2->setItem(i,2,item);
+        item = new QStandardItem(QString::number(tempWP.wp_alt, 'f', 3));
+        model2->setItem(i,3,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p1, 10));
+        model2->setItem(i,4,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p2, 10));
+        model2->setItem(i,5,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p3, 10));
+        model2->setItem(i,6,item);
+    }
+    ui->quad2TableView->setModel(model2);
+    emit paintRequest();
+}
+
+void MainWindow::on_quad2ConnectButton_clicked()
+{
+    if (ui->quad2ConnectButton->text() == "Connect")
+    {
+        ui->quad2ConnectButton->setText("Disconnect");
+        quad2ConnSwitch = true;
+        deHandle->addressList[1] = ui->quad2AddressComboBox->currentText();
+    }
+    else if (ui->quad2ConnectButton->text() == "Disconnect")
+    {
+        ui->quad2ConnectButton->setText("Connect");
+        quad2ConnSwitch = false;
+        deHandle->addressList[1] = "";
+    }
+}
+
+void MainWindow::on_quad2UploadButton_clicked()
+{
+    if (deHandle->wp_list[1].wps.length() > 0)
+    {
+        deHandle->mi_list_air[1] = WPsToMissions(deHandle->wp_list[1]);
+        if (deHandle->get_serialOn() == true)
+        {
+            deHandle->set_serialMode(12);
+        }
+    }
+}
+
+void MainWindow::on_quad2DownloadButton_clicked()
+{
+    deHandle->set_serialMode(22);
+}
+
+void MainWindow::on_quad2LoadButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad2SaveButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad2EditButton_clicked()
+{
+    if (ui->quad2EditButton->text() == "Edit")
+    {
+        ui->quad2EditButton->setText("Editing");
+        quad2WPsEditing = true;
+        ui->quad1EditButton->setText("Edit");
+        quad1WPsEditing = false;
+        ui->quad3EditButton->setText("Edit");
+        quad3WPsEditing = false;
+    }
+    else if (ui->quad2EditButton->text() == "Editing")
+    {
+        ui->quad2EditButton->setText("Edit");
+        quad2WPsEditing = false;
+    }
+}
+
+// quad 3 functions
+
+void MainWindow::on_quad3TableView_clicked(const QModelIndex &index)
+{
+    qDebug() << "single clicked";
+}
+
+void MainWindow::on_quad3TableView_doubleClicked(const QModelIndex &index)
+{
+    qDebug() << "double clicked";
+}
+
+void MainWindow::on_quad3TableView_customContextMenuRequested(const QPoint &pos)
+{
+    QAction actionAdd("Add", this);
+    QAction actionEdit("Edit", this);
+    QAction actionDelete("Delete", this);
+    QAction actionClear("Clear", this);
+    QAction actionSave("Save", this);
+    QAction actionLoad("Load", this);
+    connect(&actionAdd, SIGNAL(triggered()), this, SLOT(Quad3AddWP()));
+    connect(&actionEdit, SIGNAL(triggered()), this, SLOT(Quad3EditWP()));
+    connect(&actionDelete, SIGNAL(triggered()), this, SLOT(Quad3DeleteWP()));
+    connect(&actionClear, SIGNAL(triggered()), this, SLOT(Quad3ClearWP()));
+    connect(&actionSave, SIGNAL(triggered()), this, SLOT(Quad3SaveWP()));
+    connect(&actionLoad, SIGNAL(triggered()), this, SLOT(Quad3LoadWP()));
+    QMenu myMenu;
+    myMenu.addAction(&actionAdd);
+    myMenu.addAction(&actionEdit);
+    myMenu.addAction(&actionDelete);
+    myMenu.addAction(&actionClear);
+    myMenu.addAction(&actionSave);
+    myMenu.addAction(&actionLoad);
+
+    if (ui->quad3TableView->indexAt(pos).row() >= deHandle->wp_list[2].wps.length()) // empty line
+    {
+        actionEdit.setEnabled(false);
+        actionDelete.setEnabled(false);
+        if (deHandle->wp_list[2].wps.length() == 0)
+        {
+            actionClear.setEnabled(false);
+            actionSave.setEnabled(false);
+        }
+    }
+    else if (ui->quad3TableView->indexAt(pos).row() < deHandle->wp_list[2].wps.length()) // not empty line
+    {
+        actionAdd.setEnabled(false);
+    }
+    myMenu.exec(ui->quad3TableView->viewport()->mapToGlobal(pos));
+}
+
+void MainWindow::Quad3AddWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Add WP");
+        //inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
+        //inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
+        inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[2].wps.length()+1, 10));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[2].wps.append(tempWP);
+            emit updateQuad3TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad3EditWP()
+{
+    try
+    {
+        InputDialog *inputDialog = new InputDialog;
+        inputDialog->setWindowTitle("Edit WP");
+        WP tempWP;
+        int index = ui->quad1TableView->currentIndex().row();
+        tempWP = deHandle->wp_list[2].wps.at(index);
+        inputDialog->idLineEdit->setText(QString::number(index+1, 10));
+        if (tempWP.wp_action == "WP")
+        {
+            inputDialog->typeCombo->setCurrentIndex(0);
+        }
+        else if (tempWP.wp_action == "RTH")
+        {
+            inputDialog->typeCombo->setCurrentIndex(1);
+        }
+        else if (tempWP.wp_action == "POS_UNLIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(2);
+        }
+        else if (tempWP.wp_action == "POS_LIM")
+        {
+            inputDialog->typeCombo->setCurrentIndex(3);
+        }
+
+        inputDialog->latLineEdit->setText(QString::number(tempWP.wp_lat, 'f', 7));
+        inputDialog->lonLineEdit->setText(QString::number(tempWP.wp_lon, 'f', 7));
+        inputDialog->altLineEdit->setText(QString::number(tempWP.wp_alt, 'f', 3));
+        int dlgCode = inputDialog->exec();
+
+        if (dlgCode == QDialog::Accepted)
+        {
+            qDebug() << "Accepted";
+            WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+            tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+            tempWP.wp_action = inputDialog->typeCombo->currentText();
+            tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+            tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+            tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+            tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+            tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+            tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+            deHandle->wp_list[2].wps.replace(index, tempWP);
+            emit updateQuad3TableViewRequest();
+        }
+        else if (dlgCode == QDialog::Rejected)
+        {
+            qDebug() << "Rejected";
+        }
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::Quad3DeleteWP()
+{
+    int index = ui->quad3TableView->currentIndex().row();
+    deHandle->wp_list[2].wps.removeAt(index);
+    if (index < deHandle->wp_list[2].wps.length())
+    {
+        for (int i = index; i< deHandle->wp_list[2].wps.length(); i++)
+        {
+            WP tempWP = deHandle->wp_list[2].wps.at(i);
+            tempWP.wp_no = tempWP.wp_no - 1;
+            deHandle->wp_list[2].wps.replace(i, tempWP);
+        }
+    }
+
+    emit updateQuad3TableViewRequest();
+}
+
+void MainWindow::Quad3ClearWP() {}
+
+void MainWindow::Quad3SaveWP() {}
+
+void MainWindow::Quad3LoadWP() {}
+
+void MainWindow::updateQuad3TableView()
+{
+    model3->clear();
+    model3->setRowCount(30);
+    model3->setColumnCount(7);
+    model3->setHorizontalHeaderItem(0, new QStandardItem(QString("Type")));
+    model3->setHorizontalHeaderItem(1, new QStandardItem(QString("Lat")));
+    model3->setHorizontalHeaderItem(2, new QStandardItem(QString("Lon")));
+    model3->setHorizontalHeaderItem(3, new QStandardItem(QString("Alt")));
+    model3->setHorizontalHeaderItem(4, new QStandardItem(QString("P1")));
+    model3->setHorizontalHeaderItem(5, new QStandardItem(QString("P2")));
+    model3->setHorizontalHeaderItem(6, new QStandardItem(QString("P3")));
+
+    ui->quad3TableView->setModel(model3);
+    ui->quad3TableView->setColumnWidth(0,60);
+    ui->quad3TableView->setColumnWidth(1,80);
+    ui->quad3TableView->setColumnWidth(2,80);
+    ui->quad3TableView->setColumnWidth(3,70);
+    ui->quad3TableView->setColumnWidth(4,50);
+    ui->quad3TableView->setColumnWidth(5,50);
+    ui->quad3TableView->setColumnWidth(6,50);
+
+    for (int i = 0; i< deHandle->wp_list[2].wps.length(); i++)
+    {
+        WP tempWP = deHandle->wp_list[2].wps.at(i);
+        QStandardItem *item;
+        item = new QStandardItem(QString(tempWP.wp_action));
+        model3->setItem(i,0,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lat, 'f', 7));
+        model3->setItem(i,1,item);
+        item = new QStandardItem(QString::number(tempWP.wp_lon, 'f', 7));
+        model3->setItem(i,2,item);
+        item = new QStandardItem(QString::number(tempWP.wp_alt, 'f', 3));
+        model3->setItem(i,3,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p1, 10));
+        model3->setItem(i,4,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p2, 10));
+        model3->setItem(i,5,item);
+        item = new QStandardItem(QString::number(tempWP.wp_p3, 10));
+        model3->setItem(i,6,item);
+    }
+    ui->quad3TableView->setModel(model3);
+    emit paintRequest();
+}
+
+void MainWindow::on_quad3ConnectButton_clicked()
+{
+    if (ui->quad3ConnectButton->text() == "Connect")
+    {
+        ui->quad3ConnectButton->setText("Disconnect");
+        quad3ConnSwitch = true;
+        deHandle->addressList[2] = ui->quad3AddressComboBox->currentText();
+    }
+    else if (ui->quad3ConnectButton->text() == "Disconnect")
+    {
+        ui->quad3ConnectButton->setText("Connect");
+        quad3ConnSwitch = false;
+        deHandle->addressList[2] = "";
+    }
+}
+
+void MainWindow::on_quad3UploadButton_clicked()
+{
+    if (deHandle->wp_list[2].wps.length() > 0)
+    {
+        deHandle->mi_list_air[2] = WPsToMissions(deHandle->wp_list[2]);
+        if (deHandle->get_serialOn() == true)
+        {
+            deHandle->set_serialMode(13);
+        }
+    }
+}
+
+void MainWindow::on_quad3DownloadButton_clicked()
+{
+    deHandle->set_serialMode(23);
+}
+
+void MainWindow::on_quad3LoadButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad3SaveButton_clicked()
+{
+
+}
+
+void MainWindow::on_quad3EditButton_clicked()
+{
+    if (ui->quad3EditButton->text() == "Edit")
+    {
+        ui->quad3EditButton->setText("Editing");
+        quad3WPsEditing = true;
+        ui->quad1EditButton->setText("Edit");
+        quad1WPsEditing = false;
+        ui->quad2EditButton->setText("Edit");
+        quad2WPsEditing = false;
+    }
+    else if (ui->quad3EditButton->text() == "Editing")
+    {
+        ui->quad3EditButton->setText("Edit");
+        quad3WPsEditing = false;
+    }
+}
