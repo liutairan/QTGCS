@@ -18,15 +18,16 @@ Currently, this project is still under construction and the focus point will be 
     3. Load Google Static Maps
     4. Mouse click on map to create waypoints
     5. Edit waypoints by dragging points on the map
-    6. iPhone Joystick App for single quadcopter control
-    7. iPad GCS App mainly for quadcopter position monitoring
+    6. Load missions from file
+    7. Save missions to file
+    8. iPhone Joystick App for single quadcopter control
+    9. iPad GCS App mainly for quadcopter position monitoring
 
 # Features to be implemented:
-    1. Load missions from file
-    2. Save missions to file
-    3. More features
+    1. More features
 
 # Sample:
 Screenshot: 
 ![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_2.png "Sample image")
+
 ![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_3.png "Sample image")
