@@ -103,11 +103,10 @@ class Map
 {
     int _width;
     int _height;
-    int _zoomlevel;
 
-    QString _maptype = "hybrid";
-    double _originLat =  30.4081580;
-    double _originLon = -91.1795330;
+    QString _maptype;
+    double _originLat;
+    double _originLon;
     double _homeLat;
     double _homeLon;
     double _centerLat;
@@ -115,13 +114,15 @@ class Map
 public:
     Map(double, double, int, int, int);
 
-    int _iterationX = 0;
-    int _iterationY = 0;
+    int _zoomlevel;
 
-    int _dX = 0;
-    int _dY = 0;
+    int _iterationX;
+    int _iterationY;
 
-    QString _cachepath = "";
+    int _dX;
+    int _dY;
+
+    QString _cachepath;
     QPixmap retImage;
 
     //GeoDict latlonDict;

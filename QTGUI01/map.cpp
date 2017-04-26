@@ -9,6 +9,19 @@ Map::Map(double lat, double lon, int level, int width, int height)
     _homeLon = lon;
     _centerLat = lat;
     _centerLon = lon;
+
+    _maptype = "hybrid";
+    _originLat =  30.4081580;
+    _originLon = -91.1795330;
+
+    _iterationX = 0;
+    _iterationY = 0;
+
+    _dX = 0;
+    _dY = 0;
+
+    _cachepath = "";
+
     initPath();
     _init_tile_index();
     loadImage();
@@ -105,6 +118,7 @@ StitchTileInfo Map::localLoadImage()
         retImage = tempImage;
         return tempTileInfo;
     }
+    return tempTileInfo;
 }
 
 void Map::webLoadImage(StitchTileInfo tileInfo)

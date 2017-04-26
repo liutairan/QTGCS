@@ -1216,6 +1216,7 @@ void MainWindow::InitMap()
     // Start of loading map
     mapHandle = new Map(30.4081580, -91.1795330, 19, 640, 640);
     connect(this, SIGNAL(paintRequest()), this, SLOT(updatePaint()));
+    ui->zoomLevelLabel->setText("Zoom Level: " + QString::number(mapHandle->_zoomlevel, 10));
     emit paintRequest();
     // End of loading map
 }
@@ -1344,6 +1345,118 @@ void MainWindow::InitQuad3Page()
     // End of Quad 3 page
 }
 
+void MainWindow::resetLabels()
+{
+    // Overview page
+    ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1MAGOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1BAROOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1SONAROverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1GPSOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1PITOTOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1POSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1VoltageOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2MAGOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2BAROOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2SONAROverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2GPSOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2PITOTOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2POSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2VoltageOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3MAGOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3BAROOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3SONAROverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3GPSOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3PITOTOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3POSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3GCSModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3VoltageOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    // Quad 1 page
+    ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1MAG->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1BARO->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1SONAR->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1GPS->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1PITOT->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad1ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1POSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1NAVMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1GCSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1FAILMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    // Quad 2 page
+    ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2MAG->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2BARO->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2SONAR->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2GPS->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2PITOT->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad2ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2POSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2NAVMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2GCSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2Voltage->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    // Quad 3 page
+    ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3MAG->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3BARO->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3SONAR->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3GPS->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3PITOT->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+
+    ui->quad3ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3POSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3NAVMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3GCSMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3Voltage->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+}
+
 void MainWindow::on_serialConnectButton_clicked()
 {
     QString serialConnectButtonText;
@@ -1356,12 +1469,12 @@ void MainWindow::on_serialConnectButton_clicked()
         ui->serialConnectButton->setText("Disconnect");
         qDebug() << "Connected";
         qDebug() << ui->comMethodComboBox->currentText();
-        //ui->quad1ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
     }
     else if (serialConnectButtonText == "Disconnect")
     {
         deHandle->set_serialOn(false);
         ui->serialConnectButton->setText("Connect");
+        resetLabels();
         qDebug() << "Disconnected";
     }
 }
@@ -1579,24 +1692,28 @@ void MainWindow::on_nav3Button_clicked()
 void MainWindow::on_incZoomButton_clicked()
 {
     mapHandle->zoom(1);
+    ui->zoomLevelLabel->setText("Zoom Level: " + QString::number(mapHandle->_zoomlevel, 10));
     emit paintRequest();
 }
 
 void MainWindow::on_decZoomButton_clicked()
 {
     mapHandle->zoom(-1);
+    ui->zoomLevelLabel->setText("Zoom Level: " + QString::number(mapHandle->_zoomlevel, 10));
     emit paintRequest();
 }
 
 void MainWindow::on_returnHomeButton_clicked()
 {
     mapHandle->return_origin();
+    ui->zoomLevelLabel->setText("Zoom Level: " + QString::number(mapHandle->_zoomlevel, 10));
     emit paintRequest();
 }
 
 void MainWindow::on_autoZoomButton_clicked()
 {
     _auto_zoom_and_center();
+    ui->zoomLevelLabel->setText("Zoom Level: " + QString::number(mapHandle->_zoomlevel, 10));
     emit paintRequest();
 }
 
@@ -1928,12 +2045,20 @@ void MainWindow::on_quad1ConnectButton_clicked()
         ui->quad1ConnectButton->setText("Disconnect");
         quad1ConnSwitch = true;
         deHandle->addressList[0] = ui->quad1AddressComboBox->currentText();
+        ui->quad1ConnectionStatusOverview->setText("CONN");
+        ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad1ConnectionStatus->setText("CONN");
+        ui->quad1ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
     }
     else if (ui->quad1ConnectButton->text() == "Disconnect")
     {
         ui->quad1ConnectButton->setText("Connect");
         quad1ConnSwitch = false;
         deHandle->addressList[0] = "";
+        ui->quad1ConnectionStatusOverview->setText("NO CON");
+        ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad1ConnectionStatus->setText("NO CON");
+        ui->quad1ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     }
 }
 
@@ -2203,12 +2328,20 @@ void MainWindow::on_quad2ConnectButton_clicked()
         ui->quad2ConnectButton->setText("Disconnect");
         quad2ConnSwitch = true;
         deHandle->addressList[1] = ui->quad2AddressComboBox->currentText();
+        ui->quad2ConnectionStatusOverview->setText("CONN");
+        ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad2ConnectionStatus->setText("CONN");
+        ui->quad2ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
     }
     else if (ui->quad2ConnectButton->text() == "Disconnect")
     {
         ui->quad2ConnectButton->setText("Connect");
         quad2ConnSwitch = false;
         deHandle->addressList[1] = "";
+        ui->quad2ConnectionStatusOverview->setText("NO CON");
+        ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad2ConnectionStatus->setText("NO CON");
+        ui->quad2ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     }
 }
 
@@ -2478,12 +2611,20 @@ void MainWindow::on_quad3ConnectButton_clicked()
         ui->quad3ConnectButton->setText("Disconnect");
         quad3ConnSwitch = true;
         deHandle->addressList[2] = ui->quad3AddressComboBox->currentText();
+        ui->quad3ConnectionStatusOverview->setText("CONN");
+        ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad3ConnectionStatus->setText("CONN");
+        ui->quad3ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
     }
     else if (ui->quad3ConnectButton->text() == "Disconnect")
     {
         ui->quad3ConnectButton->setText("Connect");
         quad3ConnSwitch = false;
         deHandle->addressList[2] = "";
+        ui->quad3ConnectionStatusOverview->setText("NO CON");
+        ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad3ConnectionStatus->setText("NO CON");
+        ui->quad3ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     }
 }
 

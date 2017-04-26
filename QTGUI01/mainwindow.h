@@ -185,6 +185,7 @@ private:
     int quad3WP_inside;
     Mission_list WPsToMissions(WP_list);
     int insideWP(QPoint, WP_list);
+    void resetLabels();
 protected:
     //void paintEvent(QPaintEvent *event);
 };
