@@ -24,7 +24,15 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
         connect(sc_usb,SIGNAL(qsReady(QList<QuadStates *> *)), this, SLOT(Update(QList<QuadStates *> *)) );
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        QuadStates *tempQS;
+        tempQS = new QuadStates(QByteArray::fromHex("1"),
+                                QByteArray::fromHex("0013a20040c14306"),
+                                QByteArray::fromHex("fffe"));
+        quadstates_list.append(tempQS);
+        sc_xbee_at = new SerialCommunication_XBEE_AT(serial, quadstates_list);
+        connect(sc_xbee_at,SIGNAL(qsReady(QList<QuadStates *> *)), this, SLOT(Update(QList<QuadStates *> *)) );
+    }
     else if (connectionMethod == "API")
     {
         for (int i=0; i<3; i++)
@@ -75,7 +83,16 @@ void SerialCommunication::PreCheck()
         }
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        sc_xbee_at->sendCMD(MSP_BOXIDS);
+        QTime dieTime= QTime::currentTime().addMSecs(500);
+        while( QTime::currentTime() < dieTime )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+    }
     else if (connectionMethod == "API")
     {
         for (int i=0; i<3; i++)
@@ -130,7 +147,32 @@ void SerialCommunication::RegularCheck()
         }
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        sc_xbee_at->sendCMD(MSP_STATUS_EX);
+        QTime dieTime1 = QTime::currentTime().addMSecs(100);
+        while( QTime::currentTime() < dieTime1 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+        sc_xbee_at->sendCMD(MSP_ATTITUDE);
+        QTime dieTime2 = QTime::currentTime().addMSecs(100);
+        while( QTime::currentTime() < dieTime2 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+        sc_xbee_at->sendCMD(MSP_RAW_GPS);
+        QTime dieTime3 = QTime::currentTime().addMSecs(100);
+        while( QTime::currentTime() < dieTime3 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+    }
     else if (connectionMethod == "API")
     {
         for (int i=0; i<3; i++)
@@ -197,7 +239,13 @@ void SerialCommunication::UploadMissions(int objInd, Mission_list tempMissionLis
         sc_usb->uploadMissions();
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        QuadStates *tempQS;
+        tempQS = quadstates_list.at(0);
+        tempQS->mission_list = tempMissionList;
+        quadstates_list.replace(0, tempQS);
+        sc_xbee_at->uploadMissions();
+    }
     else if (connectionMethod == "API")
     {
         QuadStates *tempQS;
@@ -216,7 +264,10 @@ void SerialCommunication::DownloadMissions(int objInd)
         sc_usb->downloadMissions();
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        qDebug() << "Download missions via XBEE AT";
+        sc_xbee_at->downloadMissions();
+    }
     else if (connectionMethod == "API")
     {
         sc_xbee_api->downloadMissions(objInd);
@@ -230,7 +281,9 @@ void SerialCommunication::RegularArmAndNavAll(int radioMode)
         //qDebug() << "via USB";
     }
     else if (connectionMethod == "AT")
-    {}
+    {
+        //qDebug() << "via XBEE AT";
+    }
     else if (connectionMethod == "API")
     {
         sc_xbee_api->radioControl(radioMode);

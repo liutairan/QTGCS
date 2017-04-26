@@ -1881,8 +1881,6 @@ void MainWindow::Quad1AddWP()
     {
         InputDialog *inputDialog = new InputDialog;
         inputDialog->setWindowTitle("Add WP");
-        //inputDialog->latLineEdit->setText(QString::number(tempCo.lat, 'f', 7));
-        //inputDialog->lonLineEdit->setText(QString::number(tempCo.lon, 'f', 7));
         inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[0].wps.length()+1, 10));
         int dlgCode = inputDialog->exec();
 
@@ -2039,7 +2037,6 @@ void MainWindow::Quad1LoadWP()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);
@@ -2164,7 +2161,6 @@ void MainWindow::on_quad1LoadButton_clicked()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);
@@ -2444,7 +2440,6 @@ void MainWindow::Quad2LoadWP()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);
@@ -2569,7 +2564,6 @@ void MainWindow::on_quad2LoadButton_clicked()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);
@@ -2849,7 +2843,6 @@ void MainWindow::Quad3LoadWP()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);
@@ -2974,7 +2967,6 @@ void MainWindow::on_quad3LoadButton_clicked()
             if (tempStr.length() > 0)
             {
                 QStringList fields = tempStr.split(',');
-                qDebug() << fields;
                 WP tempWP;
                 tempWP.wp_no = fields.at(0).toUInt();
                 tempWP.wp_action = fields.at(1);

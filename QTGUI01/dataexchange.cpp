@@ -78,6 +78,14 @@ void DataExchange::set_serialMode(int value)
         {
             worker->mi_list_air[0] = mi_list_air[0];
         }
+        else if (_serialMode == 12)
+        {
+            worker->mi_list_air[1] = mi_list_air[1];
+        }
+        else if (_serialMode == 13)
+        {
+            worker->mi_list_air[2] = mi_list_air[2];
+        }
     }
 }
 
@@ -405,7 +413,108 @@ void SerialWorker::realWorker()
             }
         }
         else if (connectionMethod == "AT") // medium update frequency and limitted data fields, use normal serial communication.
-        {}
+        {
+            switch (modeSelection) {
+            case 0:
+            {
+                // check
+                scHandle->RegularCheck();
+                QTime dieTime1= QTime::currentTime().addMSecs(100);
+                while( QTime::currentTime() < dieTime1 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                // radio
+                scHandle->RegularArmAndNavAll(radioStatus);
+                QTime dieTime2= QTime::currentTime().addMSecs(100);
+                while( QTime::currentTime() < dieTime2 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                break;
+            }
+            case 1:  // check quad 1 and all gps, send out radio control signal
+            {
+                // check
+                scHandle->RegularCheck();
+                QTime dieTime1= QTime::currentTime().addMSecs(100);
+                while( QTime::currentTime() < dieTime1 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                // radio
+                scHandle->RegularArmAndNavAll(radioStatus);
+                QTime dieTime2= QTime::currentTime().addMSecs(100);
+                while( QTime::currentTime() < dieTime2 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                break;
+            }
+            case 2:  // not used here
+            {
+                break;
+            }
+            case 3:  // not used here
+            {
+                break;
+            }
+            case 11:
+            {
+                scHandle->UploadMissions(0, mi_list_air[0]);
+                QTime dieTime= QTime::currentTime().addMSecs(500);
+                while( QTime::currentTime() < dieTime )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                modeSelection = modeSelection - 10;
+                break;
+            }
+            case 12:  // not used here
+            {
+                break;
+            }
+            case 13:  // not used here
+            {
+                break;
+            }
+            case 21:
+            {
+                scHandle->DownloadMissions(0);
+                QTime dieTime= QTime::currentTime().addMSecs(500);
+                while( QTime::currentTime() < dieTime )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+                modeSelection = modeSelection - 20;
+                break;
+            }
+            case 22:  // not used here
+            {
+                break;
+            }
+            case 23:  // not used here
+            {
+                break;
+            }
+            default:
+            {
+                break;
+            }
+            }
+        }
     }
 }
 
