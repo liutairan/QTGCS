@@ -77,10 +77,14 @@ QuadStates::QuadStates(QByteArray frameid, QByteArray addr_long, QByteArray addr
     msp_flight_modes.telemetry = false;
     msp_flight_modes.turn_assist = false;
 
-    for (int i=0;i<8;i++)
-    {
-        msp_rc_channels.rcData[i] = 1000;
-    }
+    msp_rc_channels.rcData[0] = 1500;
+    msp_rc_channels.rcData[1] = 1500;
+    msp_rc_channels.rcData[2] = 1000;
+    msp_rc_channels.rcData[3] = 1500;
+    msp_rc_channels.rcData[4] = 1000;
+    msp_rc_channels.rcData[5] = 1000;
+    msp_rc_channels.rcData[6] = 1000;
+    msp_rc_channels.rcData[7] = 1000;
 
     msp_attitude.pitch = 0;
     msp_attitude.roll = 0;

@@ -620,10 +620,14 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
             if (qsList.at(i)->address_long.toHex().length() > 2)
             {
                 Msp_rc_channels msp_raw_rc;
-                for (int rcChannelIndex = 0; rcChannelIndex <8; rcChannelIndex++)
-                {
-                    msp_raw_rc.rcData[rcChannelIndex] = 1000;
-                }
+                msp_raw_rc.rcData[0] = 1500;
+                msp_raw_rc.rcData[1] = 1500;
+                msp_raw_rc.rcData[2] = 1000;
+                msp_raw_rc.rcData[3] = 1500;
+                msp_raw_rc.rcData[4] = 1000;
+                msp_raw_rc.rcData[5] = 1000;
+                msp_raw_rc.rcData[6] = 1000;
+                msp_raw_rc.rcData[7] = 1000;
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
         }
@@ -631,19 +635,30 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
     }
     case 3:  // 0000 0011 radio is on, quad1 is armed but disnav
     {
+        qDebug() << "Inside case 3";
         for (int i = 0; i < qsList.length(); i++)
         {
+            qDebug() << "Inside for" + QString::number(i,10);
             if (qsList.at(i)->address_long.toHex().length() > 2)
             {
+                qDebug() << "Inside if" + QString::number(i,10);
                 Msp_rc_channels msp_raw_rc;
-                for (int rcChannelIndex = 0; rcChannelIndex <8; rcChannelIndex++)
-                {
-                    msp_raw_rc.rcData[rcChannelIndex] = 1000;
-                }
+                msp_raw_rc.rcData[0] = 1500;
+                msp_raw_rc.rcData[1] = 1500;
+                msp_raw_rc.rcData[2] = 1000;
+                msp_raw_rc.rcData[3] = 1500;
+                msp_raw_rc.rcData[4] = 1000;
+                msp_raw_rc.rcData[5] = 1000;
+                msp_raw_rc.rcData[6] = 1000;
+                msp_raw_rc.rcData[7] = 1000;
                 if (i == 0)
                 {
                     msp_raw_rc.rcData[4] = 1350;
                 }
+                qDebug() << msp_raw_rc.rcData[0] << msp_raw_rc.rcData[1]
+                         << msp_raw_rc.rcData[2] << msp_raw_rc.rcData[3]
+                         << msp_raw_rc.rcData[4] << msp_raw_rc.rcData[5]
+                         << msp_raw_rc.rcData[6] << msp_raw_rc.rcData[7];
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
         }
@@ -664,11 +679,14 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
             if (qsList.at(i)->address_long.toHex().length() > 2)
             {
                 Msp_rc_channels msp_raw_rc;
-                for (int rcChannelIndex = 0; rcChannelIndex <8; rcChannelIndex++)
-                {
-                    msp_raw_rc.rcData[rcChannelIndex] = 1000;
-                }
+                msp_raw_rc.rcData[0] = 1500;
+                msp_raw_rc.rcData[1] = 1500;
+                msp_raw_rc.rcData[2] = 1000;
+                msp_raw_rc.rcData[3] = 1500;
                 msp_raw_rc.rcData[4] = 1350;
+                msp_raw_rc.rcData[5] = 1000;
+                msp_raw_rc.rcData[6] = 1000;
+                msp_raw_rc.rcData[7] = 1000;
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
         }
@@ -681,15 +699,24 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
             if (qsList.at(i)->address_long.toHex().length() > 2)
             {
                 Msp_rc_channels msp_raw_rc;
-                for (int rcChannelIndex = 0; rcChannelIndex <8; rcChannelIndex++)
-                {
-                    msp_raw_rc.rcData[rcChannelIndex] = 1000;
-                }
+                msp_raw_rc.rcData[0] = 1500;
+                msp_raw_rc.rcData[1] = 1500;
+                msp_raw_rc.rcData[2] = 1000;
+                msp_raw_rc.rcData[3] = 1500;
+                msp_raw_rc.rcData[4] = 1000;
+                msp_raw_rc.rcData[5] = 1000;
+                msp_raw_rc.rcData[6] = 1000;
+                msp_raw_rc.rcData[7] = 1000;
                 if (i == 0)
                 {
+                    msp_raw_rc.rcData[2] = 1200;
                     msp_raw_rc.rcData[4] = 1350;
                     msp_raw_rc.rcData[7] = 1800;
                 }
+                qDebug() << msp_raw_rc.rcData[0] << msp_raw_rc.rcData[1]
+                         << msp_raw_rc.rcData[2] << msp_raw_rc.rcData[3]
+                         << msp_raw_rc.rcData[4] << msp_raw_rc.rcData[5]
+                         << msp_raw_rc.rcData[6] << msp_raw_rc.rcData[7];
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
         }
@@ -710,11 +737,13 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
             if (qsList.at(i)->address_long.toHex().length() > 2)
             {
                 Msp_rc_channels msp_raw_rc;
-                for (int rcChannelIndex = 0; rcChannelIndex <8; rcChannelIndex++)
-                {
-                    msp_raw_rc.rcData[rcChannelIndex] = 1000;
-                }
+                msp_raw_rc.rcData[0] = 1500;
+                msp_raw_rc.rcData[1] = 1500;
+                msp_raw_rc.rcData[2] = 1000;
+                msp_raw_rc.rcData[3] = 1500;
                 msp_raw_rc.rcData[4] = 1350;
+                msp_raw_rc.rcData[5] = 1000;
+                msp_raw_rc.rcData[6] = 1000;
                 msp_raw_rc.rcData[7] = 1800;
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
