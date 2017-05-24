@@ -23,15 +23,15 @@ SerialCommunication_XBEE_AT::SerialCommunication_XBEE_AT(QSerialPort *ser, QList
         {
             if(serial->isOpen())
             {
-                qDebug() << "USB: Connected successfully";
-                qDebug() << "USB: Serial Port Name: " << serial->portName();
+                qDebug() << "XBEE AT: Connected successfully";
+                qDebug() << "XBEE AT: Serial Port Name: " << serial->portName();
                 xbee_at_portFound = true;
             }
         }
     }
     else
     {
-        qDebug() << "USB: Serial Port could not be opened";
+        qDebug() << "XBEE AT: Serial Port could not be opened";
     }
 }
 
@@ -40,7 +40,7 @@ SerialCommunication_XBEE_AT::~SerialCommunication_XBEE_AT()
     if(serial->isOpen())
     {
         serial->close();
-        qDebug() << "USB: Serial Port closed successfully";
+        qDebug() << "XBEE AT: Serial Port closed successfully";
     }
 }
 
@@ -422,6 +422,10 @@ void SerialCommunication_XBEE_AT::processPacket(QByteArray packet)
         tempQS->temp_mission.mi = tempMission;
         qsList.replace(0, tempQS);
         emit missionDownloaded();
+        break;
+    }
+    case MSP_SET_RAW_RC:
+    {
         break;
     }
     default:

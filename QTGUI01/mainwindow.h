@@ -172,6 +172,24 @@ private slots:
     void on_quad3LoadButton_clicked();
     void on_quad3SaveButton_clicked();
     void on_quad3EditButton_clicked();
+    void on_rthAllButton_clicked();
+
+    void on_rth1Button_clicked();
+
+    void on_rth2Button_clicked();
+
+    void on_rth3Button_clicked();
+
+    void on_manualOffRadioButton_clicked();
+
+    void on_manual1RadioButton_clicked();
+
+    void on_manual2RadioButton_clicked();
+
+    void on_manual3RadioButton_clicked();
+
+    void on_auxSerialConnectButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTabWidget *tabWidget;
@@ -187,6 +205,8 @@ private:
     Mission_list WPsToMissions(WP_list);
     int insideWP(QPoint, WP_list);
     void resetLabels();
+    void logData(QList<QuadStates *> *tempObjList);
+    QString logFilePath;
 protected:
     //void paintEvent(QPaintEvent *event);
 };

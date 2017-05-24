@@ -709,9 +709,9 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
                 msp_raw_rc.rcData[7] = 1000;
                 if (i == 0)
                 {
-                    msp_raw_rc.rcData[2] = 1200;
+                    msp_raw_rc.rcData[2] = 1000;
                     msp_raw_rc.rcData[4] = 1350;
-                    msp_raw_rc.rcData[7] = 1800;
+                    msp_raw_rc.rcData[7] = 1150;
                 }
                 qDebug() << msp_raw_rc.rcData[0] << msp_raw_rc.rcData[1]
                          << msp_raw_rc.rcData[2] << msp_raw_rc.rcData[3]
@@ -744,7 +744,7 @@ void SerialCommunication_XBEE_API::radioControl(int radioMode)
                 msp_raw_rc.rcData[4] = 1350;
                 msp_raw_rc.rcData[5] = 1000;
                 msp_raw_rc.rcData[6] = 1000;
-                msp_raw_rc.rcData[7] = 1800;
+                msp_raw_rc.rcData[7] = 1150;
                 sendCMD(i, MSP_SET_RAW_RC, msp_raw_rc);
             }
         }

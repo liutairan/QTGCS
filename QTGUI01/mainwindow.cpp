@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     removeToolBar(ui->mainToolBar);
+
+    QString currentWorkingPath = QDir::currentPath();
+    logFilePath = currentWorkingPath + "/" + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ".log";
+
     deHandle = new DataExchange();
     connect(deHandle, &DataExchange::serialOnChanged, this, &MainWindow::deSlot);
     connect(deHandle, &DataExchange::quadsStatesChanged, this, &MainWindow::updateQuadsStates);
@@ -22,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     InitQuad3Page();
 
     currentTab = ui->tabWidget->currentIndex();
+
 }
 
 MainWindow::~MainWindow()
@@ -34,6 +39,8 @@ void MainWindow::deSlot(bool value)
     qDebug()<< value;
 }
 
+
+// update with quad states
 void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
 {
     QString logString = "------------------\n";
@@ -51,6 +58,37 @@ void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
     logString = logString + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_fixType, 10) + ", ";
     ui->logTextBrowser->append(logString);
     updateGUILabels(tempObjList);
+    logData(tempObjList);
+}
+
+void MainWindow::logData(QList<QuadStates *> *tempObjList)
+{
+    for(int i=0; i< tempObjList->length(); i++)
+    {
+        if (tempObjList->at(i)->address_long.length() > 0)
+        {
+            QString outputStr = "";
+            outputStr = outputStr + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_numSat, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_fixType, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lat, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lon, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_alt, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_hdop, 10) + ", ";
+            outputStr = outputStr + "\n";
+
+            QFile file(logFilePath);
+            if (!file.open(QIODevice::Append | QIODevice::Text))
+            {;}
+
+            QTextStream out(&file);
+            out << outputStr;
+            file.close();
+        }
+    }
 }
 
 void MainWindow::updateGUILabels(QList<QuadStates *> *tempObjList)
@@ -851,6 +889,8 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
     }
 }
 
+
+// mouse events
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton)
@@ -1101,6 +1141,8 @@ void MainWindow::mouseMoveEvent ( QMouseEvent * event )
     }
 }
 
+
+// paint functions
 void MainWindow::updatePaint()
 {
     QPixmap tempMap = mapHandle->retImage;
@@ -1211,6 +1253,8 @@ void MainWindow::draw(QPainter *painter)
     }
 }
 
+
+// initialize pages and labels
 void MainWindow::InitMap()
 {
     // Start of loading map
@@ -1227,6 +1271,7 @@ void MainWindow::InitOverviewPage()
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts())
     {
         ui->serialPortComboBox->addItem(port.portName());
+        ui->auxSerialPortComboBox->addItem(port.portName());
     }
     QStringList comMethodList;
     comMethodList << "USB" << "API" << "AT";
@@ -1457,6 +1502,8 @@ void MainWindow::resetLabels()
     ui->quad3Voltage->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 }
 
+
+// overview page control buttons
 void MainWindow::on_serialConnectButton_clicked()
 {
     QString serialConnectButtonText;
@@ -1478,6 +1525,27 @@ void MainWindow::on_serialConnectButton_clicked()
         qDebug() << "Disconnected";
     }
 }
+
+void MainWindow::on_auxSerialConnectButton_clicked()
+{
+    QString auxSerialConnectButtonText;
+    auxSerialConnectButtonText = ui->auxSerialConnectButton->text();
+    if (auxSerialConnectButtonText == "Connect")
+    {
+        deHandle->auxSerialPortName = ui->auxSerialPortComboBox->currentText();
+        deHandle->auxConnectionMethod = "AT";
+        deHandle->set_auxSerialOn(true);
+        ui->auxSerialConnectButton->setText("Disconnect");
+        qDebug() << "Aux connected" << deHandle->auxSerialPortName;
+    }
+    else if (auxSerialConnectButtonText == "Disconnect")
+    {
+        deHandle->set_auxSerialOn(false);
+        ui->auxSerialConnectButton->setText("Connect");
+        qDebug() << "Aux disconnected";
+    }
+}
+
 
 void MainWindow::on_voiceButton_clicked()
 {
@@ -1689,6 +1757,29 @@ void MainWindow::on_nav3Button_clicked()
     }
 }
 
+
+void MainWindow::on_rthAllButton_clicked()
+{
+
+}
+
+void MainWindow::on_rth1Button_clicked()
+{
+
+}
+
+void MainWindow::on_rth2Button_clicked()
+{
+
+}
+
+void MainWindow::on_rth3Button_clicked()
+{
+
+}
+
+
+// map control functions
 void MainWindow::on_incZoomButton_clicked()
 {
     mapHandle->zoom(1);
@@ -3029,4 +3120,24 @@ void MainWindow::on_quad3EditButton_clicked()
         ui->quad3EditButton->setText("Edit");
         quad3WPsEditing = false;
     }
+}
+
+void MainWindow::on_manualOffRadioButton_clicked()
+{
+    deHandle->set_manualMode(0);
+}
+
+void MainWindow::on_manual1RadioButton_clicked()
+{
+    deHandle->set_manualMode(1);
+}
+
+void MainWindow::on_manual2RadioButton_clicked()
+{
+    deHandle->set_manualMode(2);
+}
+
+void MainWindow::on_manual3RadioButton_clicked()
+{
+    deHandle->set_manualMode(3);
 }

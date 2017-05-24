@@ -8,6 +8,7 @@ QT       += core gui
 QT       += serialport
 QT       += network
 QT       += network widgets
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QTGUI01
@@ -39,7 +40,8 @@ SOURCES += main.cpp\
     qtxb/remotecommandrequest.cpp \
     qtxb/rxindicatorexplicit.cpp \
     qtxb/nodeidentificationindicator.cpp \
-    qtxb/remotecommandresponse.cpp
+    qtxb/remotecommandresponse.cpp \
+    localserver.cpp
 
 HEADERS  += mainwindow.h \
     map.h \
@@ -65,6 +67,7 @@ HEADERS  += mainwindow.h \
     qtxb/remotecommandrequest.h \
     qtxb/rxindicatorexplicit.h \
     qtxb/nodeidentificationindicator.h \
-    qtxb/remotecommandresponse.h
+    qtxb/remotecommandresponse.h \
+    localserver.h
 
 FORMS    += mainwindow.ui
