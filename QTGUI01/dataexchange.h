@@ -16,6 +16,7 @@
 #include "serialcommunication.h"
 #include "qtxb.h"
 #include "serialcommunication_xbee_at.h"
+#include "remotecontrol_xbee_at.h"
 
 class SerialWorker : public QObject
 {
@@ -89,7 +90,8 @@ public:
     Msp_rc_channels manual_rc_values;
 
     QSerialPort *serial;
-    SerialCommunication_XBEE_AT *sc_xbee_at;
+    //SerialCommunication_XBEE_AT *sc_xbee_at;
+    RemoteControl_XBEE_AT *rc_xbee_at;
     QString addressList[3];
     QList<QuadStates *> quadstates_list;
 

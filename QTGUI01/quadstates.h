@@ -278,7 +278,7 @@ struct Msp_analog
 
 struct Msp_motor
 {
-    quint16 motor[8];
+    uint16_t motor[8];
 };
 
 // PID

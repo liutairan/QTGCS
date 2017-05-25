@@ -1276,6 +1276,10 @@ void MainWindow::InitOverviewPage()
     QStringList comMethodList;
     comMethodList << "USB" << "API" << "AT";
     ui->comMethodComboBox->addItems(comMethodList);
+
+    ui->manual1RadioButton->setEnabled(false);
+    ui->manual2RadioButton->setEnabled(false);
+    ui->manual3RadioButton->setEnabled(false);
     // End of Overview page
 }
 
@@ -1537,13 +1541,67 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         deHandle->set_auxSerialOn(true);
         ui->auxSerialConnectButton->setText("Disconnect");
         qDebug() << "Aux connected" << deHandle->auxSerialPortName;
+        ui->manual1RadioButton->setEnabled(true);
+        ui->manual2RadioButton->setEnabled(true);
+        ui->manual3RadioButton->setEnabled(true);
     }
     else if (auxSerialConnectButtonText == "Disconnect")
     {
         deHandle->set_auxSerialOn(false);
         ui->auxSerialConnectButton->setText("Connect");
         qDebug() << "Aux disconnected";
+        ui->manual1RadioButton->setEnabled(false);
+        ui->manual2RadioButton->setEnabled(false);
+        ui->manual3RadioButton->setEnabled(false);
     }
+}
+
+
+void MainWindow::on_manualOffRadioButton_clicked()
+{
+    deHandle->set_manualMode(0);
+}
+
+void MainWindow::on_manual1RadioButton_clicked()
+{
+    if (deHandle->get_auxSerialOn() == true)
+    {
+        deHandle->set_manualMode(1);
+    }
+    else
+    {
+        ui->manual1RadioButton->setChecked(false);
+        ui->manualOffRadioButton->setChecked(true);
+    }
+    //deHandle->set_manualMode(1);
+}
+
+void MainWindow::on_manual2RadioButton_clicked()
+{
+    if (deHandle->get_auxSerialOn() == true)
+    {
+        deHandle->set_manualMode(2);
+    }
+    else
+    {
+        ui->manual2RadioButton->setChecked(false);
+        ui->manualOffRadioButton->setChecked(true);
+    }
+    //deHandle->set_manualMode(2);
+}
+
+void MainWindow::on_manual3RadioButton_clicked()
+{
+    if (deHandle->get_auxSerialOn() == true)
+    {
+        deHandle->set_manualMode(3);
+    }
+    else
+    {
+        ui->manual3RadioButton->setChecked(false);
+        ui->manualOffRadioButton->setChecked(true);
+    }
+    //deHandle->set_manualMode(3);
 }
 
 
@@ -3122,22 +3180,3 @@ void MainWindow::on_quad3EditButton_clicked()
     }
 }
 
-void MainWindow::on_manualOffRadioButton_clicked()
-{
-    deHandle->set_manualMode(0);
-}
-
-void MainWindow::on_manual1RadioButton_clicked()
-{
-    deHandle->set_manualMode(1);
-}
-
-void MainWindow::on_manual2RadioButton_clicked()
-{
-    deHandle->set_manualMode(2);
-}
-
-void MainWindow::on_manual3RadioButton_clicked()
-{
-    deHandle->set_manualMode(3);
-}

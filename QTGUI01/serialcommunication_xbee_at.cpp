@@ -11,7 +11,7 @@ SerialCommunication_XBEE_AT::SerialCommunication_XBEE_AT(QSerialPort *ser, QList
     serial = ser;
     qsList = tempObjList;
 
-    connect(serial, SIGNAL(readyRead()), SLOT(readData()));
+    connect(serial, SIGNAL(readyRead()), this, SLOT(readData()));
 
     if (serial->open(QIODevice::ReadWrite))
     {
@@ -57,6 +57,7 @@ void SerialCommunication_XBEE_AT::sendCMD(int cmd)  // send cmd with no data
 void SerialCommunication_XBEE_AT::sendCMD(int cmd, Msp_rc_channels raw_rc)  // send rc values
 {
     QByteArray output;
+    //output.clear();
     char checksum = 0;
     output.append("$M<");
     output.append(char(0xFF & 16));
@@ -72,6 +73,7 @@ void SerialCommunication_XBEE_AT::sendCMD(int cmd, Msp_rc_channels raw_rc)  // s
     }
     // checksum byte
     output.append(checksum );
+    //qDebug() << output.toHex();
     send(output);
 }
 

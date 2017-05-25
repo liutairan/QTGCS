@@ -638,7 +638,7 @@ void LocalServerWorker::abort()
 
 void LocalServerWorker::doWork()
 {
-    qDebug()<<"Starting server worker process in Thread "<<thread()->currentThreadId();
+    qDebug()<<"Starting server worker process in Thread "<< QThread::currentThreadId();
 
     mutex.lock();
     bool abort = _abort;
@@ -660,7 +660,7 @@ void LocalServerWorker::doWork()
         mutex.unlock();
         if (abort)
         {
-            qDebug()<<"Aborting server worker process in Thread "<<thread()->currentThreadId();
+            qDebug()<<"Aborting server worker process in Thread "<< QThread::currentThreadId();
             break;
         }
     }
@@ -677,7 +677,7 @@ void LocalServerWorker::doWork()
     _working = false;
     mutex.unlock();
 
-    qDebug() << "Server Worker process finished in Thread " << thread()->currentThreadId();
+    qDebug() << "Server Worker process finished in Thread " << QThread::currentThreadId();
 
     emit finished();
 }
@@ -687,13 +687,25 @@ void LocalServerWorker::updateRCValues(QString msg)
     if (msg.length() > 0)
     {
         QStringList msgFields = msg.split(":");
+
         if (msgFields.at(0) == "thr")
         {
-            int tempValue = msgFields.at(1).toInt();
-            if ( (tempValue >= 1000) && (tempValue <= 2000) )
+            try
             {
-                manual_rc_values.rcData[2] = tempValue;
+                int tempValue = msgFields.at(1).toInt();
+                if ( (tempValue >= 1000) && (tempValue <= 2000) )
+                {
+                    manual_rc_values.rcData[2] = tempValue;
+                }
             }
+            catch (...)
+            {
+                qDebug() << "Throttle value error";
+                foreach (QString tempStr, msgFields) {
+                    qDebug() << tempStr;
+                }
+            }
+
         }
         else if (msgFields.at(0) == "yaw")
         {
@@ -795,7 +807,7 @@ void LocalServerWorker::realWorker()
                      << manual_rc_values.rcData[5]
                      << manual_rc_values.rcData[6]
                      << manual_rc_values.rcData[7];
-            sc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
+            rc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
             break;
         }
         case 2:
@@ -811,6 +823,7 @@ void LocalServerWorker::realWorker()
         }
 
         QTime dieTime1= QTime::currentTime().addMSecs(50);
+
         while( QTime::currentTime() < dieTime1 )
         {
             QEventLoop loop;
@@ -863,6 +876,11 @@ int LocalServerWorker::get_manualMode() const
 void LocalServerWorker::set_manualMode(int value)
 {
     _manualMode = value;
+    if (_auxSerialOn == false)
+    {
+        set_auxSerialOn(true);
+    }
+    qDebug() << "Watch manual mode" << _auxSerialOn << _manualMode;
     if ((_auxSerialOn == true) && (_manualMode > 0))
     {
         QuadStates *tempQS;
@@ -870,7 +888,8 @@ void LocalServerWorker::set_manualMode(int value)
                                 QByteArray::fromHex("0013a20040c14306"),
                                 QByteArray::fromHex("fffe"));
         quadstates_list.append(tempQS);
-        sc_xbee_at = new SerialCommunication_XBEE_AT(serial, quadstates_list);
+        //sc_xbee_at = new SerialCommunication_XBEE_AT(serial, quadstates_list);
+        rc_xbee_at = new RemoteControl_XBEE_AT(serial);
         serialReady = true;
     }
     else

@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     qtxb/rxindicatorexplicit.cpp \
     qtxb/nodeidentificationindicator.cpp \
     qtxb/remotecommandresponse.cpp \
-    localserver.cpp
+    localserver.cpp \
+    remotecontrol_xbee_at.cpp
 
 HEADERS  += mainwindow.h \
     map.h \
@@ -68,6 +69,7 @@ HEADERS  += mainwindow.h \
     qtxb/rxindicatorexplicit.h \
     qtxb/nodeidentificationindicator.h \
     qtxb/remotecommandresponse.h \
-    localserver.h
+    localserver.h \
+    remotecontrol_xbee_at.h
 
 FORMS    += mainwindow.ui

@@ -8,6 +8,7 @@
 #include <QEventLoop>
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QThread>
 
 #include "multiwii.h"
 
