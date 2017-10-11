@@ -28,6 +28,6 @@ Currently, this project is still under construction and the focus point will be 
 
 # Sample:
 Screenshot: 
-![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_2.png "Sample image")
+![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20171011_13.png "Sample image")
 
 ![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_3.png "Sample image")
