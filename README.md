@@ -31,3 +31,7 @@ Screenshot:
 ![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20171011_13.png "Sample image")
 
 ![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_3.png "Sample image")
+
+# Related applications:
+    1. QTGCS_Configurator: configure environment for QTGCS.
+    2. QTGCS_MapManager: local map image management, pre-download map images, update new map images, etc.
