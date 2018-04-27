@@ -165,6 +165,7 @@ void MainWindow::updateGPSonMap(QList<QuadStates *> *tempObjList)
     // Only update GPS on map when the displacement on the map is
     //    greater than 3 meters, hope this way can reduce the frequency
     //    of updating the GUI.
+    //    To do.
     //emit paintRequest();
 }
 
