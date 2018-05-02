@@ -64,6 +64,8 @@ public:
     SerialCommunication_XBEE_API *sc_xbee_api;
     QList<QuadStates *> quadstates_list;
     QString addressList[3];
+    bool everRunFlag;
+    QTime tReceive;
     LogMessage tempMessage;
 signals:
     void quadsStatesChanged(QList<QuadStates *> *);  // update quads states

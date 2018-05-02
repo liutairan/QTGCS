@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     logdialog.cpp \
     logmanager.cpp \
     logmessage.cpp \
-    msp_v2.cpp
+    msp_v2.cpp \
+    msp_v1.cpp
 
 HEADERS  += mainwindow.h \
     map.h \
@@ -80,7 +81,8 @@ HEADERS  += mainwindow.h \
     logdialog.h \
     logmanager.h \
     logmessage.h \
-    msp_v2.h
+    msp_v2.h \
+    msp_v1.h
 
 FORMS    += mainwindow.ui \
     logdialog.ui

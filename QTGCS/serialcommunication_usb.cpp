@@ -10,8 +10,9 @@ SerialCommunication_USB::SerialCommunication_USB(QSerialPort *ser, QList<QuadSta
     serialportFound = false;
     serial = ser;
     qsList = tempObjList;
-    mspHandle = new MSP_V2();
-    connect(serial, SIGNAL(readyRead()), SLOT(readData()));
+    mspHandle1 = new MSP_V1(this);
+    mspHandle2 = new MSP_V2(this);
+    connect(serial, SIGNAL(readyRead()), this, SLOT(readData()));
 
     if (serial->open(QIODevice::ReadWrite))
     {
@@ -40,6 +41,8 @@ SerialCommunication_USB::~SerialCommunication_USB()
     if(serial->isOpen())
     {
         serial->close();
+        //delete mspHandle1;
+        //delete mspHandle2;
         qDebug() << "USB: Serial Port closed successfully";
     }
 }
@@ -47,29 +50,14 @@ SerialCommunication_USB::~SerialCommunication_USB()
 void SerialCommunication_USB::sendCMD(int cmd)  // send cmd with no data
 {
     QByteArray output;
-    output.append("$M<");
-    output.append(char(0xFF & 0));
-    output.append(char(0xFF & cmd));
-    output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
-
-    // New test
-    /*if (cmd == MSP_STATUS_EX)
-    {
-        output = mspHandle->processSendPacket(cmd);
-    }
-    else
-    {
-        output.append("$M<");
-        output.append(char(0xFF & 0));
-        output.append(char(0xFF & cmd));
-        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
-    }*/
+    output = mspHandle1->processSendPacket(cmd);
     send(output);
 }
 
 void SerialCommunication_USB::sendCMD(int cmd, Msp_rc_channels raw_rc)  // send rc values
 {
     QByteArray output;
+    /*
     char checksum = 0;
     output.append("$M<");
     output.append(char(0xFF & 16));
@@ -85,24 +73,30 @@ void SerialCommunication_USB::sendCMD(int cmd, Msp_rc_channels raw_rc)  // send 
     }
     // checksum byte
     output.append(checksum );
+    */
+    output = mspHandle1->processSendPacket(cmd, raw_rc);
     send(output);
 }
 
 void SerialCommunication_USB::sendCMD(int cmd, int ind)  // send cmd to check wp info
 {
     QByteArray output;
+    /*
     output.append("$M<");
     output.append(char(0xFF & 1));
     output.append(char(0xFF & cmd));
     output.append(char(0xFF & ind));
     // checksum byte
     output.append((char(0xFF & 1) ^ char(0xFF & cmd)) ^ char(0xFF & ind) );
+    */
+    output = mspHandle1->processSendPacket(cmd, ind);
     send(output);
 }
 
 void SerialCommunication_USB::sendCMD(int cmd, Mission tempMission) // set mission
 {
     QByteArray output;
+    /*
     char checksum = 0;
     output.append("$M<");
     output.append(char(0xFF & 21));
@@ -161,6 +155,8 @@ void SerialCommunication_USB::sendCMD(int cmd, Mission tempMission) // set missi
     checksum = checksum ^ (char(0xFF & tempMission.wp_flag));
 
     output.append(checksum);
+    */
+    output = mspHandle1->processSendPacket(cmd, tempMission);
     send(output);
 }
 
@@ -181,24 +177,51 @@ void SerialCommunication_USB::send(QByteArray data)
 void SerialCommunication_USB::readData()
 {
     unsigned startDelimiter = 0x24;
+    unsigned v1sign = 0x4d;
+    unsigned v2sign = 0x58;
     buffer.append(serial->readAll());
 
     QByteArray packet;
-    //qDebug() << buffer.size();
+
     if (buffer.size() >=1)
     {
         while((unsigned char)buffer.at(0) != (unsigned char)startDelimiter)
         {
             buffer.remove(0, 1);
+            if (buffer.size() == 0)
+            {
+                break;
+            }
         }
 
         if(buffer.size() > 4)
         {
-            unsigned length = buffer.at(3)+6;
-            if((unsigned char)buffer.size() >= (unsigned char)length){
-                packet.append(buffer.left(length));
-                processPacket(packet);
-                buffer.remove(0, length);
+            // MSP V1
+            if (buffer.at(1) == (unsigned char)v1sign)
+            {
+                unsigned length = buffer.at(3)+6;
+                if((unsigned char)buffer.size() >= (unsigned char)length){
+                    packet.append(buffer.left(length));
+                    processPacket(packet);
+                    buffer.remove(0, length);
+                }
+            }
+            else
+            {}
+        }
+        if (buffer.size() >= 8)
+        {
+            // MSP V2
+            if (buffer.at(1) == (unsigned char)v2sign)
+            {
+                uint16_t length = (0xFF & buffer.at(6)) + ((0xFF & buffer.at(7)) << 8) + 8;
+                if ((uint16_t)buffer.size() >= length)
+                {
+                    packet.append(buffer.left(length));
+                    //qDebug() << packet.toHex();
+                    processPacket(packet);
+                    buffer.remove(0, length);
+                }
             }
         }
     }
@@ -206,274 +229,39 @@ void SerialCommunication_USB::readData()
 
 void SerialCommunication_USB::processPacket(QByteArray packet)
 {
-    try{
-        unsigned length = (unsigned char)packet.at(3);
-        unsigned cmdCode = (unsigned char)packet.at(4);
-        QByteArray data = packet.mid(5, length+1);
-        //qDebug() << packet.toHex() << length << cmdCode;
-        //qDebug() << data.toHex() << length <<cmdCode;
-        switch (cmdCode) {
-        case MSP_STATUS_EX:
-        {
-            uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
-            int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
-            uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
-            uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
-            uint8_t configProfile = (0xFF & data.at(10));
-            uint16_t systemLoadPercent = ((0xFF & data.at(12)) << 8) + (0xFF & data.at(11));
-            uint16_t armingFlags = ((0xFF & data.at(14)) << 8) + (0xFF & data.at(13));
-            uint8_t accAxisFlags = (0xFF & data.at(15));
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_status_ex.cycletime = cycletime;
-            tempQS->msp_status_ex.i2cGetErrorCounter = i2cError;
-            tempQS->msp_status_ex.packSensorStatus = activeSensors;
-            tempQS->msp_status_ex.packFlightModeFlags = flightModes;
-            tempQS->msp_status_ex.getConfigProfile = configProfile;
-            tempQS->msp_status_ex.averageSystemLoadPercent = systemLoadPercent;
-            tempQS->msp_status_ex.armingFlags = armingFlags;
-            tempQS->msp_status_ex.accGetCalibrationAxisFlags = accAxisFlags;
-            parseSensorStatus(tempQS);
-            parseFlightModeFlags(tempQS);
-            parseArmingFlags(tempQS);
-            qsList.replace(0, tempQS);
-            /*
-            QuadStates temp2 = mspHandle->processReceivePacket(packet);
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_status_ex.cycletime = temp2.msp_status_ex.cycletime;
-            tempQS->msp_status_ex.i2cGetErrorCounter = temp2.msp_status_ex.i2cGetErrorCounter;
-            tempQS->msp_status_ex.packSensorStatus = temp2.msp_status_ex.packSensorStatus;
-            tempQS->msp_status_ex.packFlightModeFlags = temp2.msp_status_ex.packFlightModeFlags;
-            tempQS->msp_status_ex.getConfigProfile = temp2.msp_status_ex.getConfigProfile;
-            tempQS->msp_status_ex.averageSystemLoadPercent = temp2.msp_status_ex.averageSystemLoadPercent;
-            tempQS->msp_status_ex.armingFlags = temp2.msp_status_ex.armingFlags;
-            tempQS->msp_status_ex.accGetCalibrationAxisFlags = temp2.msp_status_ex.accGetCalibrationAxisFlags;
-            parseSensorStatus(tempQS);
-            parseFlightModeFlags(tempQS);
-            parseArmingFlags(tempQS);
-            qsList.replace(0, tempQS);*/
-            break;
-        }
-        case MSP_STATUS:
-        {
-            uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
-            int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
-            uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
-            uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
-            uint8_t configProfile = (0xFF & data.at(10));
-
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_status.cycletime = cycletime;
-            tempQS->msp_status.i2cGetErrorCounter = i2cError;
-            tempQS->msp_status.packSensorStatus = activeSensors;
-            tempQS->msp_status.packFlightModeFlags = flightModes;
-            tempQS->msp_status.getConfigProfile = configProfile;
-
-            parseSensorStatus(tempQS);
-            parseFlightModeFlags(tempQS);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_BOXIDS:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-
-            for (uint i=0; i< length; i++)
-            {
-                tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
-                //qDebug() << tempQS->active_boxids.box_id[i];
-            }
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_ALTITUDE:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_altitude.estimatedActualPosition = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-            tempQS->msp_altitude.estimatedActualVelocity = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_SONAR_ALTITUDE:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_sonar_altitude.rangefinderGetLatestAltitude = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_ATTITUDE:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_attitude.roll = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
-            tempQS->msp_attitude.pitch = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
-            tempQS->msp_attitude.yaw = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_SET_RAW_RC:
-        {
-            break;
-        }
-        case MSP_RC:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            for (int i=0; i<8;i++)
-            {
-                tempQS->msp_rc_channels.rcData[i] = ((0xFF & data.at(2*i))) + ((0xFF & data.at(2*i+1)) << 8);
-            }
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_ANALOG:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_analog.vbat = (0xFF & data.at(0));
-            tempQS->msp_analog.mAhDrawn = (0xFF & data.at(1)) + ((0xFF & data.at(2)) << 8);
-            tempQS->msp_analog.rssi = (0xFF & data.at(3)) + ((0xFF & data.at(4)) << 8);
-            tempQS->msp_analog.amp = (0xFF & data.at(5)) + ((0xFF & data.at(6)) << 8);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_RAW_IMU:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_raw_imu.acc[0] = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
-            tempQS->msp_raw_imu.acc[1] = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
-            tempQS->msp_raw_imu.acc[2] = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-            tempQS->msp_raw_imu.gyro[0] = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8);
-            tempQS->msp_raw_imu.gyro[1] = ((0xFF & data.at(8))) + ((0xFF & data.at(9)) << 8);
-            tempQS->msp_raw_imu.gyro[2] = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
-            tempQS->msp_raw_imu.mag[0] = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
-            tempQS->msp_raw_imu.mag[1] = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-            tempQS->msp_raw_imu.mag[2] = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_MOTOR:
-        {
-            break;
-        }
-        case MSP_SENSOR_STATUS:
-        {
-            break;
-        }
-        case MSP_LOOP_TIME:
-        {
-            break;
-        }
-        case MSP_MISC:
-        {
-            break;
-        }
-        case MSP_MODE_RANGES:
-        {
-            break;
-        }
-        case MSP_RAW_GPS:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_raw_gps.gpsSol_fixType = (0xFF & data.at(0));
-            tempQS->msp_raw_gps.gpsSol_numSat = (0xFF & data.at(1));
-            tempQS->msp_raw_gps.gpsSol_llh_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-            tempQS->msp_raw_gps.gpsSol_llh_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-            tempQS->msp_raw_gps.gpsSol_llh_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
-            tempQS->msp_raw_gps.gpsSol_groundSpeed = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
-            tempQS->msp_raw_gps.gpsSol_groundCourse = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-            tempQS->msp_raw_gps.gpsSol_hdop = (0xFF & data.at(16));
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_COMP_GPS:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_comp_gps.gps_distanceToHome = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
-            tempQS->msp_comp_gps.gps_directionToHome = (0xFF & data.at(2)) + + ((0xFF & data.at(3)) << 8);
-            tempQS->msp_comp_gps.gpsSol_flags_gpsHeartbeat = (0xFF & data.at(4));
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_NAV_STATUS:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_nav_status.nav_status_mode = (0xFF & data.at(0));
-            tempQS->msp_nav_status.nav_status_state = (0xFF & data.at(1));
-            tempQS->msp_nav_status.nav_status_activeWPAction = (0xFF & data.at(2));
-            tempQS->msp_nav_status.nav_status_activeWPNumber = (0xFF & data.at(3));
-            tempQS->msp_nav_status.nav_status_error = (0xFF & data.at(4));
-            tempQS->msp_nav_status.MagHoldHeading = (0xFF & data.at(5));
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_GPSSVINFO:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_gps_svinfo.gpsSol_hdop1 = (0xFF & data.at(3));
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_GPSSTATISTICS:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_gps_statistics.gpsStats_lastMessageDt = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
-            tempQS->msp_gps_statistics.gpsStats_errors = (0xFF & data.at(2)) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-            tempQS->msp_gps_statistics.gpsStats_timeouts = (0xFF & data.at(6)) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-            tempQS->msp_gps_statistics.gpsStats_packetCount = (0xFF & data.at(10)) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_FEATURE:
-        {
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->msp_feature.featureMask = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-            qsList.replace(0, tempQS);
-            break;
-        }
-        case MSP_WP:
-        {
-            Mission tempMission;
-            tempMission.wp_no = (0xFF & data.at(0));
-            tempMission.wp_action = (0xFF & data.at(1));
-            tempMission.wp_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-            tempMission.wp_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-            tempMission.wp_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
-            tempMission.wp_p1 = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-            tempMission.wp_p2 = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
-            tempMission.wp_p3 = ((0xFF & data.at(18))) + ((0xFF & data.at(19)) << 8);
-            tempMission.wp_flag = (0xFF & data.at(20));
-            QuadStates *tempQS;
-            tempQS = qsList.at(0);
-            tempQS->temp_mission.mi = tempMission;
-            qsList.replace(0, tempQS);
-            emit missionDownloaded();
-            break;
-        }
-        default:
-        {
-            qDebug() << "Error:  Unknown Packet: " << packet.toHex();
-            break;
-        }
-
-        }  // end of switch
+    unsigned v1sign = 0x4d;
+    unsigned v2sign = 0x58;
+    uint16_t payloadSize = 0;
+    uint16_t cmdCode = 0;
+    QByteArray data;
+    if (packet.at(1) == (unsigned char)v1sign)
+    {
+        payloadSize = (uint16_t)packet.at(3);
+        cmdCode = (uint16_t)packet.at(4);
+        data = packet.mid(5, payloadSize+1);
+        QuadStates *tempQS;
+        tempQS = qsList.at(0);
+        QuadStates *resultQS;
+        resultQS = mspHandle1->processReceivePacket(packet, tempQS);
+        qsList.replace(0, resultQS);
         emit qsReady(&qsList);
     }
-    catch(...)
-    {}
-
+    else if (packet.at(1) == (unsigned char)v2sign)
+    {
+        cmdCode = (0xFF & buffer.at(4)) + ((0xFF & buffer.at(5)) << 8);
+        payloadSize = (0xFF & buffer.at(6)) + ((0xFF & buffer.at(7)) << 8);
+        data = packet.mid(8, payloadSize+1);
+        QuadStates *tempQS;
+        tempQS = qsList.at(0);
+        QuadStates *resultQS;
+        resultQS = mspHandle2->processReceivePacket(packet, tempQS);
+        qsList.replace(0, resultQS);
+        emit qsReady(&qsList);
+    }
+    else
+    {
+        qDebug() << "Unrecognizable MSP format.";
+    }
 }
 
 void SerialCommunication_USB::parseSensorStatus(QuadStates *tempObj)
@@ -783,10 +571,12 @@ void SerialCommunication_USB::downloadMission(int id, QuadStates *tempObj)
 {
     qDebug() << "Start download mission";
     missionDownloadFlag = false;
-    connect(this, SIGNAL(missionDownloaded()), this, SLOT(missionDownloadedFlag()));
+    //connect(this, SIGNAL(missionDownloaded()), this, SLOT(missionDownloadedFlag()));
+    connect(mspHandle1, &MSP_V1::missionDownloaded, this, &SerialCommunication_USB::missionDownloadedFlag);
     while (!missionDownloadFlag)
     {
         sendCMD(MSP_WP, id);
+        qDebug() << "Send mission";
         QTime dieTime= QTime::currentTime().addMSecs(100);
         while( QTime::currentTime() < dieTime )
         {

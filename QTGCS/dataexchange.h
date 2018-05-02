@@ -113,6 +113,8 @@ private:
     bool _abort;
     bool _working;
     QMutex mutex;
+    QTimer *timer;
+    //void serverSwitch(bool);
 
 signals:
     void workRequested();
@@ -129,6 +131,7 @@ signals:
 public slots:
     void doWork();
     void updateRCValues(QString msg);
+    void serverSwitch();
 };
 
 class DataExchange : public QObject
@@ -163,6 +166,30 @@ public:
     WP_list wp_list[3];
     Mission_list mi_list_air[3];
     GPSCoordinate current_gps[3];
+    // Local Server
+    uint16_t mapAngleToPWM(float realAngle, float minAngle, float maxAngle, uint16_t minPWM, uint16_t maxPWM);
+    LocalServer *server;
+    //bool _auxSerialOn;
+    //int _manualMode;
+    QString _serialPortName;
+    Msp_rc_channels manual_rc_values;
+
+    QSerialPort *serial;
+    //SerialCommunication_XBEE_AT *sc_xbee_at;
+    RemoteControl_XBEE_AT *rc_xbee_at;
+    QString auxAddressList[3];
+    QList<QuadStates *> quadstates_list;
+
+    QString get_serialPortName() const;
+    void set_serialPortName(QString value);
+    QString get_auxSerialPortName() const;
+    void set_auxSerialPortName(QString value);
+    //bool get_auxSerialOn() const;
+    //void set_auxSerialOn(bool value);
+    //int get_manualMode() const;
+    //void set_manualMode(int value);
+
+    bool serialReady;
 
 signals:
     void serialOnChanged(bool);
@@ -175,6 +202,8 @@ signals:
 public slots:
     void updateQuadsStates(QList<QuadStates *> *);  // update quads states
     void logMessage(LogMessage);
+    void updateRCValues(QString msg);
+    void rcSwitch();
 
 private:
     bool _serialOn;
@@ -186,7 +215,10 @@ private:
     SerialWorker *worker;
     QThread *serverThread;
     LocalServerWorker *serverWorker;
+    QTimer *timer;
     void initServerWorker();
+    void initRemoteControl();
+    void rcWorker();
 };
 
 #endif // DATAEXCHANGE_H

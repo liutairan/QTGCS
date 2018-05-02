@@ -1,79 +1,142 @@
-#include "msp_v2.h"
+#include "msp_v1.h"
 
-MSP_V2::MSP_V2(QObject *parent) :
+MSP_V1::MSP_V1(QObject *parent) :
     QObject(parent)
 {
 
 }
 
-MSP_V2::~MSP_V2()
+MSP_V1::MSP_V1()
 {}
 
-QByteArray MSP_V2::processSendPacket(int cmd)
+MSP_V1::~MSP_V1()
+{}
+
+QByteArray MSP_V1::processSendPacket(int cmd)
 {
     QByteArray output;
 
-    output.append("$X<");
-    uint8_t checksum = 0;
-    unsigned char flag = char(0xFF & 0);
-    output.append(flag); // Flag byte
-    checksum = crc8_dvb_s2(checksum, flag);
+    output.append("$M<");
+    output.append(char(0xFF & 0));
+    output.append(char(0xFF & cmd));
+    output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
 
-    unsigned char funcLow = char(0xFF & cmd);
-    output.append(funcLow); // Function lsb
-    checksum = crc8_dvb_s2(checksum, funcLow);
-
-    unsigned char funcHigh = char(0xFF & (cmd >> 8));
-    output.append(funcHigh); // Function hsb
-    checksum = crc8_dvb_s2(checksum, funcHigh);
-
-    unsigned char paysizeLow = char(0xFF & 0);
-    output.append(paysizeLow); // Payload size lsb
-    checksum = crc8_dvb_s2(checksum, paysizeLow);
-
-    unsigned char paysizeHigh = char(0xFF & 0);
-    output.append(paysizeHigh); // Payload size hsb
-    checksum = crc8_dvb_s2(checksum, paysizeHigh);
-
-    output.append(char(checksum)); // Checksum, crc8_dvb_s2 checksum
     return output;
 }
 
-QByteArray MSP_V2::processSendPacket(int cmd, Msp_rc_channels raw_rc){}
-
-QByteArray MSP_V2::processSendPacket(int cmd, int ind){}
-
-QByteArray MSP_V2::processSendPacket(int cmd, Mission tempMission){}
-
-uint8_t MSP_V2::crc8_dvb_s2(uint8_t crc, unsigned char a)
+QByteArray MSP_V1::processSendPacket(int cmd, Msp_rc_channels raw_rc)
 {
-    crc ^= a;
-    for (int ii = 0; ii < 8; ++ii)
+    QByteArray output;
+
+    char checksum = 0;
+    output.append("$M<");
+    output.append(char(0xFF & 16));
+    output.append(char(0xFF & cmd));
+    checksum = (char(0xFF & 16)) ^ (char(0xFF & cmd));
+    for (int i = 0; i < 8; i++)
     {
-        if (crc & 0x80)
-        {
-            crc = (crc << 1) ^ 0xD5;
-        }
-        else
-        {
-            crc = crc << 1;
-        }
+        uint16_t tempValue = raw_rc.rcData[i];
+        output.append(char(0xFF & tempValue));
+        checksum = checksum ^ (char(0xFF & tempValue));
+        output.append(char(0xFF & (tempValue >> 8)));
+        checksum = checksum ^ (char(0xFF & (tempValue >> 8)));
     }
-    return crc;
+    // checksum byte
+    output.append(checksum);
+
+    return output;
 }
 
-QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
+QByteArray MSP_V1::processSendPacket(int cmd, int ind)
 {
-    unsigned v1sign = 0x4d;
-    unsigned v2sign = 0x58;
-    uint16_t payloadSize = 0;
-    uint16_t cmdCode = 0;
-    QByteArray data;
+    // This function is used to send out command to request
+    //    a special waypoint mission from the FC.
+    QByteArray output;
+
+    output.append("$M<");
+    output.append(char(0xFF & 1));
+    output.append(char(0xFF & cmd));
+    output.append(char(0xFF & ind));
+    // checksum byte
+    output.append((char(0xFF & 1) ^ char(0xFF & cmd)) ^ char(0xFF & ind) );
+
+    return output;
+}
+
+QByteArray MSP_V1::processSendPacket(int cmd, Mission tempMission)
+{
+    // This function is used to send out waypoint mission to FC.
+    QByteArray output;
+
+    char checksum = 0;
+    output.append("$M<");
+    output.append(char(0xFF & 21));
+    output.append(char(0xFF & cmd));
+    checksum = (char(0xFF & 21)) ^ (char(0xFF & cmd));
+
+    output.append(char(0xFF & tempMission.wp_no));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_no));
+
+    output.append(char(0xFF & tempMission.wp_action));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_action));
+
+    output.append(char(0xFF & tempMission.wp_lat));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_lat));
+    output.append(char(0xFF & (tempMission.wp_lat >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 8)));
+    output.append(char(0xFF & (tempMission.wp_lat >> 16)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 16)));
+    output.append(char(0xFF & (tempMission.wp_lat >> 24)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 24)));
+
+    output.append(char(0xFF & tempMission.wp_lon));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_lon));
+    output.append(char(0xFF & (tempMission.wp_lon >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 8)));
+    output.append(char(0xFF & (tempMission.wp_lon >> 16)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 16)));
+    output.append(char(0xFF & (tempMission.wp_lon >> 24)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 24)));
+
+    output.append(char(0xFF & tempMission.wp_alt));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_alt));
+    output.append(char(0xFF & (tempMission.wp_alt >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 8)));
+    output.append(char(0xFF & (tempMission.wp_alt >> 16)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 16)));
+    output.append(char(0xFF & (tempMission.wp_alt >> 24)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 24)));
+
+    output.append(char(0xFF & tempMission.wp_p1));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_p1));
+    output.append(char(0xFF & (tempMission.wp_p1 >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_p1 >> 8)));
+
+    output.append(char(0xFF & tempMission.wp_p2));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_p2));
+    output.append(char(0xFF & (tempMission.wp_p2 >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_p2 >> 8)));
+
+    output.append(char(0xFF & tempMission.wp_p3));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_p3));
+    output.append(char(0xFF & (tempMission.wp_p3 >> 8)));
+    checksum = checksum ^ (char(0xFF & (tempMission.wp_p3 >> 8)));
+
+    output.append(char(0xFF & tempMission.wp_flag));
+    checksum = checksum ^ (char(0xFF & tempMission.wp_flag));
+
+    output.append(checksum);
+
+    return output;
+}
+
+QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
+{
     try
     {
-        cmdCode = (0xFF & packet.at(4)) + ((0xFF & packet.at(5)) << 8);
-        payloadSize = (0xFF & packet.at(6)) + ((0xFF & packet.at(7)) << 8);
-        data = packet.mid(8, payloadSize+1);
+        unsigned length = (unsigned char)packet.at(3);
+        unsigned cmdCode = (unsigned char)packet.at(4);
+        QByteArray data = packet.mid(5, length+1);
 
         switch (cmdCode) {
         case MSP_STATUS_EX:
@@ -92,6 +155,7 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
                 uint16_t systemLoadPercent = ((0xFF & data.at(12)) << 8) + (0xFF & data.at(11));
                 uint16_t armingFlags = ((0xFF & data.at(14)) << 8) + (0xFF & data.at(13));
                 uint8_t accAxisFlags = (0xFF & data.at(15));
+
 
                 tempQS->msp_status_ex.cycletime = cycletime;
                 tempQS->msp_status_ex.i2cGetErrorCounter = i2cError;
@@ -115,10 +179,11 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
         case MSP_STATUS:
         {
             uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
-            int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
+            uint16_t i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
             uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
             uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
             uint8_t configProfile = (0xFF & data.at(10));
+
             tempQS->msp_status.cycletime = cycletime;
             tempQS->msp_status.i2cGetErrorCounter = i2cError;
             tempQS->msp_status.packSensorStatus = activeSensors;
@@ -129,9 +194,22 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             parseFlightModeFlags(tempQS);
             break;
         }
+        case MSP_IDENT:
+        {
+            uint8_t version = ((0xFF & data.at(0))/100.0);
+            uint8_t multiType = (0xFF & data.at(1));
+            uint8_t msp_version = (0xFF & data.at(2));
+            uint32_t capability = ((0xFF & data.at(6)) << 24) + ((0xFF & data.at(5)) << 16) + ((0xFF & data.at(4)) << 8) + (0xFF & data.at(3));
+            tempQS->msp_ident.MW_VERSION = version;
+            tempQS->msp_ident.mixer_mode = multiType;
+            tempQS->msp_ident.MSP_PROTOCOL_VERSION = msp_version;
+            tempQS->msp_ident.CAPABILITY = capability;
+            //qDebug() << version << multiType << msp_version << capability;
+            break;
+        }
         case MSP_BOXIDS:
         {
-            for (uint i=0; i< payloadSize; i++)
+            for (uint i=0; i< length; i++)
             {
                 tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
                 //qDebug() << tempQS->active_boxids.box_id[i];
@@ -142,6 +220,8 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
         {
             tempQS->msp_altitude.estimatedActualPosition = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
             tempQS->msp_altitude.estimatedActualVelocity = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
+            // To do, another 4 bytes left.
+            // Barometer
             break;
         }
         case MSP_SONAR_ALTITUDE:
@@ -168,6 +248,10 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             }
             break;
         }
+        case MSP_RC_TUNING:
+        {
+            break;
+        }
         case MSP_ANALOG:
         {
             tempQS->msp_analog.vbat = (0xFF & data.at(0));
@@ -187,7 +271,6 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             tempQS->msp_raw_imu.mag[0] = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
             tempQS->msp_raw_imu.mag[1] = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
             tempQS->msp_raw_imu.mag[2] = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
-            qDebug() << tempQS->msp_raw_imu.acc[0];
             break;
         }
         case MSP_MOTOR:
@@ -196,10 +279,21 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
         }
         case MSP_SENSOR_STATUS:
         {
+            uint8_t isHardwareHealthy = (0xFF & data.at(0));
+            uint8_t gyroHwStatus = (0xFF & data.at(1));
+            uint8_t accHwStatus = (0xFF & data.at(2));
+            uint8_t magHwStatus = (0xFF & data.at(3));
+            uint8_t baroHwStatus = (0xFF & data.at(4));
+            uint8_t gpsHwStatus = (0xFF & data.at(5));
+            uint8_t rangeHwStatus = (0xFF & data.at(6));
+            uint8_t speedHwStatus = (0xFF & data.at(7));
+            uint8_t flowHwStatus = (0xFF & data.at(8));
+            // To do, pass value to QS
             break;
         }
         case MSP_LOOP_TIME:
         {
+            tempQS->msp_loop_time.looptime = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
             break;
         }
         case MSP_MISC:
@@ -250,11 +344,150 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             tempQS->msp_gps_statistics.gpsStats_errors = (0xFF & data.at(2)) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
             tempQS->msp_gps_statistics.gpsStats_timeouts = (0xFF & data.at(6)) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
             tempQS->msp_gps_statistics.gpsStats_packetCount = (0xFF & data.at(10)) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
+            tempQS->msp_gps_statistics.gpsSol_hdop = (0xFF & data.at(14)) + ((0xFF & data.at(15)) << 8);
+            tempQS->msp_gps_statistics.gpsSol_eph = (0xFF & data.at(16)) + ((0xFF & data.at(17)) << 8);
+            tempQS->msp_gps_statistics.gpsSol_epv = (0xFF & data.at(18)) + ((0xFF & data.at(19)) << 8);
             break;
         }
         case MSP_FEATURE:
         {
             tempQS->msp_feature.featureMask = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
+            break;
+        }
+        case MSP_PID:
+        {
+            break;
+        }
+        case MSP_ARMING_CONFIG:
+        {
+            break;
+        }
+        case MSP_3D:
+        {
+            break;
+        }
+        case MSP_SET_3D:
+        {
+            break;
+        }
+        case MSP_MOTOR_PINS:
+        {
+            break;
+        }
+        case MSP_BOXNAMES:
+        {
+            break;
+        }
+        case MSP_PIDNAMES:
+        {
+            break;
+        }
+        case MSP_SERVO_MIX_RULES:
+        {
+            break;
+        }
+        case MSP_SET_SERVO_MIX_RULE:
+        {
+            break;
+        }
+        case MSP_SET_SERVO_CONFIGURATION:
+        {
+            break;
+        }
+        case MSP_RC_DEADBAND:
+        {
+            break;
+        }
+        case MSP_SET_RC_DEADBAND:
+        {
+            break;
+        }
+        case MSP_SENSOR_ALIGNMENT:
+        {
+            break;
+        }
+        case MSP_SET_RAW_GPS:
+        {
+            break;
+        }
+        case MSP_SET_PID_CONTROLLER:
+        {
+            break;
+        }
+        case MSP_SET_MISC:
+        {
+            break;
+        }
+        case MSP_API_VERSION:
+        {
+            break;
+        }
+        case MSP_FC_VARIANT:
+        {
+            break;
+        }
+        case MSP_FC_VERSION:
+        {
+            break;
+        }
+        case MSP_BUILD_INFO:
+        {
+            break;
+        }
+        case MSP_BOARD_INFO:
+        {
+            break;
+        }
+        case MSP_ADJUSTMENT_RANGES:
+        {
+            break;
+        }
+        case MSP_FAILSAFE_CONFIG:
+        {
+            break;
+        }
+        case MSP_SENSOR_CONFIG:
+        {
+            break;
+        }
+        case MSP_INAV_PID:
+        {
+            break;
+        }
+        case MSP_SET_INAV_PID:
+        {
+            break;
+        }
+        case MSP_NAV_POSHOLD:
+        {
+            break;
+        }
+        case MSP_SET_NAV_POSHOLD:
+        {
+            break;
+        }
+        case MSP_RTH_AND_LAND_CONFIG:
+        {
+            break;
+        }
+        case MSP_SET_RTH_AND_LAND_CONFIG:
+        {
+            break;
+        }
+        case MSP_NAME:
+        {
+            break;
+        }
+        case MSP_SET_NAME:
+        {
+            break;
+        }
+        case MSP_WP_GETINFO:
+        {
+            break;
+        }
+        case MSP_SET_WP:
+        {
             break;
         }
         case MSP_WP:
@@ -271,7 +504,15 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             tempMission.wp_flag = (0xFF & data.at(20));
 
             tempQS->temp_mission.mi = tempMission;
-            //emit missionDownloaded();
+            emit missionDownloaded();
+            break;
+        }
+        case MSP_WP_MISSION_SAVE:
+        {
+            break;
+        }
+        case MSP_WP_MISSION_LOAD:
+        {
             break;
         }
         default:
@@ -285,10 +526,11 @@ QuadStates* MSP_V2::processReceivePacket(QByteArray packet, QuadStates *tempQS)
     catch(...)
     {
     }
+
     return tempQS;
 }
 
-void MSP_V2::parseSensorStatus(QuadStates *tempObj)
+void MSP_V1::parseSensorStatus(QuadStates *tempObj)
 {
     uint16_t activeSensors = tempObj->msp_status_ex.packSensorStatus;
     QString tempSensorFlags = QString::number(activeSensors, 2).rightJustified(16, '0');
@@ -351,7 +593,7 @@ void MSP_V2::parseSensorStatus(QuadStates *tempObj)
     }
 }
 
-void MSP_V2::parseArmingFlags(QuadStates *tempObj)
+void MSP_V1::parseArmingFlags(QuadStates *tempObj)
 {
     uint16_t armingFlags = tempObj->msp_status_ex.armingFlags;
     QString tempArmingFlags = QString::number(armingFlags, 2).rightJustified(16, '0');
@@ -454,7 +696,7 @@ void MSP_V2::parseArmingFlags(QuadStates *tempObj)
     }
 }
 
-void MSP_V2::parseFlightModeFlags(QuadStates *tempObj)
+void MSP_V1::parseFlightModeFlags(QuadStates *tempObj)
 {
     uint32_t flightModeFlags = tempObj->msp_status_ex.packFlightModeFlags;
     QString tempFlightModeFlags = QString::number(flightModeFlags, 2).rightJustified(32, '0');

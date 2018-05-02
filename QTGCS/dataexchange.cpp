@@ -19,6 +19,7 @@ DataExchange::DataExchange(QObject *parent) :
         addressList[i] = "";
     }
     initServerWorker();
+    initRemoteControl();
 }
 
 DataExchange::~DataExchange()
@@ -39,10 +40,10 @@ DataExchange::~DataExchange()
     delete worker;
 
     // local server
-    serverWorker->abort();
+    /*serverWorker->abort();
     serverThread->wait();
     delete serverThread;
-    delete serverWorker;
+    delete serverWorker;*/
 }
 
 void DataExchange::initServerWorker()
@@ -54,14 +55,94 @@ void DataExchange::initServerWorker()
     //    This part is important in case of emergency situations
     //    that operator can operate the drone directly by hand.
     //    This is also required by FAA.
-    serverThread = new QThread();
-    serverWorker = new LocalServerWorker();
-    serverWorker->moveToThread(serverThread);
-    connect(serverWorker, SIGNAL(workRequested()), serverThread, SLOT(start()));
-    connect(serverThread, SIGNAL(started()), serverWorker, SLOT(doWork()));
-    connect(serverWorker, SIGNAL(finished()), serverThread, SLOT(quit()), Qt::DirectConnection);
-    connect(serverWorker, &LocalServerWorker::logMessageRequest, this, &DataExchange::logMessage);
-    serverWorker->requestWork();
+    //serverThread = new QThread();
+    //serverWorker = new LocalServerWorker();
+    //serverWorker->moveToThread(serverThread);
+
+    //connect(serverWorker, SIGNAL(workRequested()), serverThread, SLOT(start()));
+    //connect(serverThread, SIGNAL(started()), serverWorker, SLOT(doWork()));
+    // Even though the finished() signal is connected to the server thread,
+    //    but this should not be emitted until the end of the whole app.
+    //    Otherwise the server will not be able to restart any more.
+    //connect(serverWorker, SIGNAL(finished()), serverThread, SLOT(quit()), Qt::DirectConnection);
+    //connect(serverWorker, &LocalServerWorker::logMessageRequest, this, &DataExchange::logMessage);
+    //serverWorker->requestWork();
+
+
+    manual_rc_values.rcData[0] = 1500;
+    manual_rc_values.rcData[1] = 1500;
+    manual_rc_values.rcData[2] = 1000;
+    manual_rc_values.rcData[3] = 1500;
+    manual_rc_values.rcData[4] = 1000;
+    manual_rc_values.rcData[5] = 1000;
+    manual_rc_values.rcData[6] = 1000;
+    manual_rc_values.rcData[7] = 1000;
+
+    server = new LocalServer;
+    connect(server, SIGNAL(inputReceived(QString)), this, SLOT(updateRCValues(QString)) );
+}
+
+void DataExchange::initRemoteControl()
+{
+    auxSerialPortName = "tty.usbserial-00000000";
+    auxConnectionMethod = "AT";
+
+    _auxSerialOn = false;
+    _manualMode = 0;
+    serialReady = false;
+    // serial remote control output
+    timer = new QTimer();
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(rcSwitch()));
+    // Time specified in ms, as the frequency to send out remote control
+    //    command to one agent for manual control.
+    timer->start(100);
+}
+
+void DataExchange::rcSwitch()
+{
+    if (serialReady)
+    {
+        rcWorker();
+    }
+}
+
+void DataExchange::rcWorker()
+{
+    if (serialReady == true)
+    {
+        switch (_manualMode) {
+        case 0:
+        {
+            break;
+        }
+        case 1:
+        {
+            qDebug() << manual_rc_values.rcData[0]
+                     << manual_rc_values.rcData[1]
+                     << manual_rc_values.rcData[2]
+                     << manual_rc_values.rcData[3]
+                     << manual_rc_values.rcData[4]
+                     << manual_rc_values.rcData[5]
+                     << manual_rc_values.rcData[6]
+                     << manual_rc_values.rcData[7];
+            //rc_xbee_at = new RemoteControl_XBEE_AT(serial);
+            rc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
+            break;
+        }
+        case 2:
+        {
+            qDebug() << "Not set 2";
+            break;
+        }
+        case 3:
+        {
+            qDebug() << "Not set 3";
+            break;
+        }
+        default:
+            break;
+        }
+    }
 }
 
 bool DataExchange::get_serialOn() const
@@ -93,6 +174,9 @@ void DataExchange::set_serialOn(bool value)
         {
             worker->abort();
             thread->wait();
+            // Clean up when closed
+            //delete worker;
+            //delete thread;
         }
         emit serialOnChanged(_serialOn);
     }
@@ -159,18 +243,29 @@ void DataExchange::set_auxSerialOn(bool value)
         _auxSerialOn = value;
         if (_auxSerialOn == true)
         {
-            serverWorker->set_serialPortName(auxSerialPortName);
-            serverWorker->set_auxSerialOn(true);
+            set_auxSerialPortName(auxSerialPortName);
 
             for (int i = 0; i< 3; i++)
             {
-                serverWorker->addressList[i] = addressList[i];
+                auxAddressList[i] = addressList[i];
             }
+            // aux serial port is opened.
+            //    create a new QSerialPort
+            serial = new QSerialPort();
+            //qDebug() << _serialPortName;
+            // To do: the serial port name may changed, need to check
+            //    the port name again.
+            serial->setPortName(auxSerialPortName);
+            rc_xbee_at = new RemoteControl_XBEE_AT(serial);
         }
         else if (_auxSerialOn == false)
         {
-            serverWorker->set_auxSerialOn(false);
-            serverWorker->set_serialPortName("");
+            set_auxSerialPortName("");
+            if (serial->isOpen())
+            {
+                serial->close();
+            }
+            delete serial;
         }
         emit auxSerialOnChanged(_auxSerialOn);
     }
@@ -186,16 +281,152 @@ void DataExchange::set_manualMode(int value)
     if (value != _manualMode)
     {
         _manualMode = value;
-        qDebug() << _manualMode;
+        //qDebug() << _manualMode;
+        if (_manualMode > 0)
+        {
+            serialReady = true;
+        }
+        else
+        {
+            serialReady = false;
+        }
         //
         LogMessage tempLogMessage;
         tempLogMessage.id = QString("DataExchange");
         tempLogMessage.message = QString("Manual Mode:") + QString::number(_manualMode, 10);
         emit logMessageRequest(tempLogMessage);
-        //
-        serverWorker->set_manualMode(_manualMode);
-        //worker->manualStatus = _manualMode;
     }
+}
+
+QString DataExchange::get_auxSerialPortName() const
+{
+    return _serialPortName;
+}
+
+void DataExchange::set_auxSerialPortName(QString value)
+{
+    _serialPortName = value;
+    //qDebug() << "set serial port name" << _serialPortName;
+}
+
+void DataExchange::updateRCValues(QString msg)
+{
+    //qDebug() << msg;
+    if (msg.length() > 0)
+    {
+        QStringList msgFields = msg.split(":");
+
+        if (msgFields.at(0) == "thr")
+        {
+            try
+            {
+                int tempValue = msgFields.at(1).toInt();
+                if ( (tempValue >= 1000) && (tempValue <= 2000) )
+                {
+                    manual_rc_values.rcData[2] = tempValue;
+                }
+            }
+            catch (...)
+            {
+                qDebug() << "Throttle value error";
+                //
+                //tempMessage.id = "LocalServerWorker";
+                //tempMessage.message = "Throttle value error";
+                //emit logMessageRequest(tempMessage);
+                //
+                foreach (QString tempStr, msgFields) {
+                    qDebug() << tempStr;
+                }
+            }
+
+        }
+        else if (msgFields.at(0) == "yaw")
+        {
+            int tempValue = msgFields.at(1).toFloat();
+            if ( (tempValue >= -180.0) && (tempValue <= 180.0) )
+            {
+                manual_rc_values.rcData[3] = mapAngleToPWM(tempValue, -180.0, 180.0, 1000, 2000);
+            }
+        }
+        else if (msgFields.at(0) == "pitch")
+        {
+            int tempValue = msgFields.at(1).toFloat();
+            if ( (tempValue >= -90.0) && (tempValue <= 90.0) )
+            {
+                manual_rc_values.rcData[1] = mapAngleToPWM(tempValue, -90.0, 90.0, 1000, 2000);
+            }
+        }
+        else if (msgFields.at(0) == "roll")
+        {
+            int tempValue = msgFields.at(1).toFloat();
+            if ( (tempValue >= -90.0) && (tempValue <= 90.0) )
+            {
+                manual_rc_values.rcData[0] = mapAngleToPWM(tempValue, -90.0, 90.0, 1000, 2000);
+            }
+        }
+        else if (msgFields.at(0) == "aux1")
+        {
+            int tempValue = msgFields.at(1).toInt();
+            if (tempValue == 1)
+            {
+                manual_rc_values.rcData[4] = 1350;
+            }
+            else if (tempValue == 0)
+            {
+                manual_rc_values.rcData[4] = 1000;
+            }
+        }
+        else if (msgFields.at(0) == "aux2")
+        {
+            int tempValue = msgFields.at(1).toInt();
+            if (tempValue == 1)
+            {
+                manual_rc_values.rcData[5] = 1000;
+            }
+            else if (tempValue == 0)
+            {
+                manual_rc_values.rcData[5] = 1100;
+            }
+        }
+        else if (msgFields.at(0) == "aux3")
+        {
+            int tempValue = msgFields.at(1).toInt();
+            if (tempValue == 1)
+            {
+                manual_rc_values.rcData[6] = 1800;
+            }
+            else if (tempValue == 0)
+            {
+                manual_rc_values.rcData[6] = 1000;
+            }
+        }
+        else if (msgFields.at(0) == "aux4")
+        {
+            int tempValue = msgFields.at(1).toInt();
+            if (tempValue == 1)
+            {
+                manual_rc_values.rcData[7] = 1800;
+            }
+            else if (tempValue == 2)
+            {
+                manual_rc_values.rcData[7] = 1600;
+            }
+            else if (tempValue == 3)
+            {
+                manual_rc_values.rcData[7] = 1400;
+            }
+            else if (tempValue == 0)
+            {
+                manual_rc_values.rcData[7] = 1000;
+            }
+        }
+    }
+}
+
+uint16_t DataExchange::mapAngleToPWM(float realAngle, float minAngle, float maxAngle, uint16_t minPWM, uint16_t maxPWM)
+{
+    uint16_t realPWM = int((maxPWM - minPWM)*(realAngle - minAngle)/(maxAngle - minAngle) + minPWM);
+    return realPWM;
 }
 
 void DataExchange::updateQuadsStates(QList<QuadStates *> *tempObjList)
@@ -639,7 +870,7 @@ void SerialWorker::logMessage(LogMessage tempMessage)
 LocalServerWorker::LocalServerWorker(QObject *parent) :
     QObject(parent)
 {
-    _serialPortName = "cu.usbserial-A602ZF3F";
+    _serialPortName = "tty.usbserial-AL00R598";
     connectionMethod = "AT";
 
     _working = false;
@@ -659,12 +890,13 @@ LocalServerWorker::LocalServerWorker(QObject *parent) :
     server = new LocalServer;
     connect(server, SIGNAL(inputReceived(QString)), this, SLOT(updateRCValues(QString)) );
     qRegisterMetaType<LogMessage>("LogMessage");
+    qDebug()<<"LS in Thread "<<thread()->currentThreadId();
 }
 
 void LocalServerWorker::requestWork()
 {
     mutex.lock();
-    _working = true;
+    //_working = true;
     _abort = false;
     qDebug()<<"Request server worker start in Thread "<<thread()->currentThreadId();
     // Log
@@ -679,9 +911,12 @@ void LocalServerWorker::requestWork()
 
 void LocalServerWorker::abort()
 {
+    // This function is not used.
+    //    This thread is a little different with the thread of main serial com.
     mutex.lock();
     if (_working) {
         _abort = true;
+        _working = false;
         qDebug()<<"Request server worker aborting in Thread "<<thread()->currentThreadId();
         //
         tempMessage.id = "LocalServerWorker";
@@ -692,6 +927,14 @@ void LocalServerWorker::abort()
     mutex.unlock();
 }
 
+void LocalServerWorker::serverSwitch()
+{
+    if (serialReady)
+    {
+        realWorker();
+    }
+}
+
 void LocalServerWorker::doWork()
 {
     qDebug()<<"Starting server worker process in Thread "<< QThread::currentThreadId();
@@ -700,55 +943,13 @@ void LocalServerWorker::doWork()
     tempMessage.message = "Starting server worker process in Thread ";
     emit logMessageRequest(tempMessage);
     //
-    mutex.lock();
-    bool abort = _abort;
-    mutex.unlock();
-
-    /*
-    server = new LocalServer;
-    connect(server, SIGNAL(inputReceived(QString)), this, SLOT(updateRCValues(QString)) );
-    */
-
-    // serial
-
-    while (!abort)
-    {
-        realWorker();
-
-        mutex.lock();
-        bool abort = _abort;
-        mutex.unlock();
-        if (abort)
-        {
-            qDebug()<<"Aborting server worker process in Thread "<< QThread::currentThreadId();
-            //
-            tempMessage.id = "LocalServerWorker";
-            tempMessage.message = "Aborting server worker process in Thread ";
-            emit logMessageRequest(tempMessage);
-            //
-            break;
-        }
-    }
-
-    serial->flush();
-    if(serial->isOpen())
-    {
-        serial->close();
-    }
-
-    delete serial;
-    // Set _working to false, meaning the process can't be aborted anymore.
-    mutex.lock();
-    _working = false;
-    mutex.unlock();
-
-    qDebug() << "Server Worker process finished in Thread " << QThread::currentThreadId();
-    //
-    tempMessage.id = "LocalServerWorker";
-    tempMessage.message = "Server Worker process finished in Thread ";
-    emit logMessageRequest(tempMessage);
-    //
-    emit finished();
+    // serial remote control output
+    timer = new QTimer();
+    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(serverSwitch()));
+    // Time specified in ms, as the frequency to send out remote control
+    //    command to one agent for manual control.
+    timer->start(500);
+    //serverSwitch();
 }
 
 void LocalServerWorker::updateRCValues(QString msg)
@@ -889,29 +1090,35 @@ void LocalServerWorker::realWorker()
                      << manual_rc_values.rcData[5]
                      << manual_rc_values.rcData[6]
                      << manual_rc_values.rcData[7];
+            qDebug()<<"in Thread "<<thread()->currentThreadId();
+            qDebug() << "Locate 1";
+            //rc_xbee_at = new RemoteControl_XBEE_AT(serial);
             rc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
+            qDebug() << "Locate 2";
             break;
         }
         case 2:
         {
+            qDebug() << "Not set 2";
             break;
         }
         case 3:
         {
+            qDebug() << "Not set 3";
             break;
         }
         default:
             break;
         }
-
-        QTime dieTime1= QTime::currentTime().addMSecs(50);
+        // Try to use signal rather than while loop.
+        /*QTime dieTime1= QTime::currentTime().addMSecs(50);
 
         while( QTime::currentTime() < dieTime1 )
         {
             QEventLoop loop;
             QTimer::singleShot(1, &loop, SLOT(quit()));
             loop.exec();
-        }
+        }*/
     }
 }
 
@@ -936,17 +1143,29 @@ void LocalServerWorker::set_auxSerialOn(bool value)
     _auxSerialOn = value;
     if (_auxSerialOn == true)
     {
-        serial = new QSerialPort;
+        // aux serial port is opened.
+        //    create a new QSerialPort
+        serial = new QSerialPort();
         //qDebug() << _serialPortName;
+        // To do: the serial port name may changed, need to check
+        //    the port name again.
         serial->setPortName(_serialPortName);
+        rc_xbee_at = new RemoteControl_XBEE_AT(serial);
+        _working = true;
     }
     else if (_auxSerialOn == false)
     {
+        // To do: implement another part to change the manual mode to 0
+        //    when the aux serial port is closed.
         if (serial->isOpen())
         {
             serial->close();
         }
         delete serial;
+
+        // Do not emit finished() signal, otherwise the thread will not able to restart again.
+        //emit finished();
+        _working = false;
     }
 }
 
@@ -971,7 +1190,8 @@ void LocalServerWorker::set_manualMode(int value)
                                 QByteArray::fromHex("fffe"));
         quadstates_list.append(tempQS);
         //sc_xbee_at = new SerialCommunication_XBEE_AT(serial, quadstates_list);
-        rc_xbee_at = new RemoteControl_XBEE_AT(serial);
+        qDebug()<<"in Thread "<<thread()->currentThreadId();
+
         serialReady = true;
     }
     else
@@ -979,10 +1199,11 @@ void LocalServerWorker::set_manualMode(int value)
         serialReady = false;
         if (_manualMode == 0)
         {
-            if (serial->isOpen())
+            /*if (serial->isOpen())
             {
                 serial->close();
             }
+            delete rc_xbee_at;*/
         }
     }
 }

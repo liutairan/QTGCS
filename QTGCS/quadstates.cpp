@@ -11,6 +11,13 @@ QuadStates::QuadStates(QByteArray frameid, QByteArray addr_long, QByteArray addr
         active_boxids.box_id[i] = -1;
     }
 
+    msp_ident.MW_VERSION = 0;
+    msp_ident.mixer_mode = 0;
+    msp_ident.MSP_PROTOCOL_VERSION = 0;
+    msp_ident.CAPABILITY = 0;
+
+    msp_loop_time.looptime = 0;
+
     msp_analog.amp = 0;
     msp_analog.mAhDrawn = 0;
     msp_analog.rssi = 0;

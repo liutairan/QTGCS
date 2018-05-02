@@ -1,5 +1,5 @@
-#ifndef MSP_V2_H
-#define MSP_V2_H
+#ifndef MSP_V1_H
+#define MSP_V1_H
 
 #include <QObject>
 #include <QByteArray>
@@ -8,10 +8,10 @@
 
 //Multiwii MSP Commands
 #define MSP_API_VERSION 1
-#define FC_VARIANT 2
-#define FC_VERSION 3
-#define BOARD_INFO 4
-#define BUILD_INFO 5
+#define MSP_FC_VARIANT 2
+#define MSP_FC_VERSION 3
+#define MSP_BOARD_INFO 4
+#define MSP_BUILD_INFO 5
 
 #define MSP_INAV_PID 6
 #define MSP_SET_INAV_PID 7
@@ -21,6 +21,23 @@
 
 #define MSP_NAV_POSHOLD 12
 #define MSP_SET_NAV_POSHOLD 13
+
+#define MSP_CALIBRATION_DATA 14
+#define MSP_SET_CALIBRATION_DATA 15
+
+#define MSP_POSITION_ESTIMATION_CONFIG 16
+#define  MSP_SET_POSITION_ESTIMATION_CONFIG 17
+#define MSP_WP_MISSION_LOAD 18
+#define MSP_WP_MISSION_SAVE 19
+#define MSP_WP_GETINFO 20
+#define MSP_RTH_AND_LAND_CONFIG 21
+#define MSP_SET_RTH_AND_LAND_CONFIG 22
+#define MSP_FW_CONFIG 23
+#define MSP_SET_FW_CONFIG 24
+
+// MSP commands for Cleanflight original features
+#define MSP_CHANNEL_FORWARDING 32
+#define MSP_SET_CHANNEL_FORWARDING 33
 
 #define MSP_MODE_RANGES 34    // MSP_MODE_RANGES    out message         Returns all mode ranges
 #define MSP_SET_MODE_RANGE 35 // MSP_SET_MODE_RANGE in message          Sets a single mode range
@@ -55,6 +72,9 @@
 
 #define MSP_RXFAIL_CONFIG 77 // out message         Returns RXFAIL settings
 #define MSP_SET_RXFAIL_CONFIG 78 // in message          Sets RXFAIL settings
+
+#define MSP_SENSOR_CONFIG 96
+#define MSP_SET_SENSOR_CONFIG 97
 
 #define MSP_IDENT 100
 #define MSP_STATUS 101
@@ -125,33 +145,13 @@
 
 #define INFO_WP 400
 
-#define MSP2_COMMON_TZ              0x1001  //out message   Gets the TZ offset for the local time (returns: minutes(i16))
-#define MSP2_COMMON_SET_TZ          0x1002  //in message    Sets the TZ offset for the local time (args: minutes(i16))
-#define MSP2_COMMON_SETTING         0x1003  //in/out message   Returns the value for a setting
-#define MSP2_COMMON_SET_SETTING     0x1004  //in message    Sets the value for a setting
-
-#define MSP2_COMMON_MOTOR_MIXER     0x1005
-#define MSP2_COMMON_SET_MOTOR_MIXER 0x1006
-
-#define MSP2_INAV_STATUS                        0x2000
-#define MSP2_INAV_OPTICAL_FLOW                  0x2001
-#define MSP2_INAV_ANALOG                        0x2002
-#define MSP2_INAV_MISC                          0x2003
-#define MSP2_INAV_SET_MISC                      0x2004
-#define MSP2_INAV_BATTERY_CONFIG                0x2005
-#define MSP2_INAV_SET_BATTERY_CONFIG            0x2006
-#define MSP2_INAV_RATE_PROFILE                  0x2007
-#define MSP2_INAV_SET_RATE_PROFILE              0x2008
-#define MSP2_INAV_AIR_SPEED                     0x2009
-
-class MSP_V2 : public QObject
+class MSP_V1 : public QObject
 {
     Q_OBJECT
 public:
-    explicit MSP_V2(QObject *parent = 0);
-    MSP_V2();
-    ~MSP_V2();
-    uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a);
+    explicit MSP_V1(QObject *parent = 0);
+    MSP_V1();
+    ~MSP_V1();
     QByteArray processSendPacket(int cmd);
     QByteArray processSendPacket(int cmd, Msp_rc_channels raw_rc);
     QByteArray processSendPacket(int cmd, int ind);
@@ -161,6 +161,9 @@ public:
     void parseSensorStatus(QuadStates *);
     void parseArmingFlags(QuadStates *);
     void parseFlightModeFlags(QuadStates *);
+signals:
+    void missionDownloaded();
+    void missionUploaded();
 };
 
-#endif // MSP_V2_H
+#endif // MSP_V1_H

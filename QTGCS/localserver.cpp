@@ -21,6 +21,7 @@ LocalServer::~LocalServer()
     foreach (QTcpSocket *tempSocket, socketList) {
         tempSocket->close();
     }
+    delete server;
 }
 
 void LocalServer::newConnection()

@@ -10,6 +10,7 @@
 #include <QtSerialPort/QSerialPortInfo>
 
 #include "multiwii.h"
+#include "msp_v1.h"
 #include "msp_v2.h"
 
 class SerialCommunication_USB : public QObject
@@ -53,7 +54,8 @@ private:
     void processPacket(QByteArray packet);
     bool missionDownloadFlag;
     bool missionUploadFlag;
-    MSP_V2 *mspHandle;
+    MSP_V1 *mspHandle1;
+    MSP_V2 *mspHandle2;
 signals:
     void qsReady(QList<QuadStates *> *);
     void missionDownloaded();

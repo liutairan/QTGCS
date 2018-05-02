@@ -446,12 +446,14 @@ public:
     QByteArray address_short;
 
     Msp_boxids active_boxids;
+    Msp_ident msp_ident;
     Msp_analog msp_analog;
     Msp_status msp_status;
     Msp_status_ex msp_status_ex;
     Msp_sensor_flags msp_sensor_flags;
     Msp_arm_status msp_arm_status;
     Msp_flight_modes msp_flight_modes;
+    Msp_loop_time msp_loop_time;
     Msp_rc_channels msp_rc_channels;
     Msp_feature msp_feature;
     Msp_raw_imu msp_raw_imu;

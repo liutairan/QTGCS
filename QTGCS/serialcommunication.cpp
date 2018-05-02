@@ -8,6 +8,8 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
 {
     serial = ser;
     connectionMethod = connMethod;
+    everRunFlag = false;
+    tReceive.start();
     for (int i =0; i<3; i++)
     {
         addressList[i] = addrList[i];
@@ -57,7 +59,8 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
 }
 
 SerialCommunication::~SerialCommunication()
-{}
+{
+}
 
 void SerialCommunication::send(TXRequest *request){}
 void SerialCommunication::broadcast(QString data){}
@@ -76,6 +79,7 @@ void SerialCommunication::PreLoadInfo()
 
 void SerialCommunication::PreCheck()
 {
+    everRunFlag = true;
     if (connectionMethod == "USB")
     {
         sc_usb->sendCMD(MSP_BOXIDS);
@@ -127,8 +131,32 @@ void SerialCommunication::RegularCheck()
 {
     if (connectionMethod == "USB")
     {
+        // Check time elaspe
+        if ((tReceive.elapsed() > 200) && (everRunFlag == true))
+        {
+            QTime dieTimeSleep = QTime::currentTime().addMSecs(1000);
+            while( QTime::currentTime() < dieTimeSleep )
+            {
+                QEventLoop loop;
+                QTimer::singleShot(1, &loop, SLOT(quit()));
+                loop.exec();
+            }
+            qDebug() << "Restart serial communication";
+        }
+
+        // MSP_IDENT
+        /*sc_usb->sendCMD(MSP_IDENT);
+        QTime dieTime0 = QTime::currentTime().addMSecs(30);
+        while( QTime::currentTime() < dieTime0 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }*/
+
+        // MSP_STATUS_EX
         sc_usb->sendCMD(MSP_STATUS_EX);
-        QTime dieTime1 = QTime::currentTime().addMSecs(10);
+        QTime dieTime1 = QTime::currentTime().addMSecs(30);
         while( QTime::currentTime() < dieTime1 )
         {
             QEventLoop loop;
@@ -136,8 +164,9 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
+        // MSP_ANALOG
         sc_usb->sendCMD(MSP_ANALOG);
-        QTime dieTime2 = QTime::currentTime().addMSecs(10);
+        QTime dieTime2 = QTime::currentTime().addMSecs(30);
         while( QTime::currentTime() < dieTime2 )
         {
             QEventLoop loop;
@@ -145,6 +174,7 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
+        // MSP_SONAR_ALTITUDE
         if( quadstates_list.at(0)->msp_sensor_flags.sonar)
         {
             sc_usb->sendCMD(MSP_SONAR_ALTITUDE);
@@ -156,9 +186,20 @@ void SerialCommunication::RegularCheck()
                 loop.exec();
             }
         }
+        else // if sonar is not available, still wait for 5ms
+        {
+            QTime dieTime3 = QTime::currentTime().addMSecs(5);
+            while( QTime::currentTime() < dieTime3 )
+            {
+                QEventLoop loop;
+                QTimer::singleShot(1, &loop, SLOT(quit()));
+                loop.exec();
+            }
+        }
 
+        // MSP_ATTITUDE
         sc_usb->sendCMD(MSP_ATTITUDE);
-        QTime dieTime4 = QTime::currentTime().addMSecs(10);
+        QTime dieTime4 = QTime::currentTime().addMSecs(30);
         while( QTime::currentTime() < dieTime4 )
         {
             QEventLoop loop;
@@ -166,10 +207,21 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
+        // MSP_RAW_GPS
         if (quadstates_list.at(0)->msp_sensor_flags.gps)
         {
             sc_usb->sendCMD(MSP_RAW_GPS);
             QTime dieTime5 = QTime::currentTime().addMSecs(10);
+            while( QTime::currentTime() < dieTime5 )
+            {
+                QEventLoop loop;
+                QTimer::singleShot(1, &loop, SLOT(quit()));
+                loop.exec();
+            }
+        }
+        else // if gps is not available, still wait for 5ms
+        {
+            QTime dieTime5 = QTime::currentTime().addMSecs(5);
             while( QTime::currentTime() < dieTime5 )
             {
                 QEventLoop loop;
@@ -246,16 +298,16 @@ void SerialCommunication::RegularCheck()
                     QTimer::singleShot(1, &loop, SLOT(quit()));
                     loop.exec();
                 }
-                /*
-                sc_xbee_api->sendCMD(i, MSP_ATTITUDE);
+
+                /*sc_xbee_api->sendCMD(i, MSP_ATTITUDE);
                 QTime dieTime2 = QTime::currentTime().addMSecs(100);
                 while( QTime::currentTime() < dieTime2 )
                 {
                     QEventLoop loop;
                     QTimer::singleShot(1, &loop, SLOT(quit()));
                     loop.exec();
-                }
-                */
+                }*/
+
                 sc_xbee_api->sendCMD(i, MSP_RAW_GPS);
                 QTime dieTime3 = QTime::currentTime().addMSecs(100);
                 while( QTime::currentTime() < dieTime3 )
@@ -368,6 +420,7 @@ void SerialCommunication::AbortMission()
 
 void SerialCommunication::Update(QList<QuadStates *> *tempObjList)
 {
-    //qDebug() << "Get Here, SC";
+    // Record the last time receive state update.
+    tReceive.start();
     emit quadsStatesChanged(tempObjList);
 }

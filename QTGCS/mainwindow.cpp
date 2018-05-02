@@ -13,11 +13,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     removeToolBar(ui->mainToolBar);
 
-    //QString currentWorkingPath = QDir::currentPath();
     currentWorkingPath = QCoreApplication::applicationDirPath();
-    qDebug() << currentWorkingPath;
+    //qDebug() << currentWorkingPath;
     cfgFilePath = currentWorkingPath + "/config.json";
-    qDebug() << cfgFilePath;
+    //qDebug() << cfgFilePath;
     QByteArray val;
     val = readJsonFile(cfgFilePath);
     QJsonDocument doc;
@@ -1155,7 +1154,6 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
 
         if (ui->quad1TableView->rect().contains(event->pos()))
         {
-            ;//qDebug() << "Inside table 1";
         }
     }
 }
@@ -1689,7 +1687,7 @@ void MainWindow::on_serialConnectButton_clicked()
 
 void MainWindow::updateSerialInfo(bool value)
 {
-    qDebug()<< "Data received" << value;
+    //qDebug()<< "Data received" << value;
     if (value == true)
     {
         ui->serialConnectButton->setText("Disconnect");
@@ -1719,6 +1717,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         ui->manual1RadioButton->setEnabled(true);
         ui->manual2RadioButton->setEnabled(true);
         ui->manual3RadioButton->setEnabled(true);
+        this->repaint();
     }
     else if (auxSerialConnectButtonText == "Disconnect")
     {
@@ -1728,6 +1727,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
+        this->repaint();
     }
 }
 

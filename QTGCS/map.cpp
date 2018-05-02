@@ -49,16 +49,8 @@ QByteArray readJsonFile(const QString &filename)
 
 void Map::initPath()
 {
-    //QString currentWorkingPath = QDir::currentPath();
-    //qDebug() << currentWorkingPath;
-    //qDebug() << currentWorkingPath.length();
-    //qDebug() << currentWorkingPath[currentWorkingPath.length()-1];
-    //QString cachePath = currentWorkingPath + "/mapscache/";
-    //_cachepath = cachePath;
     currentWorkingPath = QCoreApplication::applicationDirPath();
-    qDebug() << currentWorkingPath;
     cfgFilePath = currentWorkingPath + "/config.json";
-    qDebug() << cfgFilePath;
     QByteArray val;
     val = readJsonFile(cfgFilePath);
     QJsonDocument doc;

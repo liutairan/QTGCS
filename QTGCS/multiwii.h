@@ -4,7 +4,7 @@
 #include "quadstates.h"
 
 //Multiwii MSP Commands
-#define API_VERSION 1
+#define MSP_API_VERSION 1
 #define FC_VARIANT 2
 #define FC_VERSION 3
 #define BOARD_INFO 4
