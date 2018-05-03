@@ -175,6 +175,7 @@ public:
     Msp_rc_channels manual_rc_values;
 
     QSerialPort *serial;
+    QSerialPort *auxSerial;
     //SerialCommunication_XBEE_AT *sc_xbee_at;
     RemoteControl_XBEE_AT *rc_xbee_at;
     QString auxAddressList[3];
@@ -211,6 +212,7 @@ private:
     int _serialMode;
     int _radioMode;
     int _manualMode;
+    LogMessage tempLogMessage;
     QThread *thread;
     SerialWorker *worker;
     QThread *serverThread;

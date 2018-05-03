@@ -26,8 +26,7 @@ DataExchange::~DataExchange()
 {
     _serialOn = false;
 
-    //
-    LogMessage tempLogMessage;
+    // Send log info to main GUI
     tempLogMessage.id = QString("DataExchange");
     tempLogMessage.message = QString("Deleting thread and worker in Thread.");
     emit logMessageRequest(tempLogMessage);
@@ -77,19 +76,35 @@ void DataExchange::initServerWorker()
     manual_rc_values.rcData[5] = 1000;
     manual_rc_values.rcData[6] = 1000;
     manual_rc_values.rcData[7] = 1000;
+    // Even though 8 channels are set here, there is still a possibility
+    //    more channels are used. This is depending on the settings.
+    //    Traditionally, at most 8 channels were available on the remote
+    //    controller. But recently more channels are available.
+    //    For example, iNav support 18 channels.
 
     server = new LocalServer;
+    // Server received data from network.
     connect(server, SIGNAL(inputReceived(QString)), this, SLOT(updateRCValues(QString)) );
+
+    // Log message channel
+    connect(server, &LocalServer::logMessageRequest, this, &DataExchange::logMessage);
 }
 
 void DataExchange::initRemoteControl()
 {
+    // Initialize aux serial port name and connection method
+    //    In future, the connection method should be able to
+    //    set with two different ways, point to point and
+    //    point to network.
+    //    Point to point is manual control mode, and point
+    //    to network is autonomous control mode.
     auxSerialPortName = "tty.usbserial-00000000";
     auxConnectionMethod = "AT";
 
     _auxSerialOn = false;
     _manualMode = 0;
     serialReady = false;
+
     // serial remote control output
     timer = new QTimer();
     QObject::connect(timer, SIGNAL(timeout()), this, SLOT(rcSwitch()));
@@ -117,26 +132,48 @@ void DataExchange::rcWorker()
         }
         case 1:
         {
-            qDebug() << manual_rc_values.rcData[0]
+            /*qDebug() << manual_rc_values.rcData[0]
                      << manual_rc_values.rcData[1]
                      << manual_rc_values.rcData[2]
                      << manual_rc_values.rcData[3]
                      << manual_rc_values.rcData[4]
                      << manual_rc_values.rcData[5]
                      << manual_rc_values.rcData[6]
-                     << manual_rc_values.rcData[7];
+                     << manual_rc_values.rcData[7];*/
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Remote Control");
+            tempLogMessage.message = "<br/> R " + QString::number(manual_rc_values.rcData[0], 10)
+                                   + " P " + QString::number(manual_rc_values.rcData[1], 10)
+                                   + " T " + QString::number(manual_rc_values.rcData[2], 10)
+                                   + " Y " + QString::number(manual_rc_values.rcData[3], 10)
+                                   + "<br/> 5 " + QString::number(manual_rc_values.rcData[4], 10)
+                                   + " 6 " + QString::number(manual_rc_values.rcData[5], 10)
+                                   + " 7 " + QString::number(manual_rc_values.rcData[6], 10)
+                                   + " 8 " + QString::number(manual_rc_values.rcData[7], 10);
+            emit logMessageRequest(tempLogMessage);
+            //
             //rc_xbee_at = new RemoteControl_XBEE_AT(serial);
             rc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
             break;
         }
         case 2:
         {
-            qDebug() << "Not set 2";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Remote Control");
+            tempLogMessage.message = QString("RC is not set on CH2.");
+            emit logMessageRequest(tempLogMessage);
+            //
+            //qDebug() << "Not set 2";
             break;
         }
         case 3:
         {
-            qDebug() << "Not set 3";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Remote Control");
+            tempLogMessage.message = QString("RC is not set on CH3.");
+            emit logMessageRequest(tempLogMessage);
+            //
+            //qDebug() << "Not set 3";
             break;
         }
         default:
@@ -251,21 +288,21 @@ void DataExchange::set_auxSerialOn(bool value)
             }
             // aux serial port is opened.
             //    create a new QSerialPort
-            serial = new QSerialPort();
+            auxSerial = new QSerialPort();
             //qDebug() << _serialPortName;
             // To do: the serial port name may changed, need to check
             //    the port name again.
-            serial->setPortName(auxSerialPortName);
-            rc_xbee_at = new RemoteControl_XBEE_AT(serial);
+            auxSerial->setPortName(auxSerialPortName);
+            rc_xbee_at = new RemoteControl_XBEE_AT(auxSerial);
         }
         else if (_auxSerialOn == false)
         {
             set_auxSerialPortName("");
-            if (serial->isOpen())
+            if (auxSerial->isOpen())
             {
-                serial->close();
+                auxSerial->close();
             }
-            delete serial;
+            delete auxSerial;
         }
         emit auxSerialOnChanged(_auxSerialOn);
     }

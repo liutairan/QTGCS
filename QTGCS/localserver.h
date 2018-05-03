@@ -6,6 +6,8 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 
+#include "logmessage.h"
+
 class LocalServer : public QObject
 {
     Q_OBJECT
@@ -14,6 +16,7 @@ public:
     ~LocalServer();
 
 signals:
+    void logMessageRequest(LogMessage);
 
 public slots:
     void newConnection();
@@ -24,6 +27,7 @@ private:
     QTcpServer *server;
     //QTcpSocket *socket;
     QList<QTcpSocket *> socketList;
+    LogMessage tempLogMessage;
 signals:
     void inputReceived(QString msg);
 public slots:

@@ -8,11 +8,21 @@ LocalServer::LocalServer(QObject *parent) :
 
     if (!server->listen(QHostAddress::Any, 8080))
     {
-        qDebug() << "Server could not start";
+        //qDebug() << "Server could not start";
+        // Send log info to main GUI
+        tempLogMessage.id = QString("Local Server");
+        tempLogMessage.message = QString("Server could not start.");
+        emit logMessageRequest(tempLogMessage);
+        //
     }
     else
     {
-        qDebug() << "Server started";
+        //qDebug() << "Server started";
+        // Send log info to main GUI
+        tempLogMessage.id = QString("Local Server");
+        tempLogMessage.message = QString("Server started.");
+        emit logMessageRequest(tempLogMessage);
+        //
     }
 }
 
@@ -28,7 +38,12 @@ void LocalServer::newConnection()
 {
     QTcpSocket *tempSocket;
     tempSocket = server->nextPendingConnection();
-    qDebug() << tempSocket->localAddress() << tempSocket->localPort();
+    //qDebug() << tempSocket->localAddress() << tempSocket->localPort();
+    // Send log info to main GUI
+    tempLogMessage.id = QString("Local Server");
+    tempLogMessage.message = tempSocket->localAddress().toString() + " " + QString::number(tempSocket->localPort(), 10);
+    emit logMessageRequest(tempLogMessage);
+    //
     connect(tempSocket, SIGNAL(readyRead()), this, SLOT(readData()));
     // Clear old connections
     //    If not clear old connections, then old connection still

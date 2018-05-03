@@ -165,6 +165,8 @@ void MainWindow::updateGPSonMap(QList<QuadStates *> *tempObjList)
     //    greater than 3 meters, hope this way can reduce the frequency
     //    of updating the GUI.
     //    To do.
+    if (tempObjList->length())
+    {}
     //emit paintRequest();
 }
 
@@ -1055,7 +1057,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
 
                     if (dlgCode == QDialog::Accepted)
                     {
-                        qDebug() << "Accepted";
+                        //qDebug() << "Accepted";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad1 Mission");
+                        tempLogMessage.message = QString("Mission accepted.");
+                        logMessage(tempLogMessage);
+                        //
                         WP tempWP = {0,"WP",0,0,0,0,0,0,0};
                         tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
                         tempWP.wp_action = inputDialog->typeCombo->currentText();
@@ -1070,7 +1077,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     }
                     else if (dlgCode == QDialog::Rejected)
                     {
-                        qDebug() << "Rejected";
+                        //qDebug() << "Rejected";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad1 Mission");
+                        tempLogMessage.message = QString("Mission rejected.");
+                        logMessage(tempLogMessage);
+                        //
                     }
                 }
                 catch (...)
@@ -1091,7 +1103,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
 
                     if (dlgCode == QDialog::Accepted)
                     {
-                        qDebug() << "Accepted";
+                        //qDebug() << "Accepted";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad2 Mission");
+                        tempLogMessage.message = QString("Mission accepted.");
+                        logMessage(tempLogMessage);
+                        //
                         WP tempWP = {0,"WP",0,0,0,0,0,0,0};
                         tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
                         tempWP.wp_action = inputDialog->typeCombo->currentText();
@@ -1106,7 +1123,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     }
                     else if (dlgCode == QDialog::Rejected)
                     {
-                        qDebug() << "Rejected";
+                        //qDebug() << "Rejected";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad2 Mission");
+                        tempLogMessage.message = QString("Mission rejected.");
+                        logMessage(tempLogMessage);
+                        //
                     }
                 }
                 catch (...)
@@ -1127,7 +1149,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
 
                     if (dlgCode == QDialog::Accepted)
                     {
-                        qDebug() << "Accepted";
+                        //qDebug() << "Accepted";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad3 Mission");
+                        tempLogMessage.message = QString("Mission accepted.");
+                        logMessage(tempLogMessage);
+                        //
                         WP tempWP = {0,"WP",0,0,0,0,0,0,0};
                         tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
                         tempWP.wp_action = inputDialog->typeCombo->currentText();
@@ -1142,7 +1169,12 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     }
                     else if (dlgCode == QDialog::Rejected)
                     {
-                        qDebug() << "Rejected";
+                        //qDebug() << "Rejected";
+                        // Send log info to main GUI
+                        tempLogMessage.id = QString("Quad3 Mission");
+                        tempLogMessage.message = QString("Mission rejected.");
+                        logMessage(tempLogMessage);
+                        //
                     }
                 }
                 catch (...)
@@ -1691,14 +1723,24 @@ void MainWindow::updateSerialInfo(bool value)
     if (value == true)
     {
         ui->serialConnectButton->setText("Disconnect");
-        qDebug() << "Connected";
+        //qDebug() << "Connected";
+        // Send log info to main GUI
+        tempLogMessage.id = QString("Main Serial");
+        tempLogMessage.message = QString("Connected.");
+        logMessage(tempLogMessage);
+        //
         this->repaint();
     }
     else if(value == false)
     {
         ui->serialConnectButton->setText("Connect");
         resetLabels();
-        qDebug() << "Disconnected";
+        //qDebug() << "Disconnected";
+        // Send log info to main GUI
+        tempLogMessage.id = QString("Main Serial");
+        tempLogMessage.message = QString("Disconnected.");
+        logMessage(tempLogMessage);
+        //
         this->repaint();
     }
 }
@@ -1713,7 +1755,12 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         deHandle->auxConnectionMethod = "AT";
         deHandle->set_auxSerialOn(true);
         ui->auxSerialConnectButton->setText("Disconnect");
-        qDebug() << "Aux connected" << deHandle->auxSerialPortName;
+        //qDebug() << "Aux connected" << deHandle->auxSerialPortName;
+        // Send to main GUI log window
+        tempLogMessage.id = QString("Main Window");
+        tempLogMessage.message = QString("Aux connected: "+ deHandle->auxSerialPortName);
+        logMessage(tempLogMessage);
+        //
         ui->manual1RadioButton->setEnabled(true);
         ui->manual2RadioButton->setEnabled(true);
         ui->manual3RadioButton->setEnabled(true);
@@ -1723,7 +1770,12 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     {
         deHandle->set_auxSerialOn(false);
         ui->auxSerialConnectButton->setText("Connect");
-        qDebug() << "Aux disconnected";
+        //qDebug() << "Aux disconnected";
+        // Send to main GUI log window
+        tempLogMessage.id = QString("Main Window");
+        tempLogMessage.message = QString("Aux disconnected.");
+        logMessage(tempLogMessage);
+        //
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
@@ -2181,7 +2233,12 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
 void MainWindow::on_serialPortComboBox_currentIndexChanged(int index)
 {
-    qDebug() << index;
+    //qDebug() << index;
+    // Send log info to main GUI
+    tempLogMessage.id = QString("Main Serial");
+    tempLogMessage.message = QString::number(index, 10);
+    logMessage(tempLogMessage);
+    //
 }
 
 Mission_list MainWindow::WPsToMissions(WP_list tempWPList)
@@ -2304,7 +2361,12 @@ void MainWindow::Quad1AddWP()
 
         if (dlgCode == QDialog::Accepted)
         {
-            qDebug() << "Accepted";
+            //qDebug() << "Accepted";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad1 Mission");
+            tempLogMessage.message = QString("Mission accepted.");
+            logMessage(tempLogMessage);
+            //
             WP tempWP = {0,"WP",0,0,0,0,0,0,0};
             tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
             tempWP.wp_action = inputDialog->typeCombo->currentText();
@@ -2319,7 +2381,12 @@ void MainWindow::Quad1AddWP()
         }
         else if (dlgCode == QDialog::Rejected)
         {
-            qDebug() << "Rejected";
+            //qDebug() << "Rejected";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad1 Mission");
+            tempLogMessage.message = QString("Mission rejected.");
+            logMessage(tempLogMessage);
+            //
         }
     }
     catch (...)
@@ -2362,7 +2429,12 @@ void MainWindow::Quad1EditWP()
 
         if (dlgCode == QDialog::Accepted)
         {
-            qDebug() << "Accepted";
+            //qDebug() << "Accepted";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad2 Mission");
+            tempLogMessage.message = QString("Mission accepted.");
+            logMessage(tempLogMessage);
+            //
             WP tempWP = {0,"WP",0,0,0,0,0,0,0};
             tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
             tempWP.wp_action = inputDialog->typeCombo->currentText();
@@ -2377,7 +2449,12 @@ void MainWindow::Quad1EditWP()
         }
         else if (dlgCode == QDialog::Rejected)
         {
-            qDebug() << "Rejected";
+            //qDebug() << "Rejected";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad2 Mission");
+            tempLogMessage.message = QString("Mission rejected.");
+            logMessage(tempLogMessage);
+            //
         }
     }
     catch (...)
@@ -2410,11 +2487,16 @@ void MainWindow::Quad1SaveWP()
     QString fileName = QFileDialog::getSaveFileName(this, "Save Waypoints to File", "", "Waypoints files (*.wps);;Text files (*.txt)");
     if (fileName.length() > 0)
     {
-        qDebug() << fileName;
+        //qDebug() << fileName;
         QFile file(fileName);
         if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            qDebug() << "Cannot open file";
+            //qDebug() << "Cannot open file";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad1 Mission Save");
+            tempLogMessage.message = QString("Cannot open file.");
+            logMessage(tempLogMessage);
+            //
         }
 
         QTextStream out(&file);
@@ -2439,11 +2521,16 @@ void MainWindow::Quad1LoadWP()
     QString fileName = QFileDialog::getOpenFileName(this, "Choose Waypoint File", "", "Waypoints files (*.wps);;Text files (*.txt)");
     if (fileName.length() > 0)
     {
-        qDebug() << fileName;
+        //qDebug() << fileName;
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {
-            qDebug() << "Cannot open file";
+            //qDebug() << "Cannot open file";
+            // Send log info to main GUI
+            tempLogMessage.id = QString("Quad1 Mission Load");
+            tempLogMessage.message = QString("Cannot open file.");
+            logMessage(tempLogMessage);
+            //
         }
         QString inputStr;
         QTextStream in(&file);
@@ -3457,6 +3544,8 @@ void MainWindow::on_helpButton_clicked()
         HelpDialog *helpDialog = new HelpDialog;
         helpDialog->setWindowTitle("Help");
         int dlgCode = helpDialog->exec();
+        if (dlgCode)
+        {}
     }
     catch (...)
     {
