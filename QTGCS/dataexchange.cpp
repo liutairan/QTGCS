@@ -300,12 +300,14 @@ void DataExchange::set_manualMode(int value)
 
 QString DataExchange::get_auxSerialPortName() const
 {
-    return _serialPortName;
+    //return _serialPortName;
+    return auxSerialPortName;
 }
 
 void DataExchange::set_auxSerialPortName(QString value)
 {
-    _serialPortName = value;
+    //_serialPortName = value;
+    auxSerialPortName = value;
     //qDebug() << "set serial port name" << _serialPortName;
 }
 
