@@ -12,6 +12,8 @@ On the quadcopters, flight controllers with iNav firmware are used, while XBee i
 
 Currently, this project is still under construction and the focus point will be successfully running on macOS, iOS systems. But it has the possibility to run on Linux or Windows systems in the future. 
 
+This work is part of my research project. And this ground control station is meant to be working with my own AutonomousFlight firmware for the best performance. Most of the features are still pending to repeatable verification.
+
 # Features already implemented:
     1. Upload missions
     2. Check multiple quadcopter status
