@@ -1,0 +1,57 @@
+digraph GCS{
+  label="Command and Data Flow of GCS"
+
+  main[shape="box", style=rounded];
+  MainWindow[shape="box", style=rounded];
+  DataExchange[shape="box", style=rounded];
+  LocalServer[shape="box", style=rounded];
+  RemoteControl_XBEE_AT[shape="box", style=rounded];
+  RemoteControl_XBEE_API[shape="box", style=rounded];
+  Map[shape="box", style=rounded];
+  Voice[shape="box", style=rounded];
+  LogMessage[shape="box", style=rounded];
+  SerialWorker[shape="box", style=rounded];
+  QuadStates[shape="box", style=rounded];
+  LogDialog[shape="box", style=rounded];
+  TabWidget[shape="box", style=rounded];
+  HelpDialog[shape="box", style=rounded];
+  SerialCommunication[shape="box", style=rounded];
+  SerialCommunication_USB[shape="box", style=rounded];
+  SerialCommunication_XBEE_AT[shape="box", style=rounded];
+  SerialCommunication_XBEE_API[shape="box", style=rounded];
+  QTXB[shape="box", style=rounded];
+  MSP_V1[shape="box", style=rounded];
+  MSP_V2[shape="box", style=rounded];
+
+  main -> MainWindow[label="Create GUI"];
+  MainWindow -> DataExchange[label="Data Channel"];
+  MainWindow -> Map;
+  MainWindow -> TabWidget;
+  MainWindow -> LogDialog;
+  MainWindow -> LogMessage;
+  MainWindow -> HelpDialog;
+  DataExchange -> LocalServer;
+  DataExchange -> RemoteControl_XBEE_AT;
+  DataExchange -> Voice;
+  DataExchange -> SerialWorker;
+  DataExchange -> QuadStates;
+  SerialWorker -> SerialCommunication;
+  SerialCommunication -> SerialCommunication_USB;
+  SerialCommunication -> SerialCommunication_XBEE_AT;
+  SerialCommunication -> SerialCommunication_XBEE_API;
+  SerialCommunication_XBEE_API -> QTXB;
+  SerialCommunication_USB -> MSP_V1;
+  SerialCommunication_USB -> MSP_V2;
+  SerialCommunication_XBEE_AT -> MSP_V1;
+  SerialCommunication_XBEE_AT -> MSP_V2;
+  SerialCommunication_XBEE_API -> MSP_V1;
+  SerialCommunication_XBEE_API -> MSP_V2;
+  RemoteControl_XBEE_AT -> MSP_V1;
+  RemoteControl_XBEE_AT -> MSP_V2;
+  RemoteControl_XBEE_API -> MSP_V1;
+  RemoteControl_XBEE_API -> MSP_V2;
+  MSP_V1 -> QuadStates;
+  MSP_V2 -> QuadStates;
+  Map -> DataExchange;
+  DataExchange -> Map;
+}
