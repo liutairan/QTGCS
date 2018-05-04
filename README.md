@@ -37,3 +37,4 @@ Screenshot:
 # Related applications:
     1. QTGCS_Configurator: configure environment for QTGCS.
     2. QTGCS_MapManager: local map image management, pre-download map images, update new map images, etc.
+    3. AutonomousFlight: dialected flight control firmware works with QTGCS.
