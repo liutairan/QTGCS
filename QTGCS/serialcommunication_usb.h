@@ -9,6 +9,7 @@
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
 
+#include "logmessage.h"
 #include "multiwii.h"
 #include "msp_v1.h"
 #include "msp_v2.h"
@@ -42,6 +43,9 @@ public:
     void disarm(QuadStates *);
     void nav(QuadStates *);
     void disnav(QuadStates *);
+
+    //LogMessage tempLogMessage;
+
 public slots:
     void readData();
     void missionDownloadedFlag();
@@ -60,6 +64,7 @@ signals:
     void qsReady(QList<QuadStates *> *);
     void missionDownloaded();
     void missionUploaded();
+    void logMessageRequest(LogMessage);
 };
 
 #endif // SERIALCOMMUNICATION_USB_H

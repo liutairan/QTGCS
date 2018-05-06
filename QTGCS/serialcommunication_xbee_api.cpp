@@ -349,7 +349,7 @@ void SerialCommunication_XBEE_API::parseFlightModeFlags(QuadStates *tempQS)
 {
     uint32_t flightModeFlags = tempQS->msp_status_ex.packFlightModeFlags;
     QString tempFlightModeFlags = QString::number(flightModeFlags, 2).rightJustified(32, '0');
-    for (int i=0; i< sizeof(tempQS->active_boxids.box_id); i++)
+    for (unsigned int i=0; i< sizeof(tempQS->active_boxids.box_id); i++)
     {
         uint8_t tempInd = tempQS->active_boxids.box_id[i];
         if (tempInd >= 0)
@@ -567,7 +567,11 @@ void SerialCommunication_XBEE_API::uploadMission(int objInd, Mission tempMission
 }
 
 void SerialCommunication_XBEE_API::missionUploadedFlag(int objInd)
-{}
+{
+    //
+    if (objInd)
+    {}
+}
 
 void SerialCommunication_XBEE_API::uploadMissions(int objInd)
 {
@@ -858,7 +862,7 @@ void SerialCommunication_XBEE_API::processPacket(int ind, QByteArray packet)
         QuadStates *tempQS;
         tempQS = qsList.at(ind);
 
-        for (int i=0; i< length; i++)
+        for (unsigned int i=0; i< length; i++)
         {
             tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
         }
