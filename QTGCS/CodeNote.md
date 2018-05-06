@@ -34,4 +34,25 @@
 | ... | ... |
 | 521 | Remote control is open, quad 3 is armed and on RTH mode |
 | ... | ... |
+| 911 | Remote control is open, all 3 quads on RTH mode |
+| ... | ... |
 | 1023| Invalid |
+
+| Bit index | Function | Note |
+|:-----:|:-----:|:-----:|
+| 15 | Not used, hold for future usage | Highest bit |
+| 14 | Not used, hold for future usage | N/A |
+| 13 | Not used, hold for future usage | N/A |
+| 12 | Not used, hold for future usage | N/A |
+| 11 | Not used, hold for future usage | N/A |
+| 10 | Not used, hold for future usage | N/A |
+| 9  | RTH quad 3 | N/A |
+| 8  | RTH quad 2 | N/A |
+| 7  | RTH quad 1 | N/A |
+| 6  | NAV quad 3 | N/A |
+| 5  | NAV quad 2 | N/A |
+| 4  | NAV quad 1 | N/A |
+| 3  | ARM quad 3 | N/A |
+| 2  | ARM quad 2 | N/A |
+| 1  | ARM quad 1 | N/A |
+| 0  | Remote control On/Off | Lowest bit |
