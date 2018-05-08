@@ -5,7 +5,7 @@ My previous repository pyGCS was temporarily paused for technical difficulties. 
 This repository QTGCS is written with C++ and QT. Currently it is quite stable and fast compared to pyGCS. It is still under construction and I will continue focusing on this repository and try to finish it.
 
 # Developer channel
-[Slack Channel](qtgcs.slack.com)
+[Slack Channel](https://qtgcs.slack.com)
 
 # Introduction:
 
