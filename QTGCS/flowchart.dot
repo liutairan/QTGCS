@@ -1,51 +1,67 @@
 digraph GCS{
   label="Command and Data Flow of GCS"
+  graph [splines=ortho, nodesep=0.5, rankdir = LR, ranksep=0.5]
+  edge [minlen=5]
 
   main[shape="box", style=rounded];
-  MainWindow[shape="box", style=rounded];
-  DataExchange[shape="box", style=rounded];
-  LocalServer[shape="box", style=rounded];
+  MainWindow[shape="box", style=rounded, height=10, width=3];
+  DataExchange[shape="box", style=rounded, height=7, width=3];
+  LocalServer[shape="box", style=rounded, height=3, width=3];
   RemoteControl_XBEE_AT[shape="box", style=rounded];
   RemoteControl_XBEE_API[shape="box", style=rounded];
   Map[shape="box", style=rounded];
   Voice[shape="box", style=rounded];
   LogMessage[shape="box", style=rounded];
+  Telemetry[shape="box", style=rounded];
   SerialWorker[shape="box", style=rounded];
   QuadStates[shape="box", style=rounded];
   LogDialog[shape="box", style=rounded];
   TabWidget[shape="box", style=rounded];
   HelpDialog[shape="box", style=rounded];
-  SerialCommunication[shape="box", style=rounded];
-  SerialCommunication_USB[shape="box", style=rounded];
-  SerialCommunication_XBEE_AT[shape="box", style=rounded];
-  SerialCommunication_XBEE_API[shape="box", style=rounded];
+  SerialCommunication[shape="box", style=rounded, height=2, width=3];
+  SerialCommunication_USB[shape="box", style=rounded, height=2, width=3];
+  SerialCommunication_XBEE_AT[shape="box", style=rounded, height=2, width=3];
+  SerialCommunication_XBEE_API[shape="box", style=rounded, height=2, width=3];
   QTXB[shape="box", style=rounded];
-  MSP_V1[shape="box", style=rounded];
-  MSP_V2[shape="box", style=rounded];
+  MSP_V1[shape="box", style=rounded, height=3, width=3];
+  MSP_V2[shape="box", style=rounded, height=3, width=3];
+  QTcpServer[shape="box", style=rounded];
+  QTcpSocket[shape="box", style=rounded];
+  QJsonDocument[shape="box", style=rounded];
 
   main -> MainWindow[label="Create GUI"];
-  MainWindow -> DataExchange[label="Data Channel"];
+  QJsonDocument -> MainWindow;
+  MainWindow -> LogDialog[headlabel="updateData", taillabel="updateLog"];
+  DataExchange -> MainWindow[headlabel="logMessage", taillabel="logMessageRequest"];
+  DataExchange -> MainWindow[headlabel="updateSerialInfo", taillabel="teleSerialOnChanged"];
+  DataExchange -> MainWindow[headlabel="updateQuadsStates", taillabel="quadsStatesChangeRequest"];
+  MainWindow -> DataExchange[xlabel="Data Channel"];
   MainWindow -> Map;
   MainWindow -> TabWidget;
   MainWindow -> LogDialog;
   MainWindow -> LogMessage;
   MainWindow -> HelpDialog;
-  DataExchange -> LocalServer;
-  DataExchange -> RemoteControl_XBEE_AT;
+  QTcpServer -> LocalServer;
+  QTcpSocket -> LocalServer;
+  LocalServer -> DataExchange[headlabel="updateRCValues", taillabel="inputReceived"];
+  LocalServer -> DataExchange[headlabel="logMessage", taillabel="logMessageRequest"];
+  DataExchange -> RemoteControl_XBEE_AT[xlabel="timeout -> rcSwitch -> rcWorker"];
   DataExchange -> Voice;
-  DataExchange -> SerialWorker;
+  DataExchange -> Telemetry;
   DataExchange -> QuadStates;
-  SerialWorker -> SerialCommunication;
+  Telemetry -> DataExchange[headlabel="updateQuadsStates", taillabel="quadsStatesChangeRequest"];
+  Telemetry -> DataExchange[headlabel="logMessage", taillabel="logMessageRequest"];
+  Telemetry -> SerialCommunication;
   SerialCommunication -> SerialCommunication_USB;
   SerialCommunication -> SerialCommunication_XBEE_AT;
   SerialCommunication -> SerialCommunication_XBEE_API;
   SerialCommunication_XBEE_API -> QTXB;
-  SerialCommunication_USB -> MSP_V1;
-  SerialCommunication_USB -> MSP_V2;
-  SerialCommunication_XBEE_AT -> MSP_V1;
-  SerialCommunication_XBEE_AT -> MSP_V2;
-  SerialCommunication_XBEE_API -> MSP_V1;
-  SerialCommunication_XBEE_API -> MSP_V2;
+  SerialCommunication_USB -> MSP_V1[headlabel="logMessage", taillabel="logMessageRequest"];
+  SerialCommunication_USB -> MSP_V2[headlabel="logMessage", taillabel="logMessageRequest"];
+  SerialCommunication_XBEE_AT -> MSP_V1[headlabel="logMessage", taillabel="logMessageRequest"];
+  SerialCommunication_XBEE_AT -> MSP_V2[headlabel="logMessage", taillabel="logMessageRequest"];
+  SerialCommunication_XBEE_API -> MSP_V1[headlabel="logMessage", taillabel="logMessageRequest"];
+  SerialCommunication_XBEE_API -> MSP_V2[headlabel="logMessage", taillabel="logMessageRequest"];
   RemoteControl_XBEE_AT -> MSP_V1;
   RemoteControl_XBEE_AT -> MSP_V2;
   RemoteControl_XBEE_API -> MSP_V1;
@@ -54,4 +70,5 @@ digraph GCS{
   MSP_V2 -> QuadStates;
   Map -> DataExchange;
   DataExchange -> Map;
+
 }
