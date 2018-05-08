@@ -83,6 +83,8 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 }
 
 // update with quad states
+//    This function receives the feedback quadstates from DataExchange
+//    and update all the information use in GUI and log.
 void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
 {
     QString logString = "------------------\n";
@@ -316,7 +318,21 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
 
     if (quad2ConnSwitch == true)
     {
-        if (tempObjList->at(1)->msp_sensor_flags.acc == true)
+        uint qsObjInd = 1;
+        if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
+        {
+            qsObjInd = 0;
+        }
+        else if (deHandle->teleConnectionMethod == "API")
+        {
+            if (deHandle->teleAddressList[0] == "")
+            {
+                // If the first quad is not connected, then the feedback quadstates of
+                //    second quad is stored in the first place.
+                qsObjInd = 0;
+            }
+        }
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.acc == true)
         {
             ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -324,7 +340,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.mag == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.mag == true)
         {
             ui->quad2MAGOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -332,7 +348,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2MAGOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.baro == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.baro == true)
         {
             ui->quad2BAROOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -340,7 +356,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2BAROOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.sonar == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.sonar == true)
         {
             ui->quad2SONAROverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -348,7 +364,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2SONAROverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.gps == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.gps == true)
         {
             ui->quad2GPSOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -356,7 +372,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2GPSOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.pitot == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.pitot == true)
         {
             ui->quad2PITOTOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -364,7 +380,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2PITOTOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.hardware == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.hardware == true)
         {
             ui->quad2HWOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -374,7 +390,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         }
 
         // status/modes
-        if (tempObjList->at(1)->msp_flight_modes.arm == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.arm == true)
         {
             ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -382,7 +398,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.angle == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.angle == true)
         {
             ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -390,7 +406,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_althold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_althold == true)
         {
             ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -398,7 +414,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_poshold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_poshold == true)
         {
             ui->quad2POSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -406,7 +422,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2POSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if ((tempObjList->at(1)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        if ((tempObjList->at(qsObjInd)->msp_flight_modes.nav_wp == true) || (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true))
         {
             ui->quad2NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -414,7 +430,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_rth == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true)
         {
             ui->quad2RTHModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -422,7 +438,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2RTHModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.failsafe == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.failsafe == true)
         {
             ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -431,7 +447,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
             ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage2 = tempObjList->at(1)->msp_analog.vbat/10.0;
+        float tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad2VoltageOverview->setText(QString::number(tempVoltage2, 'f', 1) + "V");
         if (tempVoltage2 >= 11.7)
         {
@@ -457,7 +473,25 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
 
     if (quad3ConnSwitch == true)
     {
-        if (tempObjList->at(2)->msp_sensor_flags.acc == true)
+        uint qsObjInd = 2;
+        if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
+        {
+            qsObjInd = 0;
+        }
+        else if (deHandle->teleConnectionMethod == "API")
+        {
+            if (deHandle->teleAddressList[0] == "")
+            {
+                // If the first quad is not connected, then the feedback quadstates of
+                //    second quad is stored in the first place.
+                qsObjInd = qsObjInd - 1;
+            }
+            if (deHandle->teleAddressList[1] == "")
+            {
+                qsObjInd = qsObjInd - 1;
+            }
+        }
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.acc == true)
         {
             ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -465,7 +499,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ACCOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.mag == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.mag == true)
         {
             ui->quad3MAGOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -473,7 +507,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3MAGOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.baro == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.baro == true)
         {
             ui->quad3BAROOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -481,7 +515,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3BAROOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.sonar == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.sonar == true)
         {
             ui->quad3SONAROverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -489,7 +523,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3SONAROverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.gps == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.gps == true)
         {
             ui->quad3GPSOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -497,7 +531,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3GPSOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.pitot == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.pitot == true)
         {
             ui->quad3PITOTOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -505,7 +539,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3PITOTOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.hardware == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.hardware == true)
         {
             ui->quad3HWOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -515,7 +549,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         }
 
         // status/modes
-        if (tempObjList->at(2)->msp_flight_modes.arm == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.arm == true)
         {
             ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -523,7 +557,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.angle == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.angle == true)
         {
             ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -531,7 +565,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_althold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_althold == true)
         {
             ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -539,7 +573,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_poshold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_poshold == true)
         {
             ui->quad3POSModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -547,7 +581,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3POSModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if ((tempObjList->at(2)->msp_flight_modes.nav_wp == true) || (tempObjList->at(0)->msp_flight_modes.nav_rth == true))
+        if ((tempObjList->at(qsObjInd)->msp_flight_modes.nav_wp == true) || (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true))
         {
             ui->quad3NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -555,7 +589,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3NAVModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_rth == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true)
         {
             ui->quad3RTHModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -563,13 +597,32 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3RTHModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.failsafe == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.failsafe == true)
         {
             ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
         else
         {
             ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+
+        float tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        ui->quad3VoltageOverview->setText(QString::number(tempVoltage3, 'f', 1) + "V");
+        if (tempVoltage3 >= 11.7)
+        {
+            ui->quad3VoltageOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else if (tempVoltage3 >= 11.1 && tempVoltage3 < 11.7)
+        {
+            ui->quad3VoltageOverview->setStyleSheet("QLabel {background-color : rgba(255,200,0,1);}");
+        }
+        else if (tempVoltage3 >= 10.5 && tempVoltage3 < 11.1)
+        {
+            ui->quad3VoltageOverview->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else if (tempVoltage3 < 10.5)
+        {
+            ui->quad3VoltageOverview->setStyleSheet("QLabel {background-color : rgba(0,0,255,1);}");
         }
     }
     else  // set to unconnected color
@@ -585,6 +638,7 @@ void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad1ConnSwitch == true)
     {
+        uint qsObjInd = 0;
         if (tempObjList->at(0)->msp_sensor_flags.acc == true)
         {
             ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
@@ -700,6 +754,25 @@ void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
             ui->quad1FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
+        float tempVoltage1 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        ui->quad1Voltage->setText(QString::number(tempVoltage1, 'f', 1) + "V");
+        if (tempVoltage1 >= 11.7)
+        {
+            ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else if (tempVoltage1 >= 11.1 && tempVoltage1 < 11.7)
+        {
+            ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(255,200,0,1);}");
+        }
+        else if (tempVoltage1 >= 10.5 && tempVoltage1 < 11.1)
+        {
+            ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else if (tempVoltage1 < 10.5)
+        {
+            ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(0,0,255,1);}");
+        }
+
         // inner
         ui->quad1Roll->setText("Roll: " + QString::number(tempObjList->at(0)->msp_attitude.roll/10.0, 'f', 1));
         ui->quad1Pitch->setText("Pitch: " + QString::number(tempObjList->at(0)->msp_attitude.pitch/10.0, 'f', 1));
@@ -723,7 +796,21 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad2ConnSwitch == true)
     {
-        if (tempObjList->at(1)->msp_sensor_flags.acc == true)
+        uint qsObjInd = 1;
+        if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
+        {
+            qsObjInd = 0;
+        }
+        else if (deHandle->teleConnectionMethod == "API")
+        {
+            if (deHandle->teleAddressList[0] == "")
+            {
+                // If the first quad is not connected, then the feedback quadstates of
+                //    second quad is stored in the first place.
+                qsObjInd = 0;
+            }
+        }
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.acc == true)
         {
             ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -731,7 +818,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ACC->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.mag == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.mag == true)
         {
             ui->quad2MAG->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -739,7 +826,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2MAG->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.baro == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.baro == true)
         {
             ui->quad2BARO->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -747,7 +834,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2BARO->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.sonar == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.sonar == true)
         {
             ui->quad2SONAR->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -755,7 +842,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2SONAR->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.gps == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.gps == true)
         {
             ui->quad2GPS->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -763,7 +850,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2GPS->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.pitot == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.pitot == true)
         {
             ui->quad2PITOT->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -771,7 +858,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2PITOT->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_sensor_flags.hardware == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.hardware == true)
         {
             ui->quad2HW->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -781,7 +868,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         }
 
         // status/modes
-        if (tempObjList->at(1)->msp_flight_modes.arm == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.arm == true)
         {
             ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -789,7 +876,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.angle == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.angle == true)
         {
             ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -797,7 +884,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_althold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_althold == true)
         {
             ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -805,7 +892,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_poshold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_poshold == true)
         {
             ui->quad2POSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -813,7 +900,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2POSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if ((tempObjList->at(1)->msp_flight_modes.nav_wp == true) || (tempObjList->at(1)->msp_flight_modes.nav_rth == true))
+        if ((tempObjList->at(qsObjInd)->msp_flight_modes.nav_wp == true) || (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true))
         {
             ui->quad2NAVMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -821,7 +908,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2NAVMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.nav_rth == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true)
         {
             ui->quad2RTHMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -829,7 +916,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad2RTHMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(1)->msp_flight_modes.failsafe == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.failsafe == true)
         {
             ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -838,17 +925,36 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
             ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
+        float tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        ui->quad2Voltage->setText(QString::number(tempVoltage2, 'f', 1) + "V");
+        if (tempVoltage2 >= 11.7)
+        {
+            ui->quad2Voltage->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else if (tempVoltage2 >= 11.1 && tempVoltage2 < 11.7)
+        {
+            ui->quad2Voltage->setStyleSheet("QLabel {background-color : rgba(255,200,0,1);}");
+        }
+        else if (tempVoltage2 >= 10.5 && tempVoltage2 < 11.1)
+        {
+            ui->quad2Voltage->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else if (tempVoltage2 < 10.5)
+        {
+            ui->quad2Voltage->setStyleSheet("QLabel {background-color : rgba(0,0,255,1);}");
+        }
+
         // inner
-        ui->quad2Roll->setText("Roll: " + QString::number(tempObjList->at(1)->msp_attitude.roll/10.0, 'f', 1));
-        ui->quad2Pitch->setText("Pitch: " + QString::number(tempObjList->at(1)->msp_attitude.pitch/10.0, 'f', 1));
-        ui->quad2Yaw->setText("Yaw: " + QString::number(tempObjList->at(1)->msp_attitude.yaw, 10));
+        ui->quad2Roll->setText("Roll: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.roll/10.0, 'f', 1));
+        ui->quad2Pitch->setText("Pitch: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.pitch/10.0, 'f', 1));
+        ui->quad2Yaw->setText("Yaw: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.yaw, 10));
         // outer
-        ui->quad2Lat->setText("Lat: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
-        ui->quad2Lon->setText("Lon: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
-        ui->quad2Alt->setText("Alt: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
-        ui->quad2SatNum->setText("No. Sat: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_numSat, 10));
-        ui->quad2FixType->setText("Fix Type: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_fixType, 10));
-        ui->quad2HDOP->setText("HDOP: " + QString::number(tempObjList->at(1)->msp_raw_gps.gpsSol_hdop, 10));
+        ui->quad2Lat->setText("Lat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
+        ui->quad2Lon->setText("Lon: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
+        ui->quad2Alt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
+        ui->quad2SatNum->setText("No. Sat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_numSat, 10));
+        ui->quad2FixType->setText("Fix Type: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_fixType, 10));
+        ui->quad2HDOP->setText("HDOP: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_hdop, 10));
     }
     else  // set to unconnected color
     {
@@ -860,7 +966,25 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad3ConnSwitch == true)
     {
-        if (tempObjList->at(2)->msp_sensor_flags.acc == true)
+        uint qsObjInd = 2;
+        if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
+        {
+            qsObjInd = 0;
+        }
+        else if (deHandle->teleConnectionMethod == "API")
+        {
+            if (deHandle->teleAddressList[0] == "")
+            {
+                // If the first quad is not connected, then the feedback quadstates of
+                //    second quad is stored in the first place.
+                qsObjInd = qsObjInd - 1;
+            }
+            if (deHandle->teleAddressList[1] == "")
+            {
+                qsObjInd = qsObjInd - 1;
+            }
+        }
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.acc == true)
         {
             ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -868,7 +992,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ACC->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.mag == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.mag == true)
         {
             ui->quad3MAG->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -876,7 +1000,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3MAG->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.baro == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.baro == true)
         {
             ui->quad3BARO->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -884,7 +1008,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3BARO->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.sonar == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.sonar == true)
         {
             ui->quad3SONAR->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -892,7 +1016,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3SONAR->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.gps == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.gps == true)
         {
             ui->quad3GPS->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -900,7 +1024,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3GPS->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.pitot == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.pitot == true)
         {
             ui->quad3PITOT->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -908,7 +1032,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3PITOT->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_sensor_flags.hardware == true)
+        if (tempObjList->at(qsObjInd)->msp_sensor_flags.hardware == true)
         {
             ui->quad3HW->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -918,7 +1042,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         }
 
         // status/modes
-        if (tempObjList->at(2)->msp_flight_modes.arm == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.arm == true)
         {
             ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -926,7 +1050,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.angle == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.angle == true)
         {
             ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -934,7 +1058,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_althold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_althold == true)
         {
             ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -942,7 +1066,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_poshold == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_poshold == true)
         {
             ui->quad3POSMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -950,7 +1074,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3POSMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if ((tempObjList->at(2)->msp_flight_modes.nav_wp == true) || (tempObjList->at(2)->msp_flight_modes.nav_rth == true))
+        if ((tempObjList->at(qsObjInd)->msp_flight_modes.nav_wp == true) || (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true))
         {
             ui->quad3NAVMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -958,7 +1082,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3NAVMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.nav_rth == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.nav_rth == true)
         {
             ui->quad3RTHMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
@@ -966,7 +1090,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         {
             ui->quad3RTHMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
-        if (tempObjList->at(2)->msp_flight_modes.failsafe == true)
+        if (tempObjList->at(qsObjInd)->msp_flight_modes.failsafe == true)
         {
             ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
         }
@@ -975,17 +1099,36 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
             ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
+        float tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        ui->quad3Voltage->setText(QString::number(tempVoltage3, 'f', 1) + "V");
+        if (tempVoltage3 >= 11.7)
+        {
+            ui->quad3Voltage->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        }
+        else if (tempVoltage3 >= 11.1 && tempVoltage3 < 11.7)
+        {
+            ui->quad1Voltage->setStyleSheet("QLabel {background-color : rgba(255,200,0,1);}");
+        }
+        else if (tempVoltage3 >= 10.5 && tempVoltage3 < 11.1)
+        {
+            ui->quad3Voltage->setStyleSheet("QLabel {background-color : rgba(255,0,0,1);}");
+        }
+        else if (tempVoltage3 < 10.5)
+        {
+            ui->quad3Voltage->setStyleSheet("QLabel {background-color : rgba(0,0,255,1);}");
+        }
+
         // inner
-        ui->quad3Roll->setText("Roll: " + QString::number(tempObjList->at(2)->msp_attitude.roll/10.0, 'f', 1));
-        ui->quad3Pitch->setText("Pitch: " + QString::number(tempObjList->at(2)->msp_attitude.pitch/10.0, 'f', 1));
-        ui->quad3Yaw->setText("Yaw: " + QString::number(tempObjList->at(2)->msp_attitude.yaw, 10));
+        ui->quad3Roll->setText("Roll: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.roll/10.0, 'f', 1));
+        ui->quad3Pitch->setText("Pitch: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.pitch/10.0, 'f', 1));
+        ui->quad3Yaw->setText("Yaw: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.yaw, 10));
         // outer
-        ui->quad3Lat->setText("Lat: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
-        ui->quad3Lon->setText("Lon: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
-        ui->quad3Alt->setText("Alt: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
-        ui->quad3SatNum->setText("No. Sat: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_numSat, 10));
-        ui->quad3FixType->setText("Fix Type: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_fixType, 10));
-        ui->quad3HDOP->setText("HDOP: " + QString::number(tempObjList->at(2)->msp_raw_gps.gpsSol_hdop, 10));
+        ui->quad3Lat->setText("Lat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
+        ui->quad3Lon->setText("Lon: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
+        ui->quad3Alt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_alt/qPow(10.0,2), 'f', 2));
+        ui->quad3SatNum->setText("No. Sat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_numSat, 10));
+        ui->quad3FixType->setText("Fix Type: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_fixType, 10));
+        ui->quad3HDOP->setText("HDOP: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_hdop, 10));
     }
     else  // set to unconnected color
     {
@@ -2769,6 +2912,7 @@ void MainWindow::on_quad1ConnectButton_clicked()
         ui->quad1ConnectButton->setText("Disconnect");
         quad1ConnSwitch = true;
         deHandle->teleAddressList[0] = ui->quad1AddressComboBox->currentText();
+        //qDebug() << deHandle->teleAddressList[0];
         ui->quad1ConnectionStatusOverview->setText("CONN");
         ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         ui->quad1ConnectionStatus->setText("CONN");

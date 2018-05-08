@@ -26,9 +26,6 @@ void TelemetrySerialWorker::setTelemetryConnectionMethod(QString connectionMetho
 
 void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
 {
-    //
-    //qDebug() << teleSerialPortName << teleConnectionMethod;
-    //if (value) {}
     if (value == true)
     {
         teleSerialOn = value;
@@ -43,6 +40,7 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
 
         // Create serial communication handle
         scHandle = new SerialCommunication(teleSerial, teleConnectionMethod, teleAddressList);
+
         connect(scHandle,SIGNAL(quadsStatesChangeRequest(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)) );
 
         // connect for log message

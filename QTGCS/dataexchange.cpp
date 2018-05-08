@@ -240,10 +240,15 @@ void DataExchange::set_teleSerialOn(bool value)
     if (value != teleSerialOn)
     {
         teleSerialOn = value;
+        //qDebug() << "DataExchange set tele serial on" << teleAddressList[0] << teleAddressList[1] << teleAddressList[2];
         if (teleSerialOn == true)
         {
             set_teleSerialPortName(teleSerialPortName);
             set_teleConnectionMethod(teleConnectionMethod);
+            for (uint i=0; i<3; i++)
+            {
+                teleSerialWorker->teleAddressList[i] = teleAddressList[i];
+            }
 
             //teleSerialWorker->setTelemetrySerialOn(teleSerialOn);
 //            teleTimer = new QTimer();
