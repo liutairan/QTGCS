@@ -209,6 +209,8 @@ private slots:
 
     void on_ipRefreshButton_clicked();
 
+    void on_expandButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     LogDialog *logDialog;

@@ -49,7 +49,7 @@ public slots:
     void updateQuadsStates(QList<QuadStates *> *);  // update quads states
     void logMessage(LogMessage);
     void overviewPageInfoMode();
-    //void uploadMissionMode();
+    void quadsPageInfoMode();
 private:
     bool teleSerialOn;
     QTimer *teleTimer;

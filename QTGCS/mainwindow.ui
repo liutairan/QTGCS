@@ -3289,6 +3289,19 @@
      <string>R</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="expandButton">
+    <property name="geometry">
+     <rect>
+      <x>1140</x>
+      <y>0</y>
+      <width>10</width>
+      <height>690</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="enabled">

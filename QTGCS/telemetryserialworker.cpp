@@ -7,6 +7,7 @@ TelemetrySerialWorker::TelemetrySerialWorker(QObject *parent) : QObject(parent)
     teleSerialOn = false;
     teleSerialPortName = "";
     teleConnectionMethod = "";
+    teleTimer = NULL;
 }
 
 //TelemetrySerialWorker::TelemetrySerialWorker(/*QString portName, QString connectionName, QString addrList[],*/ QObject *parent) :
@@ -55,7 +56,6 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be filled.
         teleTimer->start(200);
 
-        //qDebug() << "Start in " << QThread::currentThreadId();
         LogMessage tempLogMessage;
         tempLogMessage.id = QString("TelemetrySerial Worker");
         tempLogMessage.message = QString("Telemetry started.");
@@ -64,14 +64,14 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
     else if (value == false)
     {
         teleSerialOn = value;
-        //qDebug() << "Stop in " << QThread::currentThreadId();
-        if (teleTimer)
+
+        if (teleTimer != NULL)
         {
             if (teleTimer->isActive())
             {
                 teleTimer->stop();
             }
-            delete teleTimer;
+            teleTimer->deleteLater();
             teleTimer = NULL;
         }
 
@@ -101,46 +101,37 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
 void TelemetrySerialWorker::setTelemetryMode(int mode)
 {
     // End old timer
-    //qDebug() << "Stop in " << QThread::currentThreadId();
-    //qDebug() << "setTeleMode" << QThread::currentThreadId();
-    //qDebug() << "set mode" << mode << teleMode;
-    if (teleTimer)
+    if (teleTimer != NULL)
     {
-        //qDebug() << "Before stop" << teleTimer->isActive() << teleTimer->remainingTime();
         if (teleTimer->isActive())
         {
-            //qDebug() << teleTimer->remainingTime();
             teleTimer->stop();
-            //qDebug() << teleTimer->remainingTime();
             teleTimer->deleteLater();
-            //teleTimer = NULL;
+            teleTimer = NULL;
         }
-        //qDebug() << "After stop" << teleTimer->isActive();
     }
-
 
     // Create new timer
     if (mode == 0)
     {
-        teleTimer = new QTimer();
+        if (teleTimer == NULL)
+        {
+            teleTimer = new QTimer();
+        }
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be filled.
         teleTimer->start(200);
-        //qDebug() << "Start in " << QThread::currentThreadId();
     }
     else if (mode > 0 && mode < 10)
     {
-        teleTimer = new QTimer();
-        QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be changed.
+        if (teleTimer == NULL)
+        {
+            teleTimer = new QTimer();
+        }
+        QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(quadsPageInfoMode())); // SLOT to be changed.
         teleTimer->start(200);
-        //qDebug() << "Start in " << QThread::currentThreadId();
     }
     else if (mode > 10 && mode < 20)
     {
-        //teleTimer = new QTimer();
-        //teleTimer->singleShot(200, 1, this, SLOT(uploadMissionMode(mode)));
-        //QTimer::singleShot(200, this, SLOT(uploadMissionMode()));
-        //QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(uploadMissionMode(mode)));
-        //uploadMissionMode(mode);
         uploadMissionMode();
     }
     else if (mode > 20 && mode < 30)
@@ -151,7 +142,6 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
 
 void TelemetrySerialWorker::teleModeUpdate(int mode)
 {
-    //qDebug() << "Current tele mode is " << mode;
     if (teleMode != mode)
     {
         teleMode = mode;
@@ -163,7 +153,6 @@ void TelemetrySerialWorker::teleModeUpdate(int mode)
         //
         setTelemetryMode(teleMode);
         emit teleModeChangeRequest(teleMode);
-        //qDebug() << "teleModeUpdate" << QThread::currentThreadId();
     }
 }
 
@@ -171,9 +160,7 @@ void TelemetrySerialWorker::teleSerialOnUpdate(bool value)
 {
     if (teleSerialOn != value)
     {
-        //teleSerialOn = value;
         setTelemetrySerialOn(value);
-        //qDebug() << "teleSerialOnUpdate" << QThread::currentThreadId();
     }
 }
 
@@ -195,6 +182,11 @@ void TelemetrySerialWorker::overviewPageInfoMode()
     //tempLogMessage.id = QString("TelemetrySerial Worker");
     //tempLogMessage.message = QString("Running "+ QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz"));
     //emit logMessageRequest(tempLogMessage);
+}
+
+void TelemetrySerialWorker::quadsPageInfoMode()
+{
+    scHandle->RegularCheck();
 }
 
 void TelemetrySerialWorker::uploadMissionMode()
