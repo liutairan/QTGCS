@@ -284,6 +284,10 @@ void DataExchange::set_teleSerialOn(bool value)
     //emit logMessageRequest(QString("Test data trans"));
 }
 
+
+// Telemetry mode changed because of download or upload
+//    missions. Modes were changed in TelemetrySerialWorker
+//    class, feedback to the DataExchange class.
 void DataExchange::teleModeUpdateFB(int mode)
 {
     set_teleMode(mode);

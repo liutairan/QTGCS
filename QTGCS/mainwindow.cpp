@@ -37,9 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     currentTab = ui->tabWidget->currentIndex();
 
     logDialog = new LogDialog(this);
-    logDialog->show();
-    QRect availableRect = QApplication::desktop()->availableGeometry();
-    logDialog->move(availableRect.width()-270, availableRect.y());
+    //logDialog->show();
+    //QRect availableRect = QApplication::desktop()->availableGeometry();
+    //logDialog->move(availableRect.width()-270, availableRect.y());
     connect(this, &MainWindow::updateLog, logDialog, &LogDialog::updateData);
     connect(deHandle, &DataExchange::logMessageRequest, this, &MainWindow::logMessage);
 }
@@ -579,6 +579,8 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
 
 }
 
+// When the data from serial port come back, this function will be called.
+//    The labels will be updated.
 void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad1ConnSwitch == true)
@@ -3706,5 +3708,37 @@ void MainWindow::on_helpButton_clicked()
     catch (...)
     {
         qDebug() << "Caught exception";
+    }
+}
+
+void MainWindow::on_expandButton_clicked()
+{
+    //QSize tempGeo = size();
+    QString currentText = ui->expandButton->text();
+    if (currentText == ">")
+    {
+        ui->expandButton->setText("<");
+        //qDebug() << logDialog->geometry();
+        QSize winGeo = size();
+        QPoint winPos = pos();
+        QPoint expPos = ui->expandButton->pos();
+        QSize expSize = ui->expandButton->size();
+        ui->expandButton->setGeometry(winGeo.width()-expSize.width(), 0, expSize.width(), winGeo.height());
+        move(winPos.x()-300,winPos.y());
+        logDialog->show();
+        QRect availableRect = QApplication::desktop()->availableGeometry();
+        logDialog->move(availableRect.width()-300, availableRect.y());
+        //qDebug() << logDialog->geometry();
+    }
+    else if (currentText == "<")
+    {
+        ui->expandButton->setText(">");
+        QSize winGeo = size();
+        QPoint winPos = pos();
+        QPoint expPos = ui->expandButton->pos();
+        QSize expSize = ui->expandButton->size();
+        ui->expandButton->setGeometry(winGeo.width()-expSize.width(), 0, expSize.width(), winGeo.height());
+        move(winPos.x()+300,winPos.y());
+        logDialog->hide();
     }
 }
