@@ -4,6 +4,9 @@ My previous repository pyGCS was temporarily paused for technical difficulties. 
 
 This repository QTGCS is written with C++ and QT. Currently it is quite stable and fast compared to pyGCS. It is still under construction and I will continue focusing on this repository and try to finish it.
 
+# Developer channel
+[Slack Channel](https://qtgcs.slack.com)
+
 # Introduction:
 
 QTGCS is an open source project for multiple quadcopter ground control station mainly written in C++, which will communicate with multiple quadcopters to exchange real time data or mission or other data fields.
