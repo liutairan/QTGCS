@@ -15,10 +15,13 @@ QByteArray MSP_V2::processSendPacket(int cmd)
 
     output.append("$X<");
     uint8_t checksum = 0;
+
+    // Flag uint8
     unsigned char flag = char(0xFF & 0);
     output.append(flag); // Flag byte
     checksum = crc8_dvb_s2(checksum, flag);
 
+    // Function uint16
     unsigned char funcLow = char(0xFF & cmd);
     output.append(funcLow); // Function lsb
     checksum = crc8_dvb_s2(checksum, funcLow);
@@ -27,6 +30,7 @@ QByteArray MSP_V2::processSendPacket(int cmd)
     output.append(funcHigh); // Function hsb
     checksum = crc8_dvb_s2(checksum, funcHigh);
 
+    // Payload size uint16
     unsigned char paysizeLow = char(0xFF & 0);
     output.append(paysizeLow); // Payload size lsb
     checksum = crc8_dvb_s2(checksum, paysizeLow);
@@ -35,15 +39,231 @@ QByteArray MSP_V2::processSendPacket(int cmd)
     output.append(paysizeHigh); // Payload size hsb
     checksum = crc8_dvb_s2(checksum, paysizeHigh);
 
+    // Checksum
     output.append(char(checksum)); // Checksum, crc8_dvb_s2 checksum
     return output;
 }
 
-QByteArray MSP_V2::processSendPacket(int cmd, Msp_rc_channels raw_rc){}
+QByteArray MSP_V2::processSendPacket(int cmd, Msp_rc_channels raw_rc)
+{
+    QByteArray output;
 
-QByteArray MSP_V2::processSendPacket(int cmd, int ind){}
+    output.append("$X<");
+    uint8_t checksum = 0;
 
-QByteArray MSP_V2::processSendPacket(int cmd, Mission tempMission){}
+    // Flag uint8
+    unsigned char flag = char(0xFF & 0);
+    output.append(flag); // Flag byte
+    checksum = crc8_dvb_s2(checksum, flag);
+
+    // Function uint16
+    unsigned char funcLow = char(0xFF & cmd);
+    output.append(funcLow); // Function lsb
+    checksum = crc8_dvb_s2(checksum, funcLow);
+
+    unsigned char funcHigh = char(0xFF & (cmd >> 8));
+    output.append(funcHigh); // Function hsb
+    checksum = crc8_dvb_s2(checksum, funcHigh);
+
+    // Payload size uint16
+    unsigned char paysizeLow = char(0xFF & 16);
+    output.append(paysizeLow); // Payload size lsb
+    checksum = crc8_dvb_s2(checksum, paysizeLow);
+
+    unsigned char paysizeHigh = char(0xFF & 0);
+    output.append(paysizeHigh); // Payload size hsb
+    checksum = crc8_dvb_s2(checksum, paysizeHigh);
+
+    // Payload 8*unit16
+    //    Even though 8 is used here, at most 18 can be used
+    //    if the app is modified. Commonly 8 channels are
+    //    enough, more channels will actually cause serious
+    //    packet loss with wireless communication.
+    for (int i = 0; i < 8; i++)
+    {
+        uint16_t tempValue = raw_rc.rcData[i];
+        unsigned char payloadLow = char(0xFF & tempValue);
+        output.append(payloadLow); // Payload i lsb
+        checksum = crc8_dvb_s2(checksum, payloadLow);
+
+        unsigned char payloadHigh = char(0xFF & (tempValue >> 8));
+        output.append(payloadHigh); // Payload i hsb
+        checksum = crc8_dvb_s2(checksum, payloadHigh);
+    }
+
+    // checksum byte
+    output.append(char(checksum)); // Checksum, crc8_dvb_s2 checksum
+    return output;
+}
+
+QByteArray MSP_V2::processSendPacket(int cmd, int ind)
+{
+    QByteArray output;
+
+    output.append("$X<");
+    uint8_t checksum = 0;
+
+    // Flag uint8
+    unsigned char flag = char(0xFF & 0);
+    output.append(flag); // Flag byte
+    checksum = crc8_dvb_s2(checksum, flag);
+
+    // Function uint16
+    unsigned char funcLow = char(0xFF & cmd);
+    output.append(funcLow); // Function lsb
+    checksum = crc8_dvb_s2(checksum, funcLow);
+
+    unsigned char funcHigh = char(0xFF & (cmd >> 8));
+    output.append(funcHigh); // Function hsb
+    checksum = crc8_dvb_s2(checksum, funcHigh);
+
+    // Payload size uint16
+    unsigned char paysizeLow = char(0xFF & 1);
+    output.append(paysizeLow); // Payload size lsb
+    checksum = crc8_dvb_s2(checksum, paysizeLow);
+
+    unsigned char paysizeHigh = char(0xFF & 0);
+    output.append(paysizeHigh); // Payload size hsb
+    checksum = crc8_dvb_s2(checksum, paysizeHigh);
+
+    // Payload
+    unsigned char payload = char(0xFF & ind);
+    output.append(payload); // Payload i lsb
+    checksum = crc8_dvb_s2(checksum, payload);
+
+    // checksum byte
+    output.append(char(checksum));
+    return output;
+}
+
+QByteArray MSP_V2::processSendPacket(int cmd, Mission tempMission)
+{
+    QByteArray output;
+
+    output.append("$X<");
+    uint8_t checksum = 0;
+
+    // Flag uint8
+    unsigned char flag = char(0xFF & 0);
+    output.append(flag); // Flag byte
+    checksum = crc8_dvb_s2(checksum, flag);
+
+    // Function uint16
+    unsigned char funcLow = char(0xFF & cmd);
+    output.append(funcLow); // Function lsb
+    checksum = crc8_dvb_s2(checksum, funcLow);
+
+    unsigned char funcHigh = char(0xFF & (cmd >> 8));
+    output.append(funcHigh); // Function hsb
+    checksum = crc8_dvb_s2(checksum, funcHigh);
+
+    // Payload size uint16
+    unsigned char paysizeLow = char(0xFF & 1);
+    output.append(paysizeLow); // Payload size lsb
+    checksum = crc8_dvb_s2(checksum, paysizeLow);
+
+    unsigned char paysizeHigh = char(0xFF & 0);
+    output.append(paysizeHigh); // Payload size hsb
+    checksum = crc8_dvb_s2(checksum, paysizeHigh);
+
+    // Payload
+    // wp_no
+    unsigned char wp_no = char(0xFF & tempMission.wp_no);
+    output.append(wp_no);
+    checksum = crc8_dvb_s2(checksum, wp_no);
+
+    // wp_action
+    unsigned char wp_action = char(0xFF & tempMission.wp_action);
+    output.append(wp_action);
+    checksum = crc8_dvb_s2(checksum, wp_action);
+
+    // wp_lat, HHigh - HLow - LHigh - LLow
+    unsigned char wp_latLLow = char(0xFF & tempMission.wp_lat);
+    output.append(wp_latLLow);
+    checksum = crc8_dvb_s2(checksum, wp_latLLow);
+
+    unsigned char wp_latLHigh = char(0xFF & (tempMission.wp_lat >> 8));
+    output.append(wp_latLHigh);
+    checksum = crc8_dvb_s2(checksum, wp_latLHigh);
+
+    unsigned char wp_latHLow = char(0xFF & (tempMission.wp_lat >> 16));
+    output.append(wp_latHLow);
+    checksum = crc8_dvb_s2(checksum, wp_latHLow);
+
+    unsigned char wp_latHHigh = char(0xFF & (tempMission.wp_lat >> 24));
+    output.append(wp_latHHigh);
+    checksum = crc8_dvb_s2(checksum, wp_latHHigh);
+
+    // wp_lon
+    unsigned char wp_lonLLow = char(0xFF & tempMission.wp_lon);
+    output.append(wp_lonLLow);
+    checksum = crc8_dvb_s2(checksum, wp_lonLLow);
+
+    unsigned char wp_lonLHigh = char(0xFF & (tempMission.wp_lon >> 8));
+    output.append(wp_lonLHigh);
+    checksum = crc8_dvb_s2(checksum, wp_lonLHigh);
+
+    unsigned char wp_lonHLow = char(0xFF & (tempMission.wp_lon >> 16));
+    output.append(wp_lonHLow);
+    checksum = crc8_dvb_s2(checksum, wp_lonHLow);
+
+    unsigned char wp_lonHHigh = char(0xFF & (tempMission.wp_lon >> 24));
+    output.append(wp_lonHHigh);
+    checksum = crc8_dvb_s2(checksum, wp_lonHHigh);
+
+    // wp_alt
+    unsigned char wp_altLLow = char(0xFF & tempMission.wp_alt);
+    output.append(wp_altLLow);
+    checksum = crc8_dvb_s2(checksum, wp_altLLow);
+
+    unsigned char wp_altLHigh = char(0xFF & (tempMission.wp_alt >> 8));
+    output.append(wp_altLHigh);
+    checksum = crc8_dvb_s2(checksum, wp_altLHigh);
+
+    unsigned char wp_altHLow = char(0xFF & (tempMission.wp_alt >> 16));
+    output.append(wp_altHLow);
+    checksum = crc8_dvb_s2(checksum, wp_altHLow);
+
+    unsigned char wp_altHHigh = char(0xFF & (tempMission.wp_alt >> 24));
+    output.append(wp_altHHigh);
+    checksum = crc8_dvb_s2(checksum, wp_altHHigh);
+
+    // wp_p1
+    unsigned char wp_p1Low = char(0xFF & tempMission.wp_p1);
+    output.append(wp_p1Low);
+    checksum = crc8_dvb_s2(checksum, wp_p1Low);
+
+    unsigned char wp_p1High = char(0xFF & (tempMission.wp_p1 >> 8));
+    output.append(wp_p1High);
+    checksum = crc8_dvb_s2(checksum, wp_p1High);
+
+    // wp_p2
+    unsigned char wp_p2Low = char(0xFF & tempMission.wp_p2);
+    output.append(wp_p2Low);
+    checksum = crc8_dvb_s2(checksum, wp_p2Low);
+
+    unsigned char wp_p2High = char(0xFF & (tempMission.wp_p2 >> 8));
+    output.append(wp_p2High);
+    checksum = crc8_dvb_s2(checksum, wp_p2High);
+
+    // wp_p3
+    unsigned char wp_p3Low = char(0xFF & tempMission.wp_p3);
+    output.append(wp_p3Low);
+    checksum = crc8_dvb_s2(checksum, wp_p3Low);
+
+    unsigned char wp_p3High = char(0xFF & (tempMission.wp_p3 >> 8));
+    output.append(wp_p3High);
+    checksum = crc8_dvb_s2(checksum, wp_p3High);
+
+    // wp_flag
+    unsigned char wp_flag = char(0xFF & tempMission.wp_flag);
+    output.append(wp_flag);
+    checksum = crc8_dvb_s2(checksum, wp_flag);
+
+    // checksum byte
+    output.append(char(checksum));
+    return output;
+}
 
 uint8_t MSP_V2::crc8_dvb_s2(uint8_t crc, unsigned char a)
 {
