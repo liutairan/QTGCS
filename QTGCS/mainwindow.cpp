@@ -14,9 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
     removeToolBar(ui->mainToolBar);
 
     currentWorkingPath = QCoreApplication::applicationDirPath();
-    //qDebug() << currentWorkingPath;
     cfgFilePath = currentWorkingPath + "/config.json";
-    //qDebug() << cfgFilePath;
+
     QByteArray val;
     val = readJsonFile(cfgFilePath);
     QJsonDocument doc;
@@ -49,13 +48,17 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+
 QByteArray MainWindow::readJsonFile(const QString &filename)
 {
     QFile f(filename);
-    if (!f.open(QFile::ReadOnly | QFile::Text)) {
+    if (!f.open(QFile::ReadOnly | QFile::Text))
+    {
         f.close();
         return QString().toUtf8();
-    } else {
+    }
+    else
+    {
         QTextStream in(&f);
         QByteArray retValue = in.readAll().toUtf8();
         f.close();
@@ -65,7 +68,6 @@ QByteArray MainWindow::readJsonFile(const QString &filename)
 
 void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 {
-    //qDebug() << tempStr;
     QString styledString="<span style=\" color:#FF0c32;\" > ";
     styledString.append(tempMessage.id);
     styledString.append("</span>");
@@ -3036,12 +3038,127 @@ void MainWindow::on_quad1EditButton_clicked()
 
 void MainWindow::on_quad2TableView_clicked(const QModelIndex &index)
 {
-    qDebug() << "single clicked" << index.row();
+    //qDebug() << "single clicked" << index.row();
 }
 
 void MainWindow::on_quad2TableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "double clicked" << index.row();
+    try
+    {
+        if (index.row() == deHandle->wp_list[1].wps.length())  // Add
+        {
+            InputDialog *inputDialog = new InputDialog;
+            inputDialog->setWindowTitle("Add WP");
+            inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[1].wps.length()+1, 10));
+            int dlgCode = inputDialog->exec();
+
+            if (dlgCode == QDialog::Accepted)
+            {
+                //qDebug() << "Accepted";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad2 Mission");
+                tempLogMessage.message = QString("Mission accepted.");
+                logMessage(tempLogMessage);
+                //
+                WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                tempWP.wp_action = inputDialog->typeCombo->currentText();
+                tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                deHandle->wp_list[1].wps.append(tempWP);
+                emit updateQuad2TableViewRequest();
+            }
+            else if (dlgCode == QDialog::Rejected)
+            {
+                //qDebug() << "Rejected";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad2 Mission");
+                tempLogMessage.message = QString("Mission rejected.");
+                logMessage(tempLogMessage);
+                //
+            }
+        }
+        else if (index.row() < deHandle->wp_list[1].wps.length())  // Edit
+        {
+            InputDialog *inputDialog = new InputDialog;
+            inputDialog->setWindowTitle("Edit WP");
+            WP tempWP;
+            int index = ui->quad2TableView->currentIndex().row();
+            tempWP = deHandle->wp_list[1].wps.at(index);
+            inputDialog->idLineEdit->setText(QString::number(index+1, 10));
+            if (tempWP.wp_action == "WP")
+            {
+                inputDialog->typeCombo->setCurrentIndex(0);
+            }
+            else if (tempWP.wp_action == "RTH")
+            {
+                inputDialog->typeCombo->setCurrentIndex(1);
+            }
+            else if (tempWP.wp_action == "POS_UNLIM")
+            {
+                inputDialog->typeCombo->setCurrentIndex(2);
+            }
+            else if (tempWP.wp_action == "POS_LIM")
+            {
+                inputDialog->typeCombo->setCurrentIndex(3);
+            }
+
+            inputDialog->latLineEdit->setText(QString::number(tempWP.wp_lat, 'f', 7));
+            inputDialog->lonLineEdit->setText(QString::number(tempWP.wp_lon, 'f', 7));
+            inputDialog->altLineEdit->setText(QString::number(tempWP.wp_alt, 'f', 3));
+            inputDialog->p1LineEdit->setText(QString::number(tempWP.wp_p1, 10));
+            inputDialog->p2LineEdit->setText(QString::number(tempWP.wp_p2, 10));
+            inputDialog->p3LineEdit->setText(QString::number(tempWP.wp_p3, 10));
+            int dlgCode = inputDialog->exec();
+
+            if (dlgCode == QDialog::Accepted)
+            {
+                //qDebug() << "Accepted";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad1 Mission");
+                tempLogMessage.message = QString("Mission accepted.");
+                logMessage(tempLogMessage);
+                //
+                WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                tempWP.wp_action = inputDialog->typeCombo->currentText();
+                tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                deHandle->wp_list[1].wps.replace(index, tempWP);
+                emit updateQuad2TableViewRequest();
+            }
+            else if (dlgCode == QDialog::Rejected)
+            {
+                //qDebug() << "Rejected";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad1 Mission");
+                tempLogMessage.message = QString("Mission rejected.");
+                logMessage(tempLogMessage);
+                //
+            }
+        }
+        else if (index.row() > deHandle->wp_list[1].wps.length())  // Do nothing
+        {}
+        else  // Do nothing
+        {}
+
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
 }
 
 void MainWindow::on_quad2TableView_customContextMenuRequested(const QPoint &pos)
@@ -3439,12 +3556,127 @@ void MainWindow::on_quad2EditButton_clicked()
 
 void MainWindow::on_quad3TableView_clicked(const QModelIndex &index)
 {
-    qDebug() << "single clicked" << index.row();
+    //qDebug() << "single clicked" << index.row();
 }
 
 void MainWindow::on_quad3TableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "double clicked" << index.row();
+    try
+    {
+        if (index.row() == deHandle->wp_list[2].wps.length())  // Add
+        {
+            InputDialog *inputDialog = new InputDialog;
+            inputDialog->setWindowTitle("Add WP");
+            inputDialog->idLineEdit->setText(QString::number(deHandle->wp_list[2].wps.length()+1, 10));
+            int dlgCode = inputDialog->exec();
+
+            if (dlgCode == QDialog::Accepted)
+            {
+                //qDebug() << "Accepted";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad3 Mission");
+                tempLogMessage.message = QString("Mission accepted.");
+                logMessage(tempLogMessage);
+                //
+                WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                tempWP.wp_action = inputDialog->typeCombo->currentText();
+                tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                deHandle->wp_list[2].wps.append(tempWP);
+                emit updateQuad3TableViewRequest();
+            }
+            else if (dlgCode == QDialog::Rejected)
+            {
+                //qDebug() << "Rejected";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad1 Mission");
+                tempLogMessage.message = QString("Mission rejected.");
+                logMessage(tempLogMessage);
+                //
+            }
+        }
+        else if (index.row() < deHandle->wp_list[2].wps.length())  // Edit
+        {
+            InputDialog *inputDialog = new InputDialog;
+            inputDialog->setWindowTitle("Edit WP");
+            WP tempWP;
+            int index = ui->quad3TableView->currentIndex().row();
+            tempWP = deHandle->wp_list[2].wps.at(index);
+            inputDialog->idLineEdit->setText(QString::number(index+1, 10));
+            if (tempWP.wp_action == "WP")
+            {
+                inputDialog->typeCombo->setCurrentIndex(0);
+            }
+            else if (tempWP.wp_action == "RTH")
+            {
+                inputDialog->typeCombo->setCurrentIndex(1);
+            }
+            else if (tempWP.wp_action == "POS_UNLIM")
+            {
+                inputDialog->typeCombo->setCurrentIndex(2);
+            }
+            else if (tempWP.wp_action == "POS_LIM")
+            {
+                inputDialog->typeCombo->setCurrentIndex(3);
+            }
+
+            inputDialog->latLineEdit->setText(QString::number(tempWP.wp_lat, 'f', 7));
+            inputDialog->lonLineEdit->setText(QString::number(tempWP.wp_lon, 'f', 7));
+            inputDialog->altLineEdit->setText(QString::number(tempWP.wp_alt, 'f', 3));
+            inputDialog->p1LineEdit->setText(QString::number(tempWP.wp_p1, 10));
+            inputDialog->p2LineEdit->setText(QString::number(tempWP.wp_p2, 10));
+            inputDialog->p3LineEdit->setText(QString::number(tempWP.wp_p3, 10));
+            int dlgCode = inputDialog->exec();
+
+            if (dlgCode == QDialog::Accepted)
+            {
+                //qDebug() << "Accepted";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad1 Mission");
+                tempLogMessage.message = QString("Mission accepted.");
+                logMessage(tempLogMessage);
+                //
+                WP tempWP = {0,"WP",0,0,0,0,0,0,0};
+                tempWP.wp_no = inputDialog->idLineEdit->text().toInt();
+                tempWP.wp_action = inputDialog->typeCombo->currentText();
+                tempWP.wp_lat = inputDialog->latLineEdit->text().toDouble();
+                tempWP.wp_lon = inputDialog->lonLineEdit->text().toDouble();
+                tempWP.wp_alt = inputDialog->altLineEdit->text().toDouble();
+                tempWP.wp_p1 = inputDialog->p1LineEdit->text().toInt();
+                tempWP.wp_p2 = inputDialog->p2LineEdit->text().toInt();
+                tempWP.wp_p3 = inputDialog->p3LineEdit->text().toInt();
+                deHandle->wp_list[2].wps.replace(index, tempWP);
+                emit updateQuad3TableViewRequest();
+            }
+            else if (dlgCode == QDialog::Rejected)
+            {
+                //qDebug() << "Rejected";
+                // Send log info to main GUI
+                LogMessage tempLogMessage;
+                tempLogMessage.id = QString("Quad1 Mission");
+                tempLogMessage.message = QString("Mission rejected.");
+                logMessage(tempLogMessage);
+                //
+            }
+        }
+        else if (index.row() > deHandle->wp_list[2].wps.length())  // Do nothing
+        {}
+        else  // Do nothing
+        {}
+
+    }
+    catch (...)
+    {
+        qDebug() << "Caught exception";
+    }
 }
 
 void MainWindow::on_quad3TableView_customContextMenuRequested(const QPoint &pos)
@@ -3855,6 +4087,11 @@ void MainWindow::on_helpButton_clicked()
     }
 }
 
+
+// Initially the log window will not show up since the
+//    desktop window size is limited.
+//    The log window will be opened once the expand button
+//    is clicked. And it can also hide again.
 void MainWindow::on_expandButton_clicked()
 {
     //QSize tempGeo = size();
