@@ -3865,7 +3865,7 @@ void MainWindow::on_expandButton_clicked()
         //qDebug() << logDialog->geometry();
         QSize winGeo = size();
         QPoint winPos = pos();
-        QPoint expPos = ui->expandButton->pos();
+        //QPoint expPos = ui->expandButton->pos();
         QSize expSize = ui->expandButton->size();
         ui->expandButton->setGeometry(winGeo.width()-expSize.width(), 0, expSize.width(), winGeo.height());
         move(winPos.x()-300,winPos.y());
@@ -3879,7 +3879,7 @@ void MainWindow::on_expandButton_clicked()
         ui->expandButton->setText(">");
         QSize winGeo = size();
         QPoint winPos = pos();
-        QPoint expPos = ui->expandButton->pos();
+        //QPoint expPos = ui->expandButton->pos();
         QSize expSize = ui->expandButton->size();
         ui->expandButton->setGeometry(winGeo.width()-expSize.width(), 0, expSize.width(), winGeo.height());
         move(winPos.x()+300,winPos.y());
