@@ -179,11 +179,39 @@ Library.
 #include "mainwindow.h"
 #include <QApplication>
 
+bool CheckCFGFile(QString filePath)
+{
+    if (!QFileInfo(filePath).exists())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Configuration not exist. Please configure first.");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    w.setFocus();
-    return a.exec();
+
+    QString currentWorkingPath = QCoreApplication::applicationDirPath();
+    QString cfgFilePath = currentWorkingPath + "/config.json";
+
+    if (CheckCFGFile(cfgFilePath))
+    {
+        MainWindow w;
+        w.show();
+        w.setFocus();
+        return a.exec();
+    }
+    else
+    {
+        return 0;
+    }
+
 }

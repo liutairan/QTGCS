@@ -70,7 +70,7 @@ void SerialCommunication_USB::sendCMD(int cmd)  // send cmd with no data
     }
     catch (...)
     {
-        qDebug() << cmd << output;
+        //qDebug() << cmd << output;
     }
 
     try
@@ -743,6 +743,11 @@ bool SerialCommunication_USB::checkMissionUpload(Mission mi_send, Mission mi_rec
     }
 }
 
+// Radio Control is not used with serial port any more.
+//    In the future, all the radio control related
+//    functions will be moved to RemoteControl class.
+//    DataExchange - TelemetrySerialWorker - SerialCommunication - SerialCommunication_USB/XBEE_AT/XBEE_API
+//    DataExchange - RemoteControlWorker - RemoteControl_XBEE_AT/XBEE_API
 void SerialCommunication_USB::radioControl(int radioMode)
 {
     // some radio mode may not be used in this function
