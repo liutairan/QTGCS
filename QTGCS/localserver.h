@@ -27,7 +27,7 @@ private:
     QTcpServer *server;
     //QTcpSocket *socket;
     QList<QTcpSocket *> socketList;
-    LogMessage tempLogMessage;
+    //LogMessage tempLogMessage;
 signals:
     void inputReceived(QString msg);
 public slots:

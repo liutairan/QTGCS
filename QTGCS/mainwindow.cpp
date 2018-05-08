@@ -27,8 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     logFilePath = resourcePath + "/" + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ".log";
 
     deHandle = new DataExchange();
-    connect(deHandle, &DataExchange::serialOnChanged, this, &MainWindow::updateSerialInfo);
-    connect(deHandle, &DataExchange::quadsStatesChanged, this, &MainWindow::updateQuadsStates);
+    connect(deHandle, &DataExchange::teleSerialOnChanged, this, &MainWindow::updateSerialInfo);
+    connect(deHandle, &DataExchange::quadsStatesChangeRequest, this, &MainWindow::updateQuadsStates);
     InitMap();
     InitOverviewPage();
     InitQuad1Page();
@@ -88,9 +88,9 @@ void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
     QString logString = "------------------\n";
     logString = logString + QTime::currentTime().toString("hh:mm:ss.zzz") + ", ";
     logString = logString + "\n---STA---\n";
-    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + ", ";
-    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
-    logString = logString + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
+    logString = logString + "Cycle Time:\n" + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + "\n";
+    logString = logString + "Arming Flags:\n" + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + "\n";
+    logString = logString + "Flight Mode Flags:\n" + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + "\n";
     logString = logString + "\n---ALT---\n";
     logString = logString + QString::number(tempObjList->at(0)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10);
     logString = logString + "\n---ATT---\n";
@@ -1059,6 +1059,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Accepted";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad1 Mission");
                         tempLogMessage.message = QString("Mission accepted.");
                         logMessage(tempLogMessage);
@@ -1079,6 +1080,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Rejected";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad1 Mission");
                         tempLogMessage.message = QString("Mission rejected.");
                         logMessage(tempLogMessage);
@@ -1105,6 +1107,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Accepted";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad2 Mission");
                         tempLogMessage.message = QString("Mission accepted.");
                         logMessage(tempLogMessage);
@@ -1125,6 +1128,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Rejected";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad2 Mission");
                         tempLogMessage.message = QString("Mission rejected.");
                         logMessage(tempLogMessage);
@@ -1151,6 +1155,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Accepted";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad3 Mission");
                         tempLogMessage.message = QString("Mission accepted.");
                         logMessage(tempLogMessage);
@@ -1171,6 +1176,7 @@ void MainWindow::mouseReleaseEvent ( QMouseEvent * event )
                     {
                         //qDebug() << "Rejected";
                         // Send log info to main GUI
+                        LogMessage tempLogMessage;
                         tempLogMessage.id = QString("Quad3 Mission");
                         tempLogMessage.message = QString("Mission rejected.");
                         logMessage(tempLogMessage);
@@ -1404,7 +1410,9 @@ void MainWindow::InitOverviewPage()
     // Set up connection ports
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts())
     {
+        // serialPortComboBox is teleSerialPort
         ui->serialPortComboBox->addItem(port.portName());
+        // auxSerialPortComboBox is rcSerialPort
         ui->auxSerialPortComboBox->addItem(port.portName());
     }
     QStringList comMethodList;
@@ -1562,7 +1570,7 @@ void MainWindow::resetLabels()
 {
     ui->quad1ConnectButton->setText("Connect");
     quad1ConnSwitch = false;
-    deHandle->addressList[0] = "";
+    deHandle->teleAddressList[0] = "";
     ui->quad1ConnectionStatusOverview->setText("NO CON");
     ui->quad1ConnectionStatus->setText("NO CON");
     ui->quad1VoltageOverview->setText("0.0 V");
@@ -1570,7 +1578,7 @@ void MainWindow::resetLabels()
 
     ui->quad2ConnectButton->setText("Connect");
     quad2ConnSwitch = false;
-    deHandle->addressList[1] = "";
+    deHandle->teleAddressList[1] = "";
     ui->quad2ConnectionStatusOverview->setText("NO CON");
     ui->quad2ConnectionStatus->setText("NO CON");
     ui->quad2VoltageOverview->setText("0.0 V");
@@ -1578,7 +1586,7 @@ void MainWindow::resetLabels()
 
     ui->quad3ConnectButton->setText("Connect");
     quad3ConnSwitch = false;
-    deHandle->addressList[2] = "";
+    deHandle->teleAddressList[2] = "";
     ui->quad3ConnectionStatusOverview->setText("NO CON");
     ui->quad3ConnectionStatus->setText("NO CON");
     ui->quad3VoltageOverview->setText("0.0 V");
@@ -1702,9 +1710,20 @@ void MainWindow::on_serialConnectButton_clicked()
     serialConnectButtonText = ui->serialConnectButton->text();
     if (serialConnectButtonText == "Connect")
     {
-        deHandle->serialPortName = ui->serialPortComboBox->currentText();
-        deHandle->connectionMethod = ui->comMethodComboBox->currentText();
-        deHandle->set_serialOn(true);
+        if ( deHandle->teleAddressList[0] == "" && deHandle->teleAddressList[1] == "" && deHandle->teleAddressList[2] == "")
+        {
+            QMessageBox msgBox;
+            msgBox.setText("No agent is connected.");
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+        else
+        {
+            deHandle->teleSerialPortName = ui->serialPortComboBox->currentText();
+            deHandle->teleConnectionMethod = ui->comMethodComboBox->currentText();
+            deHandle->set_teleSerialOn(true);
+        }
+
 
         //tempLogMessage.id = "MainWindow";
         //tempLogMessage.message = "Connected";
@@ -1713,7 +1732,7 @@ void MainWindow::on_serialConnectButton_clicked()
     }
     else if (serialConnectButtonText == "Disconnect")
     {
-        deHandle->set_serialOn(false);
+        deHandle->set_teleSerialOn(false);
     }
 }
 
@@ -1725,7 +1744,8 @@ void MainWindow::updateSerialInfo(bool value)
         ui->serialConnectButton->setText("Disconnect");
         //qDebug() << "Connected";
         // Send log info to main GUI
-        tempLogMessage.id = QString("Main Serial");
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Tele Serial");
         tempLogMessage.message = QString("Connected.");
         logMessage(tempLogMessage);
         //
@@ -1737,7 +1757,8 @@ void MainWindow::updateSerialInfo(bool value)
         resetLabels();
         //qDebug() << "Disconnected";
         // Send log info to main GUI
-        tempLogMessage.id = QString("Main Serial");
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Tele Serial");
         tempLogMessage.message = QString("Disconnected.");
         logMessage(tempLogMessage);
         //
@@ -1751,14 +1772,15 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     auxSerialConnectButtonText = ui->auxSerialConnectButton->text();
     if (auxSerialConnectButtonText == "Connect")
     {
-        deHandle->auxSerialPortName = ui->auxSerialPortComboBox->currentText();
-        deHandle->auxConnectionMethod = "AT";
-        deHandle->set_auxSerialOn(true);
+        deHandle->rcSerialPortName = ui->auxSerialPortComboBox->currentText();
+        deHandle->rcConnectionMethod = "AT";
+        deHandle->set_rcSerialOn(true);
         ui->auxSerialConnectButton->setText("Disconnect");
         //qDebug() << "Aux connected" << deHandle->auxSerialPortName;
         // Send to main GUI log window
+        LogMessage tempLogMessage;
         tempLogMessage.id = QString("Main Window");
-        tempLogMessage.message = QString("Aux connected: "+ deHandle->auxSerialPortName);
+        tempLogMessage.message = QString("RC connected: "+ deHandle->rcSerialPortName);
         logMessage(tempLogMessage);
         //
         ui->manual1RadioButton->setEnabled(true);
@@ -1768,12 +1790,13 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     }
     else if (auxSerialConnectButtonText == "Disconnect")
     {
-        deHandle->set_auxSerialOn(false);
+        deHandle->set_rcSerialOn(false);
         ui->auxSerialConnectButton->setText("Connect");
         //qDebug() << "Aux disconnected";
         // Send to main GUI log window
+        LogMessage tempLogMessage;
         tempLogMessage.id = QString("Main Window");
-        tempLogMessage.message = QString("Aux disconnected.");
+        tempLogMessage.message = QString("RC disconnected.");
         logMessage(tempLogMessage);
         //
         ui->manual1RadioButton->setEnabled(false);
@@ -1791,7 +1814,7 @@ void MainWindow::on_manualOffRadioButton_clicked()
 
 void MainWindow::on_manual1RadioButton_clicked()
 {
-    if (deHandle->get_auxSerialOn() == true)
+    if (deHandle->get_rcSerialOn() == true)
     {
         deHandle->set_manualMode(1);
     }
@@ -1805,7 +1828,7 @@ void MainWindow::on_manual1RadioButton_clicked()
 
 void MainWindow::on_manual2RadioButton_clicked()
 {
-    if (deHandle->get_auxSerialOn() == true)
+    if (deHandle->get_rcSerialOn() == true)
     {
         deHandle->set_manualMode(2);
     }
@@ -1819,7 +1842,7 @@ void MainWindow::on_manual2RadioButton_clicked()
 
 void MainWindow::on_manual3RadioButton_clicked()
 {
-    if (deHandle->get_auxSerialOn() == true)
+    if (deHandle->get_rcSerialOn() == true)
     {
         deHandle->set_manualMode(3);
     }
@@ -1841,14 +1864,14 @@ void MainWindow::on_radioButton_clicked()  // more work on different cases neede
 {
     if (ui->radioButton->text() == "ON")
     {
-        if (deHandle->get_serialOn() == true)
+        if (deHandle->get_rcSerialOn() == true)  // radioButton used to be working with main serial, but assigned to aux serial now.
         {
-            int tempStatus = deHandle->get_radioMode();
+            int tempStatus = deHandle->get_rcMode();
             int newStatus = (tempStatus | (1 << 0));
             ui->radioButton->setText("OFF");
-            deHandle->set_radioMode(newStatus);
+            deHandle->set_rcMode(newStatus);
         }
-        else if (deHandle->get_serialOn() == false)
+        else if (deHandle->get_rcSerialOn() == false)
         {
             QMessageBox msgBox;
             msgBox.setText("Serial Communication Port is not open.\nCannot use radio services.");
@@ -1858,7 +1881,7 @@ void MainWindow::on_radioButton_clicked()  // more work on different cases neede
     }
     else if (ui->radioButton->text() == "OFF")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         //int newStatus = (tempStatus & (0xFFFF ^ (1 << 0)));
         int newStatus = (tempStatus & (0x0000));
         ui->radioButton->setText("ON");
@@ -1866,7 +1889,7 @@ void MainWindow::on_radioButton_clicked()  // more work on different cases neede
         ui->arm1Button->setText("ARM");
         ui->nav1Button->setText("NAV");
         ui->rth1Button->setText("RTH");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -1874,26 +1897,26 @@ void MainWindow::on_armAllButton_clicked()  // to do
 {
     if (ui->armAllButton->text() == "ARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         //int tempStatus = deHandle->get_serialMode();
         int newStatus = (tempStatus | (1 << 1) | (1 << 2) | (1 << 3));
         ui->armAllButton->setText("DISARM");
         ui->arm1Button->setText("DISARM");
         ui->arm2Button->setText("DISARM");
         ui->arm3Button->setText("DISARM");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
         //deHandle->set_serialMode(newStatus);
     }
     else if (ui->armAllButton->text() == "DISARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         //int tempStatus = deHandle->get_serialMode();
         int newStatus = (tempStatus & (0xFFFF ^ ((1 << 1) | (1 << 2) | (1 << 3))) );
         ui->armAllButton->setText("ARM");
         ui->arm1Button->setText("ARM");
         ui->arm2Button->setText("ARM");
         ui->arm3Button->setText("ARM");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
         //deHandle->set_serialMode(newStatus);
     }
 }
@@ -1902,7 +1925,7 @@ void MainWindow::on_navAllButton_clicked()  // to do
 {
     if (ui->navAllButton->text() == "NAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus1 = (tempStatus | (1 << 4) | (1 << 5) | (1 << 6));
         int newStatus = (newStatus1 & (0xFFFF ^ ((1 << 7) | (1 << 8) | (1 << 9))) );
         ui->navAllButton->setText("DISNAV");
@@ -1913,17 +1936,17 @@ void MainWindow::on_navAllButton_clicked()  // to do
         ui->rth1Button->setText("RTH");
         ui->rth2Button->setText("RTH");
         ui->rth3Button->setText("RTH");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->navAllButton->text() == "DISNAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ ((1 << 4) | (1 << 5) | (1 << 6))) );
         ui->navAllButton->setText("NAV");
         ui->nav1Button->setText("NAV");
         ui->nav2Button->setText("NAV");
         ui->nav3Button->setText("NAV");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -1931,7 +1954,7 @@ void MainWindow::on_rthAllButton_clicked()
 {
     if (ui->rthAllButton->text() == "RTH")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus1 = (tempStatus | (1 << 7) | (1 << 8) | (1 << 9));
         int newStatus = (newStatus1 & (0xFFFF ^ ((1 << 4) | (1 << 5) | (1 << 6))) );
         ui->rthAllButton->setText("DISRTH");
@@ -1942,17 +1965,17 @@ void MainWindow::on_rthAllButton_clicked()
         ui->nav1Button->setText("NAV");
         ui->nav2Button->setText("NAV");
         ui->nav3Button->setText("NAV");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->rthAllButton->text() == "DISRTH")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ ((1 << 7) | (1 << 8) | (1 << 9))) );
         ui->rthAllButton->setText("RTH");
         ui->rth1Button->setText("RTH");
         ui->rth2Button->setText("RTH");
         ui->rth3Button->setText("RTH");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -1960,18 +1983,18 @@ void MainWindow::on_arm1Button_clicked()
 {
     if (ui->arm1Button->text() == "ARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 1));
         ui->arm1Button->setText("DISARM");
         if ((newStatus & 0x000E) == 14)
         {
             ui->armAllButton->setText("DISARM");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->arm1Button->text() == "DISARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 1)));
         newStatus = (newStatus & (0xFFFF ^ (1 << 4)));
         newStatus = (newStatus & (0xFFFF ^ (1 << 7)));
@@ -1981,7 +2004,7 @@ void MainWindow::on_arm1Button_clicked()
         ui->nav1Button->setText("NAV");
         ui->rthAllButton->setText("RTH");
         ui->rth1Button->setText("RTH");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 
 }
@@ -1990,22 +2013,22 @@ void MainWindow::on_arm2Button_clicked()
 {
     if (ui->arm2Button->text() == "ARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 2));
         ui->arm2Button->setText("DISARM");
         if ((newStatus & 0x000E) == 14)
         {
             ui->armAllButton->setText("DISARM");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->arm2Button->text() == "DISARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 2)));
         ui->armAllButton->setText("ARM");
         ui->arm2Button->setText("ARM");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2013,22 +2036,22 @@ void MainWindow::on_arm3Button_clicked()
 {
     if (ui->arm3Button->text() == "ARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 3));
         ui->arm3Button->setText("DISARM");
         if ((newStatus & 0x000E) == 14)
         {
             ui->armAllButton->setText("DISARM");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->arm3Button->text() == "DISARM")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 3)));
         ui->armAllButton->setText("ARM");
         ui->arm3Button->setText("ARM");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2036,7 +2059,7 @@ void MainWindow::on_nav1Button_clicked()
 {
     if (ui->nav1Button->text() == "NAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 4));
         newStatus = (newStatus & (0xFFFF ^ (1 << 7)));
         ui->nav1Button->setText("DISNAV");
@@ -2046,15 +2069,15 @@ void MainWindow::on_nav1Button_clicked()
             ui->navAllButton->setText("DISNAV");
         }
         //qDebug() << "Here" << newStatus;
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->nav1Button->text() == "DISNAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 4)));
         ui->navAllButton->setText("NAV");
         ui->nav1Button->setText("NAV");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2062,22 +2085,22 @@ void MainWindow::on_nav2Button_clicked()
 {
     if (ui->nav2Button->text() == "NAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 5));
         ui->nav2Button->setText("DISNAV");
         if ((newStatus & 0x0070) == 112)
         {
             ui->navAllButton->setText("DISNAV");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->nav2Button->text() == "DISNAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 5)));
         ui->navAllButton->setText("NAV");
         ui->nav2Button->setText("NAV");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2085,22 +2108,22 @@ void MainWindow::on_nav3Button_clicked()
 {
     if (ui->nav3Button->text() == "NAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 6));
         ui->nav3Button->setText("DISNAV");
         if ((newStatus & 0x0070) == 112)
         {
             ui->navAllButton->setText("DISNAV");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->nav3Button->text() == "DISNAV")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 6)));
         ui->navAllButton->setText("NAV");
         ui->nav3Button->setText("NAV");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2108,7 +2131,7 @@ void MainWindow::on_rth1Button_clicked()
 {
     if (ui->rth1Button->text() == "RTH")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus | (1 << 7));
         newStatus = (newStatus & (0xFFFF ^ (1 << 4)));
         ui->rth1Button->setText("DISRTH");
@@ -2117,15 +2140,15 @@ void MainWindow::on_rth1Button_clicked()
         {
             ui->rthAllButton->setText("DISRTH");
         }
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
     else if (ui->rth1Button->text() == "DISRTH")
     {
-        int tempStatus = deHandle->get_radioMode();
+        int tempStatus = deHandle->get_rcMode();
         int newStatus = (tempStatus & (0xFFFF ^ (1 << 7)));
         ui->rthAllButton->setText("RTH");
         ui->rth1Button->setText("RTH");
-        deHandle->set_radioMode(newStatus);
+        deHandle->set_rcMode(newStatus);
     }
 }
 
@@ -2225,16 +2248,16 @@ void MainWindow::_auto_zoom_and_center()
 void MainWindow::on_tabWidget_currentChanged(int index)
 {
     currentTab = index;
-    if (deHandle->get_serialOn() == true)
+    if (deHandle->get_teleSerialOn() == true)
     {
-        deHandle->set_serialMode(index);
+        deHandle->set_teleMode(index);
     }
 }
 
 void MainWindow::on_serialPortComboBox_currentIndexChanged(int index)
 {
-    //qDebug() << index;
     // Send log info to main GUI
+    LogMessage tempLogMessage;
     tempLogMessage.id = QString("Main Serial");
     tempLogMessage.message = QString::number(index, 10);
     logMessage(tempLogMessage);
@@ -2303,12 +2326,12 @@ int MainWindow::insideWP(QPoint po,WP_list tempWPList)
 
 void MainWindow::on_quad1TableView_clicked(const QModelIndex &index)
 {
-    qDebug() << "single clicked";
+    qDebug() << "single clicked" << index.row();
 }
 
 void MainWindow::on_quad1TableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "double clicked";
+    qDebug() << "double clicked" << index.row();
 }
 
 void MainWindow::on_quad1TableView_customContextMenuRequested(const QPoint &pos)
@@ -2363,6 +2386,7 @@ void MainWindow::Quad1AddWP()
         {
             //qDebug() << "Accepted";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad1 Mission");
             tempLogMessage.message = QString("Mission accepted.");
             logMessage(tempLogMessage);
@@ -2383,6 +2407,7 @@ void MainWindow::Quad1AddWP()
         {
             //qDebug() << "Rejected";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad1 Mission");
             tempLogMessage.message = QString("Mission rejected.");
             logMessage(tempLogMessage);
@@ -2431,6 +2456,7 @@ void MainWindow::Quad1EditWP()
         {
             //qDebug() << "Accepted";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad2 Mission");
             tempLogMessage.message = QString("Mission accepted.");
             logMessage(tempLogMessage);
@@ -2451,6 +2477,7 @@ void MainWindow::Quad1EditWP()
         {
             //qDebug() << "Rejected";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad2 Mission");
             tempLogMessage.message = QString("Mission rejected.");
             logMessage(tempLogMessage);
@@ -2493,6 +2520,7 @@ void MainWindow::Quad1SaveWP()
         {
             //qDebug() << "Cannot open file";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad1 Mission Save");
             tempLogMessage.message = QString("Cannot open file.");
             logMessage(tempLogMessage);
@@ -2527,6 +2555,7 @@ void MainWindow::Quad1LoadWP()
         {
             //qDebug() << "Cannot open file";
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Quad1 Mission Load");
             tempLogMessage.message = QString("Cannot open file.");
             logMessage(tempLogMessage);
@@ -2610,7 +2639,7 @@ void MainWindow::on_quad1ConnectButton_clicked()
     {
         ui->quad1ConnectButton->setText("Disconnect");
         quad1ConnSwitch = true;
-        deHandle->addressList[0] = ui->quad1AddressComboBox->currentText();
+        deHandle->teleAddressList[0] = ui->quad1AddressComboBox->currentText();
         ui->quad1ConnectionStatusOverview->setText("CONN");
         ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         ui->quad1ConnectionStatus->setText("CONN");
@@ -2620,7 +2649,7 @@ void MainWindow::on_quad1ConnectButton_clicked()
     {
         ui->quad1ConnectButton->setText("Connect");
         quad1ConnSwitch = false;
-        deHandle->addressList[0] = "";
+        deHandle->teleAddressList[0] = "";
         ui->quad1ConnectionStatusOverview->setText("NO CON");
         ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
         ui->quad1ConnectionStatus->setText("NO CON");
@@ -2633,16 +2662,16 @@ void MainWindow::on_quad1UploadButton_clicked()
     if (deHandle->wp_list[0].wps.length() > 0)
     {
         deHandle->mi_list_air[0] = WPsToMissions(deHandle->wp_list[0]);
-        if (deHandle->get_serialOn() == true)
+        if (deHandle->get_teleSerialOn() == true)
         {
-            deHandle->set_serialMode(11);
+            deHandle->set_teleMode(11);
         }
     }
 }
 
 void MainWindow::on_quad1DownloadButton_clicked()
 {
-    deHandle->set_serialMode(21);
+    deHandle->set_teleMode(21);
 }
 
 void MainWindow::on_quad1LoadButton_clicked()
@@ -2734,12 +2763,12 @@ void MainWindow::on_quad1EditButton_clicked()
 
 void MainWindow::on_quad2TableView_clicked(const QModelIndex &index)
 {
-    qDebug() << "single clicked";
+    qDebug() << "single clicked" << index.row();
 }
 
 void MainWindow::on_quad2TableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "double clicked";
+    qDebug() << "double clicked" << index.row();
 }
 
 void MainWindow::on_quad2TableView_customContextMenuRequested(const QPoint &pos)
@@ -3013,7 +3042,7 @@ void MainWindow::on_quad2ConnectButton_clicked()
     {
         ui->quad2ConnectButton->setText("Disconnect");
         quad2ConnSwitch = true;
-        deHandle->addressList[1] = ui->quad2AddressComboBox->currentText();
+        deHandle->teleAddressList[1] = ui->quad2AddressComboBox->currentText();
         ui->quad2ConnectionStatusOverview->setText("CONN");
         ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         ui->quad2ConnectionStatus->setText("CONN");
@@ -3023,7 +3052,7 @@ void MainWindow::on_quad2ConnectButton_clicked()
     {
         ui->quad2ConnectButton->setText("Connect");
         quad2ConnSwitch = false;
-        deHandle->addressList[1] = "";
+        deHandle->teleAddressList[1] = "";
         ui->quad2ConnectionStatusOverview->setText("NO CON");
         ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
         ui->quad2ConnectionStatus->setText("NO CON");
@@ -3036,16 +3065,16 @@ void MainWindow::on_quad2UploadButton_clicked()
     if (deHandle->wp_list[1].wps.length() > 0)
     {
         deHandle->mi_list_air[1] = WPsToMissions(deHandle->wp_list[1]);
-        if (deHandle->get_serialOn() == true)
+        if (deHandle->get_teleSerialOn() == true)
         {
-            deHandle->set_serialMode(12);
+            deHandle->set_teleMode(12);
         }
     }
 }
 
 void MainWindow::on_quad2DownloadButton_clicked()
 {
-    deHandle->set_serialMode(22);
+    deHandle->set_teleMode(22);
 }
 
 void MainWindow::on_quad2LoadButton_clicked()
@@ -3137,12 +3166,12 @@ void MainWindow::on_quad2EditButton_clicked()
 
 void MainWindow::on_quad3TableView_clicked(const QModelIndex &index)
 {
-    qDebug() << "single clicked";
+    qDebug() << "single clicked" << index.row();
 }
 
 void MainWindow::on_quad3TableView_doubleClicked(const QModelIndex &index)
 {
-    qDebug() << "double clicked";
+    qDebug() << "double clicked" << index.row();
 }
 
 void MainWindow::on_quad3TableView_customContextMenuRequested(const QPoint &pos)
@@ -3416,7 +3445,7 @@ void MainWindow::on_quad3ConnectButton_clicked()
     {
         ui->quad3ConnectButton->setText("Disconnect");
         quad3ConnSwitch = true;
-        deHandle->addressList[2] = ui->quad3AddressComboBox->currentText();
+        deHandle->teleAddressList[2] = ui->quad3AddressComboBox->currentText();
         ui->quad3ConnectionStatusOverview->setText("CONN");
         ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         ui->quad3ConnectionStatus->setText("CONN");
@@ -3426,7 +3455,7 @@ void MainWindow::on_quad3ConnectButton_clicked()
     {
         ui->quad3ConnectButton->setText("Connect");
         quad3ConnSwitch = false;
-        deHandle->addressList[2] = "";
+        deHandle->teleAddressList[2] = "";
         ui->quad3ConnectionStatusOverview->setText("NO CON");
         ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
         ui->quad3ConnectionStatus->setText("NO CON");
@@ -3439,16 +3468,16 @@ void MainWindow::on_quad3UploadButton_clicked()
     if (deHandle->wp_list[2].wps.length() > 0)
     {
         deHandle->mi_list_air[2] = WPsToMissions(deHandle->wp_list[2]);
-        if (deHandle->get_serialOn() == true)
+        if (deHandle->get_teleSerialOn() == true)
         {
-            deHandle->set_serialMode(13);
+            deHandle->set_teleMode(13);
         }
     }
 }
 
 void MainWindow::on_quad3DownloadButton_clicked()
 {
-    deHandle->set_serialMode(23);
+    deHandle->set_teleMode(23);
 }
 
 void MainWindow::on_quad3LoadButton_clicked()

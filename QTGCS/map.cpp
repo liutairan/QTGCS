@@ -114,6 +114,7 @@ void Map::loadImage()
         if (tempTileInfo.missingTiles.isEmpty())
         {
             //qDebug() << "Exist";
+            LogMessage tempLogMessage;
             tempLogMessage.id = "Map";
             tempLogMessage.message = "Tile exist.";
             emit logMessageRequest(tempLogMessage);
@@ -121,6 +122,7 @@ void Map::loadImage()
         else if (tempTileInfo.missingTiles.length() > 0)
         {
             //qDebug() << "Not exist";
+            LogMessage tempLogMessage;
             tempLogMessage.id = "Map";
             tempLogMessage.message = "Tile not exist, downloading.";
             emit logMessageRequest(tempLogMessage);
@@ -195,6 +197,8 @@ void Map::_grab_tile(double lat, double lon, int zoom, QString maptype)
     QString strLon = QString::number(lon, 'f', 6);
     QString strZoomLevel = QString::number(zoom, 10);
 
+    if (maptype == "hybird")
+    {}
     QString urlstr = QString("http://maps.googleapis.com/maps/api/staticmap?center=%1,%2&zoom=%3&maptype=hybrid&size=640x640&format=jpg&key="+mapKey).arg(strLat, strLon, strZoomLevel);
 
     QNetworkAccessManager manager;
@@ -238,7 +242,8 @@ GeoStep Map::_local_tile_step()
 
 long Map::_pixels_to_degrees(long pixels, int zoom)
 {
-    if (zoom <= 21)
+    // To do: add fault tolerance for zoom >22 and zoom < 0?
+    if (zoom <= 21 && zoom >= 0)
     {
         return pixels * (1 << (21 - zoom));
     }
@@ -246,7 +251,12 @@ long Map::_pixels_to_degrees(long pixels, int zoom)
     {
         return (pixels >> 1);
     }
-
+    else if (zoom < 0)
+    {}
+    else if (zoom > 22)
+    {}
+    else
+    {}
 }
 
 double Map::_pix_to_lat(int k, double latpix, int ntiles, int zoom)

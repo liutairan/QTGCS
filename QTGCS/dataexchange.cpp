@@ -3,46 +3,45 @@
 DataExchange::DataExchange(QObject *parent) :
     QObject(parent)
 {
-    _serialOn = false;
-    _serialMode = 0;
-    _radioMode = 0;
-    _manualMode = 0;
-    serialPortName = "";
-    connectionMethod = "";
-    auxSerialPortName = "";
-    auxConnectionMethod = "";
+    teleSerialOn = false;
+    teleMode = 0;
+    rcMode = 0;
+    manualMode = 0;
+    teleSerialPortName = "";
+    teleConnectionMethod = "";
+    rcSerialPortName = "";
+    rcConnectionMethod = "";
     for (int i =0; i<3; i++)
     {
         current_gps[i].lat = 0;
         current_gps[i].lon = 0;
 
-        addressList[i] = "";
+        teleAddressList[i] = "";
+        rcAddressList[i] = "";
     }
     initServerWorker();
     initRemoteControl();
+    initTelemetryChannel();
 }
 
 DataExchange::~DataExchange()
 {
-    _serialOn = false;
+    teleSerialOn = false;
 
     // Send log info to main GUI
+    LogMessage tempLogMessage;
     tempLogMessage.id = QString("DataExchange");
     tempLogMessage.message = QString("Deleting thread and worker in Thread.");
     emit logMessageRequest(tempLogMessage);
     //
-    worker->abort();
-    thread->wait();
+    //worker->abort();
+    teleSerialThread->terminate();
+    teleSerialThread->wait();
 
     qDebug()<<"Deleting thread and worker in Thread "<<this->QObject::thread()->currentThreadId();
-    delete thread;
-    delete worker;
 
-    // local server
-    /*serverWorker->abort();
-    serverThread->wait();
-    delete serverThread;
-    delete serverWorker;*/
+    delete teleSerialWorker;
+    delete teleSerialThread;
 }
 
 void DataExchange::initServerWorker()
@@ -98,24 +97,44 @@ void DataExchange::initRemoteControl()
     //    point to network.
     //    Point to point is manual control mode, and point
     //    to network is autonomous control mode.
-    auxSerialPortName = "tty.usbserial-00000000";
-    auxConnectionMethod = "AT";
+    rcSerialPortName = "tty.usbserial-00000000";
+    rcConnectionMethod = "AT";
 
-    _auxSerialOn = false;
-    _manualMode = 0;
-    serialReady = false;
+    rcSerialOn = false;
+    manualMode = 0;
+    rcSerialReady = false;
 
     // serial remote control output
-    timer = new QTimer();
-    QObject::connect(timer, SIGNAL(timeout()), this, SLOT(rcSwitch()));
+    rcTimer = new QTimer();
+    QObject::connect(rcTimer, SIGNAL(timeout()), this, SLOT(rcSwitch()));
     // Time specified in ms, as the frequency to send out remote control
     //    command to one agent for manual control.
-    timer->start(100);
+    rcTimer->start(100);
+}
+
+void DataExchange::initTelemetryChannel()
+{
+    teleSerialThread = new QThread();
+    teleSerialWorker = new TelemetrySerialWorker();
+
+    // Connect signals and slots
+    // QuadStates update channel
+    connect(teleSerialWorker, SIGNAL(quadsStatesChangeRequest(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)));
+    // Log message channel
+    connect(teleSerialWorker, &TelemetrySerialWorker::logMessageRequest, this, &DataExchange::logMessage);
+    // Tele mode update channel
+    connect(this, SIGNAL(teleSerialOnChanged(bool)), teleSerialWorker, SLOT(teleSerialOnUpdate(bool)));
+    connect(this, SIGNAL(teleModeChanged(int)), teleSerialWorker, SLOT(teleModeUpdate(int)));
+    connect(teleSerialWorker, SIGNAL(teleModeChangeRequest(int)), this, SLOT(teleModeUpdateFB(int)));
+
+    // Mode worker to thread
+    teleSerialWorker->moveToThread(teleSerialThread);
+    teleSerialThread->start();
 }
 
 void DataExchange::rcSwitch()
 {
-    if (serialReady)
+    if (rcSerialReady)
     {
         rcWorker();
     }
@@ -123,9 +142,9 @@ void DataExchange::rcSwitch()
 
 void DataExchange::rcWorker()
 {
-    if (serialReady == true)
+    if (rcSerialReady == true)
     {
-        switch (_manualMode) {
+        switch (manualMode) {
         case 0:
         {
             break;
@@ -141,6 +160,7 @@ void DataExchange::rcWorker()
                      << manual_rc_values.rcData[6]
                      << manual_rc_values.rcData[7];*/
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Remote Control");
             tempLogMessage.message = "<br/> R " + QString::number(manual_rc_values.rcData[0], 10)
                                    + " P " + QString::number(manual_rc_values.rcData[1], 10)
@@ -159,6 +179,7 @@ void DataExchange::rcWorker()
         case 2:
         {
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Remote Control");
             tempLogMessage.message = QString("RC is not set on CH2.");
             emit logMessageRequest(tempLogMessage);
@@ -169,6 +190,7 @@ void DataExchange::rcWorker()
         case 3:
         {
             // Send log info to main GUI
+            LogMessage tempLogMessage;
             tempLogMessage.id = QString("Remote Control");
             tempLogMessage.message = QString("RC is not set on CH3.");
             emit logMessageRequest(tempLogMessage);
@@ -182,40 +204,78 @@ void DataExchange::rcWorker()
     }
 }
 
-bool DataExchange::get_serialOn() const
+QString DataExchange::get_teleSerialPortName()
 {
-    return _serialOn;
+    return teleSerialPortName;
 }
 
-void DataExchange::set_serialOn(bool value)
+void DataExchange::set_teleSerialPortName(QString value)
 {
-    if (value != _serialOn)
+    teleSerialPortName = value;
+    teleSerialWorker->setTelemetrySerialPortName(value);
+}
+
+QString DataExchange::get_teleConnectionMethod()
+{
+    return teleSerialPortName;
+}
+
+void DataExchange::set_teleConnectionMethod(QString value)
+{
+    teleConnectionMethod = value;
+    teleSerialWorker->setTelemetryConnectionMethod(value);
+}
+
+bool DataExchange::get_teleSerialOn() const
+{
+    return teleSerialOn;
+}
+
+void DataExchange::set_teleSerialOn(bool value)
+{
+    // The thread for telemetry serial communication is
+    //    opened at the begining of the program running.
+    //    But the timer is started when the telemetry
+    //    connection button is pressed.
+    if (value != teleSerialOn)
     {
-        _serialOn = value;
-        if (_serialOn == true)
+        teleSerialOn = value;
+        if (teleSerialOn == true)
         {
-            thread = new QThread();
-            worker = new SerialWorker (serialPortName, connectionMethod, addressList);
+            set_teleSerialPortName(teleSerialPortName);
+            set_teleConnectionMethod(teleConnectionMethod);
+
+            //teleSerialWorker->setTelemetrySerialOn(teleSerialOn);
+//            teleTimer = new QTimer();
+//            QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT()); // SLOT to be filled.
+//            teleTimer->start(1000);
+//            qDebug() << teleMode;
+            //teleSerialThread = new QThread();
+            //worker = new SerialWorker (serialPortName, connectionMethod, addressList);
             //worker->setPortName(serialPortName);
 
-            worker->moveToThread(thread);
-            connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
-            connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
-            connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
+//            worker->moveToThread(thread);
+//            connect(worker, SIGNAL(workRequested()), thread, SLOT(start()));
+//            connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
+//            connect(worker, SIGNAL(finished()), thread, SLOT(quit()), Qt::DirectConnection);
 
-            connect(worker,SIGNAL(quadsStatesChanged(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)) );
-            connect(worker, &SerialWorker::logMessageRequest, this, &DataExchange::logMessage);
-            worker->requestWork();
+//            connect(worker,SIGNAL(quadsStatesChanged(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)) );
+//            connect(worker, &SerialWorker::logMessageRequest, this, &DataExchange::logMessage);
+//            worker->requestWork();
         }
-        else if (_serialOn == false)
+        else if (teleSerialOn == false)
         {
-            worker->abort();
-            thread->wait();
+            //teleSerialWorker->setTelemetrySerialOn(teleSerialOn);
+//            teleTimer->stop();
+//            delete teleTimer;
+//            worker->abort();
+//            thread->wait();
             // Clean up when closed
             //delete worker;
             //delete thread;
         }
-        emit serialOnChanged(_serialOn);
+        // Report the change to MainWindow
+        emit teleSerialOnChanged(teleSerialOn);
     }
     //LogMessage tempLogMessage;
     //tempLogMessage.id = QString("DataExchange");
@@ -224,127 +284,138 @@ void DataExchange::set_serialOn(bool value)
     //emit logMessageRequest(QString("Test data trans"));
 }
 
-int DataExchange::get_serialMode() const
+void DataExchange::teleModeUpdateFB(int mode)
 {
-    return _serialMode;
+    set_teleMode(mode);
+}
+
+int DataExchange::get_teleMode() const
+{
+    return teleMode;
 }
 
 
-void DataExchange::set_serialMode(int value)
+void DataExchange::set_teleMode(int value)
 {
+    //qDebug() << value << teleMode;
     // This set_serialMode is to set the mode of
     //    transmitting normal check data or mission
     //    data or get mission data.
-    if (value != _serialMode)
+    if (value != teleMode)
     {
-        _serialMode = value;
-        worker->modeSelection = _serialMode;
-        if (_serialMode == 11)
+        teleMode = value;
+
+        if (teleMode == 11)
         {
-            worker->mi_list_air[0] = mi_list_air[0];
+            teleSerialWorker->mi_list_air[0] = mi_list_air[0];
         }
-        else if (_serialMode == 12)
+        else if (teleMode == 12)
         {
-            worker->mi_list_air[1] = mi_list_air[1];
+            teleSerialWorker->mi_list_air[1] = mi_list_air[1];
         }
-        else if (_serialMode == 13)
+        else if (teleMode == 13)
         {
-            worker->mi_list_air[2] = mi_list_air[2];
+            teleSerialWorker->mi_list_air[2] = mi_list_air[2];
         }
+        // Use this signal instead of using teleSerialWorker.teleModeUpdate,
+        //    using teleSerialWorker.teleModeUpdate will cause the app crash
+        //    since it is called from another thread, then the timer is not
+        //    stopped correctly.
+        emit teleModeChanged(teleMode);
     }
 }
 
-int DataExchange::get_radioMode() const
+int DataExchange::get_rcMode() const
 {
-    return _radioMode;
+    return rcMode;
 }
 
-void DataExchange::set_radioMode(int value)
+void DataExchange::set_rcMode(int value)
 {
-    if (value != _radioMode)
+    if (value != rcMode)
     {
-        _radioMode = value;
-        worker->radioStatus = _radioMode;
+        rcMode = value;
+        //worker->radioStatus = rcMode;
     }
 }
 
-bool DataExchange::get_auxSerialOn() const
+bool DataExchange::get_rcSerialOn() const
 {
-    return _auxSerialOn;
+    return rcSerialOn;
 }
 
-void DataExchange::set_auxSerialOn(bool value)
+void DataExchange::set_rcSerialOn(bool value)
 {
-    if (value != _auxSerialOn)
+    if (value != rcSerialOn)
     {
-        _auxSerialOn = value;
-        if (_auxSerialOn == true)
+        rcSerialOn = value;
+        if (rcSerialOn == true)
         {
-            set_auxSerialPortName(auxSerialPortName);
+            set_rcSerialPortName(rcSerialPortName);
 
             for (int i = 0; i< 3; i++)
             {
-                auxAddressList[i] = addressList[i];
+                rcAddressList[i] = teleAddressList[i];
             }
-            // aux serial port is opened.
+            // remote control serial port is opened.
             //    create a new QSerialPort
-            auxSerial = new QSerialPort();
+            rcSerial = new QSerialPort();
             //qDebug() << _serialPortName;
             // To do: the serial port name may changed, need to check
             //    the port name again.
-            auxSerial->setPortName(auxSerialPortName);
-            rc_xbee_at = new RemoteControl_XBEE_AT(auxSerial);
+            rcSerial->setPortName(rcSerialPortName);
+            rc_xbee_at = new RemoteControl_XBEE_AT(rcSerial);
         }
-        else if (_auxSerialOn == false)
+        else if (rcSerialOn == false)
         {
-            set_auxSerialPortName("");
-            if (auxSerial->isOpen())
+            set_rcSerialPortName("");
+            if (rcSerial->isOpen())
             {
-                auxSerial->close();
+                rcSerial->close();
             }
-            delete auxSerial;
+            delete rcSerial;
         }
-        emit auxSerialOnChanged(_auxSerialOn);
+        emit rcSerialOnChanged(rcSerialOn);
     }
 }
 
 int DataExchange::get_manualMode() const
 {
-    return _manualMode;
+    return manualMode;
 }
 
 void DataExchange::set_manualMode(int value)
 {
-    if (value != _manualMode)
+    if (value != manualMode)
     {
-        _manualMode = value;
+        manualMode = value;
         //qDebug() << _manualMode;
-        if (_manualMode > 0)
+        if (manualMode > 0)
         {
-            serialReady = true;
+            rcSerialReady = true;
         }
         else
         {
-            serialReady = false;
+            rcSerialReady = false;
         }
         //
         LogMessage tempLogMessage;
         tempLogMessage.id = QString("DataExchange");
-        tempLogMessage.message = QString("Manual Mode:") + QString::number(_manualMode, 10);
+        tempLogMessage.message = QString("Manual Mode:") + QString::number(manualMode, 10);
         emit logMessageRequest(tempLogMessage);
     }
 }
 
-QString DataExchange::get_auxSerialPortName() const
+QString DataExchange::get_rcSerialPortName()
 {
     //return _serialPortName;
-    return auxSerialPortName;
+    return rcSerialPortName;
 }
 
-void DataExchange::set_auxSerialPortName(QString value)
+void DataExchange::set_rcSerialPortName(QString value)
 {
     //_serialPortName = value;
-    auxSerialPortName = value;
+    rcSerialPortName = value;
     //qDebug() << "set serial port name" << _serialPortName;
 }
 
@@ -475,7 +546,7 @@ void DataExchange::updateQuadsStates(QList<QuadStates *> *tempObjList)
         current_gps[i].lat = tempObjList->at(i)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0, 7);
         current_gps[i].lon = tempObjList->at(i)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0, 7);
     }
-    emit quadsStatesChanged(tempObjList);
+    emit quadsStatesChangeRequest(tempObjList);
 }
 
 void DataExchange::logMessage(LogMessage tempMessage)
@@ -512,9 +583,10 @@ void SerialWorker::requestWork()
     _abort = false;
     qDebug()<<"Request worker start in Thread "<<thread()->currentThreadId();
     //
-    tempMessage.id = "SerialWorker";
-    tempMessage.message = "Request worker start in Thread ";
-    emit logMessageRequest(tempMessage);
+    LogMessage tempLogMessage;
+    tempLogMessage.id = "SerialWorker";
+    tempLogMessage.message = "Request worker start in Thread ";
+    emit logMessageRequest(tempLogMessage);
     //
     mutex.unlock();
 
@@ -528,10 +600,10 @@ void SerialWorker::abort()
         _abort = true;
         qDebug()<<"Request worker aborting in Thread "<<thread()->currentThreadId();
         //
-        //LogMessage tempMessage;
-        tempMessage.id = "SerialWorker";
-        tempMessage.message = "Request worker aborting in Thread ";
-        emit logMessageRequest(tempMessage);
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialWorker";
+        tempLogMessage.message = "Request worker aborting in Thread ";
+        emit logMessageRequest(tempLogMessage);
         //
     }
     mutex.unlock();
@@ -541,10 +613,10 @@ void SerialWorker::doWork()
 {
     qDebug()<<"Starting worker process in Thread "<<thread()->currentThreadId();
     //
-    //LogMessage tempMessage;
-    tempMessage.id = "SerialWorker";
-    tempMessage.message = "Starting worker process in Thread ";
-    emit logMessageRequest(tempMessage);
+    LogMessage tempLogMessage;
+    tempLogMessage.id = "SerialWorker";
+    tempLogMessage.message = "Starting worker process in Thread ";
+    emit logMessageRequest(tempLogMessage);
     //
     mutex.lock();
     bool abort = _abort;
@@ -555,7 +627,7 @@ void SerialWorker::doWork()
 
     // connection to serial communication handle
     scHandle = new SerialCommunication(serial, connectionMethod, addressList);
-    connect(scHandle,SIGNAL(quadsStatesChanged(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)) );
+    connect(scHandle,SIGNAL(quadsStatesChangeRequest(QList<QuadStates *> *)), this, SLOT(updateQuadsStates(QList<QuadStates *> *)) );
     // connect for log message
     connect(scHandle, &SerialCommunication::logMessageRequest, this, &SerialWorker::logMessage);
     // preload required info
@@ -571,10 +643,10 @@ void SerialWorker::doWork()
         if (abort) {
             qDebug()<<"Aborting worker process in Thread "<<thread()->currentThreadId();
             //
-            //LogMessage tempMessage;
-            tempMessage.id = "SerialWorker";
-            tempMessage.message = "Aborting worker process in Thread ";
-            emit logMessageRequest(tempMessage);
+            //LogMessage tempLogMessage;
+            tempLogMessage.id = "SerialWorker";
+            tempLogMessage.message = "Aborting worker process in Thread ";
+            emit logMessageRequest(tempLogMessage);
             //
             break;
         }
@@ -593,10 +665,10 @@ void SerialWorker::doWork()
 
     qDebug()<<"Worker process finished in Thread "<<thread()->currentThreadId();
     //
-    //LogMessage tempMessage;
-    tempMessage.id = "SerialWorker";
-    tempMessage.message = "Worker process finished in Thread ";
-    emit logMessageRequest(tempMessage);
+    //LogMessage tempLogMessage;
+    tempLogMessage.id = "SerialWorker";
+    tempLogMessage.message = "Worker process finished in Thread ";
+    emit logMessageRequest(tempLogMessage);
     //
     emit finished();
 }
@@ -939,9 +1011,10 @@ void LocalServerWorker::requestWork()
     _abort = false;
     qDebug()<<"Request server worker start in Thread "<<thread()->currentThreadId();
     // Log
-    tempMessage.id = "LocalServerWorker";
-    tempMessage.message = "Request server worker start in Thread ";
-    emit logMessageRequest(tempMessage);
+    LogMessage tempLogMessage;
+    tempLogMessage.id = "LocalServerWorker";
+    tempLogMessage.message = "Request server worker start in Thread ";
+    emit logMessageRequest(tempLogMessage);
     //
     mutex.unlock();
 
@@ -958,9 +1031,10 @@ void LocalServerWorker::abort()
         _working = false;
         qDebug()<<"Request server worker aborting in Thread "<<thread()->currentThreadId();
         //
-        tempMessage.id = "LocalServerWorker";
-        tempMessage.message = "Request server worker aborting in Thread ";
-        emit logMessageRequest(tempMessage);
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "LocalServerWorker";
+        tempLogMessage.message = "Request server worker aborting in Thread ";
+        emit logMessageRequest(tempLogMessage);
         //
     }
     mutex.unlock();
@@ -978,9 +1052,10 @@ void LocalServerWorker::doWork()
 {
     qDebug()<<"Starting server worker process in Thread "<< QThread::currentThreadId();
     // Log message
-    tempMessage.id = "LocalServerWorker";
-    tempMessage.message = "Starting server worker process in Thread ";
-    emit logMessageRequest(tempMessage);
+    LogMessage tempLogMessage;
+    tempLogMessage.id = "LocalServerWorker";
+    tempLogMessage.message = "Starting server worker process in Thread ";
+    emit logMessageRequest(tempLogMessage);
     //
     // serial remote control output
     timer = new QTimer();
@@ -1011,9 +1086,10 @@ void LocalServerWorker::updateRCValues(QString msg)
             {
                 qDebug() << "Throttle value error";
                 //
-                tempMessage.id = "LocalServerWorker";
-                tempMessage.message = "Throttle value error";
-                emit logMessageRequest(tempMessage);
+                LogMessage tempLogMessage;
+                tempLogMessage.id = "LocalServerWorker";
+                tempLogMessage.message = "Throttle value error";
+                emit logMessageRequest(tempLogMessage);
                 //
                 foreach (QString tempStr, msgFields) {
                     qDebug() << tempStr;

@@ -167,6 +167,7 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
                 tempQS->msp_status_ex.accGetCalibrationAxisFlags = accAxisFlags;
 
                 parseSensorStatus(tempQS);
+                //tempQS = parseSensorStatus(tempQS);
                 parseFlightModeFlags(tempQS);
                 parseArmingFlags(tempQS);
             }
@@ -191,6 +192,7 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             tempQS->msp_status.getConfigProfile = configProfile;
 
             parseSensorStatus(tempQS);
+            //tempQS = parseSensorStatus(tempQS);
             parseFlightModeFlags(tempQS);
             break;
         }
@@ -591,6 +593,7 @@ void MSP_V1::parseSensorStatus(QuadStates *tempObj)
     {
         tempObj->msp_sensor_flags.hardware = false;
     }
+    //return tempObj;
 }
 
 void MSP_V1::parseArmingFlags(QuadStates *tempObj)

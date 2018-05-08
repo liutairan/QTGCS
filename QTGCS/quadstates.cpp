@@ -96,6 +96,17 @@ QuadStates::QuadStates(QByteArray frameid, QByteArray addr_long, QByteArray addr
     msp_attitude.pitch = 0;
     msp_attitude.roll = 0;
     msp_attitude.yaw = 0;
+
+    msp_sonar_altitude.rangefinderGetLatestAltitude = 0;
+
+    msp_raw_gps.gpsSol_llh_lat = 0;
+    msp_raw_gps.gpsSol_llh_lon = 0;
+    msp_raw_gps.gpsSol_llh_alt = 0;
+    msp_raw_gps.gpsSol_numSat = 0;
+    msp_raw_gps.gpsSol_fixType = 0;
+    msp_raw_gps.gpsSol_groundCourse = 0;
+    msp_raw_gps.gpsSol_groundSpeed = 0;
+    msp_raw_gps.gpsSol_hdop = 0;
     /*
     Msp_feature msp_feature;
     Msp_raw_imu msp_raw_imu;

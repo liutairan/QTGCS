@@ -179,7 +179,7 @@ public:
     QPixmap _stitchMaps();
     AutoZoomGeoMapInfo _requiredMap();
 
-    LogMessage tempLogMessage;
+    //LogMessage tempLogMessage;
 signals:
     void logMessageRequest(LogMessage);
 };

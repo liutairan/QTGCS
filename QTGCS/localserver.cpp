@@ -10,6 +10,7 @@ LocalServer::LocalServer(QObject *parent) :
     {
         //qDebug() << "Server could not start";
         // Send log info to main GUI
+        LogMessage tempLogMessage;
         tempLogMessage.id = QString("Local Server");
         tempLogMessage.message = QString("Server could not start.");
         emit logMessageRequest(tempLogMessage);
@@ -19,6 +20,7 @@ LocalServer::LocalServer(QObject *parent) :
     {
         //qDebug() << "Server started";
         // Send log info to main GUI
+        LogMessage tempLogMessage;
         tempLogMessage.id = QString("Local Server");
         tempLogMessage.message = QString("Server started.");
         emit logMessageRequest(tempLogMessage);
@@ -40,6 +42,7 @@ void LocalServer::newConnection()
     tempSocket = server->nextPendingConnection();
     //qDebug() << tempSocket->localAddress() << tempSocket->localPort();
     // Send log info to main GUI
+    LogMessage tempLogMessage;
     tempLogMessage.id = QString("Local Server");
     tempLogMessage.message = tempSocket->localAddress().toString() + " " + QString::number(tempSocket->localPort(), 10);
     emit logMessageRequest(tempLogMessage);

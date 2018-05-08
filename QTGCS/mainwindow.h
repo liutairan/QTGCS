@@ -74,7 +74,7 @@ public:
     Map* mapHandle;
     QPixmap* imageHandle;
     DataExchange *deHandle;
-    LogMessage tempLogMessage;
+    //LogMessage tempLogMessage;
 
     bool quad1ConnSwitch;
     bool quad2ConnSwitch;

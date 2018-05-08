@@ -66,15 +66,16 @@ public:
     QString addressList[3];
     bool everRunFlag;
     QTime tReceive;
-    LogMessage tempMessage;
+    //LogMessage tempLogMessage;
 signals:
-    void quadsStatesChanged(QList<QuadStates *> *);  // update quads states
+    void quadsStatesChangeRequest(QList<QuadStates *> *);  // update quads states
     void logMessageRequest(LogMessage);
 private:
     QSerialPort *serial;
     QString connectionMethod;
 public slots:
     void Update(QList<QuadStates *> *);
+    void logMessage(LogMessage);
 };
 
 #endif // SERIALCOMMUNICATION_H

@@ -24,15 +24,25 @@ SerialCommunication_USB::SerialCommunication_USB(QSerialPort *ser, QList<QuadSta
         {
             if(serial->isOpen())
             {
-                qDebug() << "USB: Connected successfully";
-                qDebug() << "USB: Serial Port Name: " << serial->portName();
+                //
+                LogMessage tempLogMessage;
+                tempLogMessage.id = "SerialCommunication USB";
+                tempLogMessage.message = "Connected successfully" + serial->portName();
+                emit logMessageRequest(tempLogMessage);
+                //
+                //qDebug() << "USB: Connected successfully";
+                //qDebug() << "USB: Serial Port Name: " << serial->portName();
                 serialportFound = true;
             }
         }
     }
     else
     {
-        qDebug() << "USB: Serial Port could not be opened";
+        //qDebug() << "USB: Serial Port could not be opened";
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication USB";
+        tempLogMessage.message = "Serial Port could not be opened.";
+        emit logMessageRequest(tempLogMessage);
     }
 }
 
@@ -43,15 +53,35 @@ SerialCommunication_USB::~SerialCommunication_USB()
         serial->close();
         //delete mspHandle1;
         //delete mspHandle2;
-        qDebug() << "USB: Serial Port closed successfully";
+        //qDebug() << "USB: Serial Port closed successfully";
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication USB";
+        tempLogMessage.message = "Serial Port closed successfully.";
+        emit logMessageRequest(tempLogMessage);
     }
 }
 
 void SerialCommunication_USB::sendCMD(int cmd)  // send cmd with no data
 {
     QByteArray output;
-    output = mspHandle1->processSendPacket(cmd);
-    send(output);
+    try
+    {
+        output = mspHandle1->processSendPacket(cmd);
+    }
+    catch (...)
+    {
+        qDebug() << cmd << output;
+    }
+
+    try
+    {
+        send(output);
+    }
+    catch (...)
+    {
+        qDebug() << "Send out data unsuccessful";
+    }
+
 }
 
 void SerialCommunication_USB::sendCMD(int cmd, Msp_rc_channels raw_rc)  // send rc values
@@ -170,7 +200,11 @@ void SerialCommunication_USB::send(QByteArray data)
     }
     else
     {
-        qDebug() << "USB: Cannot write to Serial Port - closed";
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication USB";
+        tempLogMessage.message = "Write to Serial Port failed.";
+        emit logMessageRequest(tempLogMessage);
+        //qDebug() << "USB: Cannot write to Serial Port";
     }
 }
 
@@ -661,16 +695,29 @@ void SerialCommunication_USB::uploadMissions()
     tempObj = qsList.at(0);
     for (int i = 0; i< tempObj->mission_list.missions.length(); i++)
     {
-        qDebug() << "USB - Upload Mission"
-                 << tempObj->mission_list.missions.at(i).wp_no
-                 << tempObj->mission_list.missions.at(i).wp_action
-                 << tempObj->mission_list.missions.at(i).wp_lat
-                 << tempObj->mission_list.missions.at(i).wp_lon
-                 << tempObj->mission_list.missions.at(i).wp_alt
-                 << tempObj->mission_list.missions.at(i).wp_p1
-                 << tempObj->mission_list.missions.at(i).wp_p2
-                 << tempObj->mission_list.missions.at(i).wp_p3
-                 << tempObj->mission_list.missions.at(i).wp_flag;
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication USB";
+        tempLogMessage.message = "Upload mission: "
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_no, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_action, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_lat, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_lon, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_alt, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_p1, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_p2, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_p3, 10)
+                               + QString::number(tempObj->mission_list.missions.at(i).wp_flag, 10);
+        emit logMessageRequest(tempLogMessage);
+//        qDebug() << "USB - Upload Mission"
+//                 << tempObj->mission_list.missions.at(i).wp_no
+//                 << tempObj->mission_list.missions.at(i).wp_action
+//                 << tempObj->mission_list.missions.at(i).wp_lat
+//                 << tempObj->mission_list.missions.at(i).wp_lon
+//                 << tempObj->mission_list.missions.at(i).wp_alt
+//                 << tempObj->mission_list.missions.at(i).wp_p1
+//                 << tempObj->mission_list.missions.at(i).wp_p2
+//                 << tempObj->mission_list.missions.at(i).wp_p3
+//                 << tempObj->mission_list.missions.at(i).wp_flag;
         uploadMission(tempObj->mission_list.missions.at(i), tempObj);
     }
 }
@@ -683,7 +730,11 @@ bool SerialCommunication_USB::checkMissionUpload(Mission mi_send, Mission mi_rec
             && (mi_send.wp_p2 == mi_rec.wp_p2) && (mi_send.wp_p3 == mi_rec.wp_p3)
             && (mi_send.wp_flag == mi_rec.wp_flag))
     {
-        qDebug() << "Same";
+        //qDebug() << "Same";
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication USB";
+        tempLogMessage.message = "Same.";
+        emit logMessageRequest(tempLogMessage);
         return true;
     }
     else
