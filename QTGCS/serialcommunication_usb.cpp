@@ -10,6 +10,15 @@ SerialCommunication_USB::SerialCommunication_USB(QSerialPort *ser, QList<QuadSta
     serialportFound = false;
     serial = ser;
     qsList = tempObjList;
+    // MSP_V1 and MSP_V2, only one will be used.
+    //    The choice can be made depending on
+    //    the firmware onboard.
+    //    Personaly prefer MSP_V1, but in some
+    //    cases, MSP_V2 is needed.
+    //    In previous tests, MSP_V2 will cause
+    //    serial port stuck for unknown reasons.
+    //    Perhelps the reason is larger packet
+    //    when using MSP_V2.
     mspHandle1 = new MSP_V1(this);
     mspHandle2 = new MSP_V2(this);
     connect(serial, SIGNAL(readyRead()), this, SLOT(readData()));
@@ -81,7 +90,6 @@ void SerialCommunication_USB::sendCMD(int cmd)  // send cmd with no data
     {
         qDebug() << "Send out data unsuccessful";
     }
-
 }
 
 void SerialCommunication_USB::sendCMD(int cmd, Msp_rc_channels raw_rc)  // send rc values

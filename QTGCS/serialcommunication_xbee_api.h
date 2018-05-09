@@ -10,6 +10,9 @@
 #include <QtSerialPort/QSerialPortInfo>
 
 #include "multiwii.h"
+#include "logmessage.h"
+#include "msp_v1.h"
+#include "msp_v2.h"
 
 #include "qtxb.h"
 
