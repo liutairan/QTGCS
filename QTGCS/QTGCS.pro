@@ -8,6 +8,7 @@ QT       += core gui
 QT       += serialport
 QT       += network
 QT       += network widgets
+QT       += texttospeech
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

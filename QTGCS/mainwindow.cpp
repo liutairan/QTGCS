@@ -2007,7 +2007,19 @@ void MainWindow::on_manual3RadioButton_clicked()
 
 void MainWindow::on_voiceButton_clicked()
 {
-
+    voiceHandle = new QTextToSpeech(this);
+    if (ui->voiceButton->text() == "ON")
+    {
+        voiceHandle->say("Voice service is open.");
+        ui->voiceButton->setText("OFF");
+        this->repaint();
+    }
+    else if (ui->voiceButton->text() == "OFF")
+    {
+        voiceHandle->say("Voice service is closed.");
+        ui->voiceButton->setText("ON");
+        this->repaint();
+    }
 }
 
 void MainWindow::on_radioButton_clicked()  // more work on different cases needed

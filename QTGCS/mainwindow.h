@@ -19,9 +19,10 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QScrollBar>
+#include <QTextToSpeech>
 
-#include <curl/curl.h>
-#include <map.h>
+//#include <curl/curl.h>
+#include "map.h"
 #include "multiwii.h"
 #include "inputdialog.h"
 #include "helpdialog.h"
@@ -74,6 +75,7 @@ public:
     Map* mapHandle;
     QPixmap* imageHandle;
     DataExchange *deHandle;
+    QTextToSpeech *voiceHandle;
     //LogMessage tempLogMessage;
 
     bool quad1ConnSwitch;
