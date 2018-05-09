@@ -44,8 +44,6 @@ public:
     void nav(QuadStates *);
     void disnav(QuadStates *);
 
-    //LogMessage tempLogMessage;
-
 public slots:
     void readData();
     void missionDownloadedFlag();

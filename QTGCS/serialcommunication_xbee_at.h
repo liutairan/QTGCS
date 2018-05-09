@@ -11,6 +11,9 @@
 #include <QThread>
 
 #include "multiwii.h"
+#include "logmessage.h"
+#include "msp_v1.h"
+#include "msp_v2.h"
 
 class SerialCommunication_XBEE_AT : public QObject
 {
@@ -53,10 +56,13 @@ private:
     void processPacket(QByteArray packet);
     bool missionDownloadFlag;
     bool missionUploadFlag;
+    MSP_V1 *mspHandle1;
+    MSP_V2 *mspHandle2;
 signals:
     void qsReady(QList<QuadStates *> *);
     void missionDownloaded();
     void missionUploaded();
+    void logMessageRequest(LogMessage);
 };
 
 #endif // SERIALCOMMUNICATION_XBEE_AT_H

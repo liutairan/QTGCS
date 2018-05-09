@@ -20,7 +20,7 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
         //
         LogMessage tempLogMessage;
         tempLogMessage.id = "SerialCommunication";
-        tempLogMessage.message = "USB Regular Check";
+        tempLogMessage.message = "USB Initialize";
         emit logMessageRequest(tempLogMessage);
         //
         QuadStates *tempQS;
@@ -34,13 +34,30 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
     }
     else if (connectionMethod == "AT")
     {
+        //
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "SerialCommunication";
+        tempLogMessage.message = "AT Initialize";
+        emit logMessageRequest(tempLogMessage);
+        //
+        // Get address of quad connected.
+        // For AT mode, the number of valid connection
+        //    should be exact 1.
+        for (uint i = 0; i<3; i++)
+        {
+            if (addressList[i] != "")
+            {
+                connectedAddrList.append(addressList[i]);
+            }
+        }
         QuadStates *tempQS;
         tempQS = new QuadStates(QByteArray::fromHex("1"),
-                                QByteArray::fromHex("0013a20040c14306"),
+                                QByteArray::fromHex(connectedAddrList.at(0).toUtf8()),
                                 QByteArray::fromHex("fffe"));
         quadstates_list.append(tempQS);
         sc_xbee_at = new SerialCommunication_XBEE_AT(serial, quadstates_list);
-        connect(sc_xbee_at,SIGNAL(qsReady(QList<QuadStates *> *)), this, SLOT(Update(QList<QuadStates *> *)) );
+        connect(sc_xbee_at, SIGNAL(qsReady(QList<QuadStates *> *)), this, SLOT(Update(QList<QuadStates *> *)) );
+        connect(sc_xbee_at, SIGNAL(logMessageRequest(LogMessage)), this, SLOT(logMessage(LogMessage)));
     }
     else if (connectionMethod == "API")
     {
