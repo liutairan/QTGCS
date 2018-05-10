@@ -21,13 +21,13 @@
 #include <QScrollBar>
 #include <QTextToSpeech>
 
-//#include <curl/curl.h>
 #include "map.h"
 #include "multiwii.h"
 #include "inputdialog.h"
 #include "helpdialog.h"
 #include "dataexchange.h"
 #include "logdialog.h"
+#include "fileio.h"
 
 class QFileInfo;
 class QTabWidget;
@@ -43,7 +43,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QByteArray readJsonFile(const QString &filename);
+    //QByteArray readJsonFile(const QString &filename);
     void InitMap();
     void InitOverviewPage();
     void InitQuad1Page();
@@ -66,6 +66,7 @@ public:
     QString currentWorkingPath;
     QString cfgFilePath;
     QString resourcePath;
+    QString xbeeAddrPath;
     bool inMapFlag;
     bool leftDown;
     bool rightDown;

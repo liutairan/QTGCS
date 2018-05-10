@@ -21,6 +21,7 @@
 #include <QByteArray>
 
 #include "logmessage.h"
+#include "fileio.h"
 
 #define _EARTHPIX  268435456
 // Number of pixels in half the earth's circumference at zoom = 21

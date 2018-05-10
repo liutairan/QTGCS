@@ -617,7 +617,7 @@ void SerialCommunication_XBEE_AT::downloadMission(int id, QuadStates *tempObj)
     qDebug() << "Start download mission";
     missionDownloadFlag = false;
     //connect(this, SIGNAL(missionDownloaded()), this, SLOT(missionDownloadedFlag()));
-    connect(mspHandle1, &MSP_V1::missionDownloaded, this, &SerialCommunication_USB::missionDownloadedFlag);
+    connect(mspHandle1, &MSP_V1::missionDownloaded, this, &SerialCommunication_XBEE_AT::missionDownloadedFlag);
     while (!missionDownloadFlag)
     {
         sendCMD(MSP_WP, id);
