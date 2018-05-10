@@ -16,8 +16,9 @@ TARGET = QTGCS
 TEMPLATE = app
 ICON = QTGCS.icns
 
-SOURCES += main.cpp\
-        mainwindow.cpp \
+SOURCES += \
+    main.cpp\
+    mainwindow.cpp \
     map.cpp \
     multiwii.cpp \
     quadstates.cpp \
@@ -50,9 +51,12 @@ SOURCES += main.cpp\
     logmessage.cpp \
     msp_v2.cpp \
     msp_v1.cpp \
-    telemetryserialworker.cpp
+    telemetryserialworker.cpp \
+    fileio.cpp \
+    wirelesscommunication_esp8266.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
+    mainwindow.h \
     map.h \
     multiwii.h \
     quadstates.h \
@@ -85,9 +89,12 @@ HEADERS  += mainwindow.h \
     logmessage.h \
     msp_v2.h \
     msp_v1.h \
-    telemetryserialworker.h
+    telemetryserialworker.h \
+    fileio.h \
+    wirelesscommunication_esp8266.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
+    mainwindow.ui \
     logdialog.ui
 
 QMAKE_MAC_SDK = macosx10.13

@@ -33,19 +33,19 @@ Map::Map(double lat, double lon, int level, int width, int height, QObject *pare
     loadImage();
 }
 
-QByteArray readJsonFile(const QString &filename)
-{
-    QFile f(filename);
-    if (!f.open(QFile::ReadOnly | QFile::Text)) {
-        f.close();
-        return QString().toUtf8();
-    } else {
-        QTextStream in(&f);
-        QByteArray retValue = in.readAll().toUtf8();
-        f.close();
-        return retValue;
-    }
-}
+//QByteArray readJsonFile(const QString &filename)
+//{
+//    QFile f(filename);
+//    if (!f.open(QFile::ReadOnly | QFile::Text)) {
+//        f.close();
+//        return QString().toUtf8();
+//    } else {
+//        QTextStream in(&f);
+//        QByteArray retValue = in.readAll().toUtf8();
+//        f.close();
+//        return retValue;
+//    }
+//}
 
 void Map::initPath()
 {

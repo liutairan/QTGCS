@@ -22,8 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     doc = QJsonDocument::fromJson(val);
     QJsonObject obj = doc.object();
     resourcePath = obj["Resource"].toString();
+    xbeeAddrPath = obj["XBEE Address"].toString();
 
-    logFilePath = resourcePath + "/" + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ".log";
+    logFilePath = resourcePath + "/log/" + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ".log";
 
     deHandle = new DataExchange();
     connect(deHandle, &DataExchange::teleSerialOnChanged, this, &MainWindow::updateSerialInfo);
@@ -49,22 +50,22 @@ MainWindow::~MainWindow()
 }
 
 
-QByteArray MainWindow::readJsonFile(const QString &filename)
-{
-    QFile f(filename);
-    if (!f.open(QFile::ReadOnly | QFile::Text))
-    {
-        f.close();
-        return QString().toUtf8();
-    }
-    else
-    {
-        QTextStream in(&f);
-        QByteArray retValue = in.readAll().toUtf8();
-        f.close();
-        return retValue;
-    }
-}
+//QByteArray MainWindow::readJsonFile(const QString &filename)
+//{
+//    QFile f(filename);
+//    if (!f.open(QFile::ReadOnly | QFile::Text))
+//    {
+//        f.close();
+//        return QString().toUtf8();
+//    }
+//    else
+//    {
+//        QTextStream in(&f);
+//        QByteArray retValue = in.readAll().toUtf8();
+//        f.close();
+//        return retValue;
+//    }
+//}
 
 void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 {
@@ -1581,8 +1582,9 @@ void MainWindow::InitOverviewPage()
 void MainWindow::InitQuad1Page()
 {
     // Start of Quad 1 page
-    QStringList quad1AddrList;
-    quad1AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+//    QStringList quad1AddrList;
+//    quad1AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    QStringList quad1AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad1AddressComboBox->addItems(quad1AddrList);
 
     // Start of Quad 1 table
