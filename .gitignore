@@ -39,5 +39,3 @@ CMakeLists.txt.user
 # Other Files
 .DS_Store
 QTGCS/Map.py
-QTGCS/QTGCS.icns
-QTGCS/mwp_icon.icns
