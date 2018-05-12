@@ -53,7 +53,8 @@ SOURCES += \
     msp_v1.cpp \
     telemetryserialworker.cpp \
     fileio.cpp \
-    wirelesscommunication_esp8266.cpp
+    wirelesscommunication_esp8266.cpp \
+    remotecontrol.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -91,7 +92,8 @@ HEADERS  += \
     msp_v1.h \
     telemetryserialworker.h \
     fileio.h \
-    wirelesscommunication_esp8266.h
+    wirelesscommunication_esp8266.h \
+    remotecontrol.h
 
 FORMS    += \
     mainwindow.ui \

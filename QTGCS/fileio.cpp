@@ -1,9 +1,5 @@
 #include "fileio.h"
 
-//FileIO::FileIO(QObject *parent) : QObject(parent)
-//{
-
-//}
 
 QString readFile(const QString &fileName)
 {
@@ -15,7 +11,7 @@ QString readFile(const QString &fileName)
     QFile file(fileName);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-        qDebug() << "Reading file" << info.absoluteFilePath();
+        //qDebug() << "Reading file" << info.absoluteFilePath();
         QTextStream in(&file);
         QString contents = in.readAll();
         if (file.error() != QFile::NoError || in.status() != QTextStream::Ok)
@@ -46,35 +42,11 @@ void writeFile(const QString &fileName, QString outString)
 QByteArray readJsonFile(const QString &fileName)
 {
     return readFile(fileName).toUtf8();
-//    QFile f(fileName);
-//    if (!f.open(QFile::ReadOnly | QFile::Text))
-//    {
-//        f.close();
-//        return QString().toUtf8();
-//    }
-//    else
-//    {
-//        QTextStream in(&f);
-//        QByteArray retValue = in.readAll().toUtf8();
-//        f.close();
-//        return retValue;
-//    }
 }
 
 void writeJsonFile(const QString &fileName, QString outString)
 {
     writeFile(fileName, outString);
-//    QFile f(fileName);
-//    if (!f.open(QFile::WriteOnly | QFile::Text))
-//    {
-//        f.close();
-//    }
-//    else
-//    {
-//        QTextStream out(&f);
-//        out << outString;
-//        f.close();
-//    }
 }
 
 QByteArray readMapIndexFile(const QString &fileName)
