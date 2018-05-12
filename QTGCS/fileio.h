@@ -8,11 +8,6 @@
 #include <QByteArray>
 #include <QString>
 
-//class FileIO : public QObject
-//{
-//    Q_OBJECT
-//public:
-//    explicit FileIO(QObject *parent = nullptr);
     QString readFile(const QString &fileName);
     void writeFile(const QString &fileName, QString outString);
     QByteArray readJsonFile(const QString &fileName);
@@ -24,9 +19,5 @@
     QByteArray readLogFile(const QString &fileName);
     void writeLogFile(const QString &fileName, QString outString);
 
-//signals:
-
-//public slots:
-//};
 
 #endif // FILEIO_H
