@@ -208,8 +208,19 @@ void RemoteControl::rcWorker()
 
     if (rcSerialReady == true)
     {
+        qDebug() << "Before" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
+                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
+                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
         setValuesFromAuto(autoMode);
+        qDebug() << "Auto" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
+                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
+                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
         setValuesFromManual(manualMode);
+        qDebug() << "Manual" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
+                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
+                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
+
+        rc_xbee_at->sendCMD(MSP_SET_RAW_RC, rc_values[0]);
     }
 }
 
@@ -223,6 +234,11 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
     }
     case 1:
     {
+        for (uint i=0;i<8;i++)
+        {
+            rc_values[0].rcData[i] = manual_rc_values.rcData[i];
+        }
+
         /*qDebug() << manual_rc_values.rcData[0]
                  << manual_rc_values.rcData[1]
                  << manual_rc_values.rcData[2]
@@ -254,6 +270,10 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
     }
     case 2:
     {
+        for (uint i=0;i<8;i++)
+        {
+            rc_values[1].rcData[i] = manual_rc_values.rcData[i];
+        }
         // Send log info to main GUI
 //        LogMessage tempLogMessage;
 //        tempLogMessage.id = QString("Remote Control");
@@ -265,6 +285,10 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
     }
     case 3:
     {
+        for (uint i=0;i<8;i++)
+        {
+            rc_values[2].rcData[i] = manual_rc_values.rcData[i];
+        }
         // Send log info to main GUI
 //        LogMessage tempLogMessage;
 //        tempLogMessage.id = QString("Remote Control");
@@ -282,4 +306,113 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
 void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
     qDebug() << "Auto mode" << aMode;
+    switch (aMode) {
+    case 0:  // 0000 0000 radio is off
+    {
+        break;
+    }
+    case 1:  // 000 000 000 000 000 1 radio is on, but arm disarm disnav
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1000;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1000;
+        break;
+    }
+    case 3:  // 000 000 000 000 001 1 radio is on, quad1 is armed but disnav
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1000;
+        break;
+    }
+    case 5:  // 000 000 000 000 010 1
+    {
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1000;
+        break;
+    }
+    case 9:  // 000 000 000 000 100 1
+    {
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1000;
+        break;
+    }
+    case 15:  // 000 000 000 000 111 1 radio is on, all quads armed and disnaved
+    {
+        for (uint i=0; i<3; i++)
+        {
+            rc_values[i].rcData[0] = 1500;
+            rc_values[i].rcData[1] = 1500;
+            rc_values[i].rcData[2] = 1000;
+            rc_values[i].rcData[3] = 1500;
+            rc_values[i].rcData[4] = 1350;
+            rc_values[i].rcData[5] = 1000;
+            rc_values[i].rcData[6] = 1000;
+            rc_values[i].rcData[7] = 1000;
+        }
+        break;
+    }
+    case 19:  // 000 000 000 001 001 1 radio is on, quad1 is armed and naved
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1800;
+        break;
+    }
+    case 37:  // 0010 0101
+    {
+        break;
+    }
+    case 81:  // 0100 1001
+    {
+        break;
+    }
+    case 127:  // 0111 1111 radio is on, all quads armed and naved
+    {
+        break;
+    }
+    case 131:  // 000 000 001 000 001 1 radio is on, quad 1 armed and rth
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+        break;
+    }
+    default:
+    {
+        break;
+    }
+    }
 }
