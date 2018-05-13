@@ -24,20 +24,6 @@
 
 # Remote control mode:
 
-| Code | Function |
-| ------------- |:-------------:|
-| 0   | Remote control closed |  
-| 1   | Remote control is open, but no RC command sending out |  
-| 2   | Invalid |
-| 3   | Remote control is open, quad 1 is armed |
-| 4   | Invalid |
-| ... | ... |
-| 521 | Remote control is open, quad 3 is armed and on RTH mode |
-| ... | ... |
-| 911 | Remote control is open, all 3 quads on RTH mode |
-| ... | ... |
-| 1023| Invalid |
-
 | Bit index | Function | Note |
 |:-----:|:-----:|:-----:|
 | 15 | Not used, hold for future usage | Highest bit |
@@ -56,3 +42,18 @@
 | 2  | ARM quad 2 | N/A |
 | 1  | ARM quad 1 | N/A |
 | 0  | Remote control On/Off | Lowest bit |
+
+### Examples:  
+| Code | Function |
+| ------------- |:-------------:|
+| 0   | Remote control closed |  
+| 1   | Remote control is open, but no RC command sending out |  
+| 2   | Invalid |
+| 3   | Remote control is open, quad 1 is armed |
+| 4   | Invalid |
+| ... | ... |
+| 521 | Remote control is open, quad 3 is armed and on RTH mode |
+| ... | ... |
+| 911 | Remote control is open, all 3 quads on RTH mode |
+| ... | ... |
+| 1023| Invalid |
