@@ -50,23 +50,6 @@ MainWindow::~MainWindow()
 }
 
 
-//QByteArray MainWindow::readJsonFile(const QString &filename)
-//{
-//    QFile f(filename);
-//    if (!f.open(QFile::ReadOnly | QFile::Text))
-//    {
-//        f.close();
-//        return QString().toUtf8();
-//    }
-//    else
-//    {
-//        QTextStream in(&f);
-//        QByteArray retValue = in.readAll().toUtf8();
-//        f.close();
-//        return retValue;
-//    }
-//}
-
 void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 {
     QString styledString="<span style=\" color:#FF0c32;\" > ";
@@ -2055,6 +2038,7 @@ void MainWindow::on_radioButton_clicked()  // more work on different cases neede
         ui->rth1Button->setText("RTH");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_armAllButton_clicked()  // to do
@@ -2083,6 +2067,7 @@ void MainWindow::on_armAllButton_clicked()  // to do
         deHandle->set_rcMode(newStatus);
         //deHandle->set_serialMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_navAllButton_clicked()  // to do
@@ -2112,6 +2097,7 @@ void MainWindow::on_navAllButton_clicked()  // to do
         ui->nav3Button->setText("NAV");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_rthAllButton_clicked()
@@ -2141,6 +2127,7 @@ void MainWindow::on_rthAllButton_clicked()
         ui->rth3Button->setText("RTH");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_arm1Button_clicked()
@@ -2170,7 +2157,7 @@ void MainWindow::on_arm1Button_clicked()
         ui->rth1Button->setText("RTH");
         deHandle->set_rcMode(newStatus);
     }
-
+    this->repaint();
 }
 
 void MainWindow::on_arm2Button_clicked()
@@ -2194,6 +2181,7 @@ void MainWindow::on_arm2Button_clicked()
         ui->arm2Button->setText("ARM");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_arm3Button_clicked()
@@ -2217,6 +2205,7 @@ void MainWindow::on_arm3Button_clicked()
         ui->arm3Button->setText("ARM");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_nav1Button_clicked()
@@ -2243,6 +2232,7 @@ void MainWindow::on_nav1Button_clicked()
         ui->nav1Button->setText("NAV");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_nav2Button_clicked()
@@ -2266,6 +2256,7 @@ void MainWindow::on_nav2Button_clicked()
         ui->nav2Button->setText("NAV");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_nav3Button_clicked()
@@ -2289,6 +2280,7 @@ void MainWindow::on_nav3Button_clicked()
         ui->nav3Button->setText("NAV");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_rth1Button_clicked()
@@ -2314,16 +2306,17 @@ void MainWindow::on_rth1Button_clicked()
         ui->rth1Button->setText("RTH");
         deHandle->set_rcMode(newStatus);
     }
+    this->repaint();
 }
 
 void MainWindow::on_rth2Button_clicked()
 {
-
+    this->repaint();
 }
 
 void MainWindow::on_rth3Button_clicked()
 {
-
+    this->repaint();
 }
 
 
