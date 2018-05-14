@@ -24,6 +24,7 @@ public:
     void initRCValues();
     void setValuesFromManual(uint8_t);
     void setValuesFromAuto(uint16_t);
+    void sendCommand();
 
     QString rcSerialPortName;
     QString rcConnectionName;

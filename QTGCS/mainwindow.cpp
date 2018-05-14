@@ -1565,8 +1565,6 @@ void MainWindow::InitOverviewPage()
 void MainWindow::InitQuad1Page()
 {
     // Start of Quad 1 page
-//    QStringList quad1AddrList;
-//    quad1AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
     QStringList quad1AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad1AddressComboBox->addItems(quad1AddrList);
 
@@ -1604,8 +1602,7 @@ void MainWindow::InitQuad1Page()
 void MainWindow::InitQuad2Page()
 {
     // Start of Quad 2 page
-    QStringList quad2AddrList;
-    quad2AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    QStringList quad2AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad2AddressComboBox->addItems(quad2AddrList);
 
     // Start of Quad 2 table
@@ -1642,8 +1639,7 @@ void MainWindow::InitQuad2Page()
 void MainWindow::InitQuad3Page()
 {
     // Start of Quad 3 page
-    QStringList quad3AddrList;
-    quad3AddrList << "0013A20040C14306" << "0013A20040C1430B" << "0013A20040C1430F";
+    QStringList quad3AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad3AddressComboBox->addItems(quad3AddrList);
 
     // Start of Quad 3 table
@@ -1907,11 +1903,21 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     auxSerialConnectButtonText = ui->auxSerialConnectButton->text();
     if (auxSerialConnectButtonText == "Connect")
     {
-        deHandle->rcSerialPortName = ui->auxSerialPortComboBox->currentText();
-        deHandle->rcConnectionMethod = "AT";
-        deHandle->set_rcSerialOn(true);
-        ui->auxSerialConnectButton->setText("Disconnect");
-        //qDebug() << "Aux connected" << deHandle->auxSerialPortName;
+        if ( deHandle->teleAddressList[0] == "" && deHandle->teleAddressList[1] == "" && deHandle->teleAddressList[2] == "")
+        {
+            QMessageBox msgBox;
+            msgBox.setText("No agent is connected.");
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+        else
+        {
+            deHandle->rcSerialPortName = ui->auxSerialPortComboBox->currentText();
+            deHandle->rcConnectionMethod = ui->comMethodComboBox->currentText();
+            deHandle->set_rcSerialOn(true);
+            ui->auxSerialConnectButton->setText("Disconnect");
+        }
+
         // Send to main GUI log window
         LogMessage tempLogMessage;
         tempLogMessage.id = QString("Main Window");
@@ -2311,11 +2317,53 @@ void MainWindow::on_rth1Button_clicked()
 
 void MainWindow::on_rth2Button_clicked()
 {
+    if (ui->rth2Button->text() == "RTH")
+    {
+        int tempStatus = deHandle->get_rcMode();
+        int newStatus = (tempStatus | (1 << 8));
+        newStatus = (newStatus & (0xFFFF ^ (1 << 5)));
+        ui->rth2Button->setText("DISRTH");
+        ui->nav2Button->setText("NAV");
+        if ((newStatus & 0x0380) == 896)
+        {
+            ui->rthAllButton->setText("DISRTH");
+        }
+        deHandle->set_rcMode(newStatus);
+    }
+    else if (ui->rth2Button->text() == "DISRTH")
+    {
+        int tempStatus = deHandle->get_rcMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 8)));
+        ui->rthAllButton->setText("RTH");
+        ui->rth2Button->setText("RTH");
+        deHandle->set_rcMode(newStatus);
+    }
     this->repaint();
 }
 
 void MainWindow::on_rth3Button_clicked()
 {
+    if (ui->rth3Button->text() == "RTH")
+    {
+        int tempStatus = deHandle->get_rcMode();
+        int newStatus = (tempStatus | (1 << 9));
+        newStatus = (newStatus & (0xFFFF ^ (1 << 6)));
+        ui->rth3Button->setText("DISRTH");
+        ui->nav3Button->setText("NAV");
+        if ((newStatus & 0x0380) == 896)
+        {
+            ui->rthAllButton->setText("DISRTH");
+        }
+        deHandle->set_rcMode(newStatus);
+    }
+    else if (ui->rth3Button->text() == "DISRTH")
+    {
+        int tempStatus = deHandle->get_rcMode();
+        int newStatus = (tempStatus & (0xFFFF ^ (1 << 9)));
+        ui->rthAllButton->setText("RTH");
+        ui->rth3Button->setText("RTH");
+        deHandle->set_rcMode(newStatus);
+    }
     this->repaint();
 }
 
@@ -2921,7 +2969,6 @@ void MainWindow::on_quad1ConnectButton_clicked()
         ui->quad1ConnectButton->setText("Disconnect");
         quad1ConnSwitch = true;
         deHandle->teleAddressList[0] = ui->quad1AddressComboBox->currentText();
-        //qDebug() << deHandle->teleAddressList[0];
         ui->quad1ConnectionStatusOverview->setText("CONN");
         ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         ui->quad1ConnectionStatus->setText("CONN");
