@@ -208,25 +208,20 @@ void RemoteControl::rcWorker()
 
     if (rcSerialReady == true)
     {
-        qDebug() << "Before" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
-                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
-                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
+        // Set RC values from auto settings: ARM/NAV/RTH
         setValuesFromAuto(autoMode);
-        qDebug() << "Auto" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
-                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
-                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
+        // Set RC values from manual input,
+        //    overlapping previous auto settings
+        //    if both modes are available for that agent.
         setValuesFromManual(manualMode);
-        qDebug() << "Manual" << rc_values[0].rcData[0] << rc_values[0].rcData[1] << rc_values[0].rcData[2]
-                 << rc_values[0].rcData[3] << rc_values[0].rcData[4] << rc_values[0].rcData[5]
-                 << rc_values[0].rcData[6] << rc_values[0].rcData[7];
-
-        rc_xbee_at->sendCMD(MSP_SET_RAW_RC, rc_values[0]);
+        // Send out command via XBee, AT or API.
+        sendCommand();
     }
 }
 
 void RemoteControl::setValuesFromManual(uint8_t mMode)
 {
-    qDebug() << "Manual mode" << mMode;
+    //qDebug() << "Manual mode" << mMode;
     switch (mMode) {
     case 0:
     {
@@ -305,7 +300,7 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
 
 void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
-    qDebug() << "Auto mode" << aMode;
+    //qDebug() << "Auto mode" << aMode;
     switch (aMode) {
     case 0:  // 0000 0000 radio is off
     {
@@ -414,5 +409,29 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     {
         break;
     }
+    }
+}
+
+void RemoteControl::sendCommand()
+{
+    if ( (manualMode>0) || (autoMode>0) )
+    {
+        if ((rcConnectionName == "USB") || (rcConnectionName == "AT"))
+        {
+            // USB or AT mode, should only have one connection
+            //    Find the first connection and send out command
+            uint8_t objInd = 0;
+            for (uint i=0;i<3;i++)
+            {
+                if (rcAddrList[i] != "")
+                {
+                    objInd = i;
+                    continue;
+                }
+            }
+            rc_xbee_at->sendCMD(MSP_SET_RAW_RC, rc_values[objInd]);
+        }
+        else if (rcConnectionName == "API")
+        {}
     }
 }
