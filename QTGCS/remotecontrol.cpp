@@ -51,6 +51,11 @@ void RemoteControl::stop()
 
 void RemoteControl::initRCValues()
 {
+    // Even though 8 channels are set here, there is still a possibility
+    //    more channels are used. This is depending on the settings.
+    //    Traditionally, at most 8 channels were available on the remote
+    //    controller. But recently more channels are available.
+    //    For example, iNav support 18 channels.
     manual_rc_values.rcData[0] = 1500;
     manual_rc_values.rcData[1] = 1500;
     manual_rc_values.rcData[2] = 1000;

@@ -54,7 +54,8 @@ SOURCES += \
     telemetryserialworker.cpp \
     fileio.cpp \
     wirelesscommunication_esp8266.cpp \
-    remotecontrol.cpp
+    remotecontrol.cpp \
+    remotecontrol_xbee_api.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -93,7 +94,8 @@ HEADERS  += \
     telemetryserialworker.h \
     fileio.h \
     wirelesscommunication_esp8266.h \
-    remotecontrol.h
+    remotecontrol.h \
+    remotecontrol_xbee_api.h
 
 FORMS    += \
     mainwindow.ui \
