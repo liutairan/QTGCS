@@ -10,6 +10,7 @@
 
 #include "quadstates.h"
 #include "remotecontrol_xbee_at.h"
+#include "remotecontrol_xbee_api.h"
 
 class RemoteControl : public QObject
 {
@@ -25,17 +26,19 @@ public:
     void setValuesFromManual(uint8_t);
     void setValuesFromAuto(uint16_t);
     void sendCommand();
+    void rcWorker();
 
     QString rcSerialPortName;
     QString rcConnectionName;
     QString rcAddrList[3];
+    bool rcConnectedDev[3];
 
     bool rcSerialReady;
     QTimer *rcTimer;
     QSerialPort *rcSerial;
 
     RemoteControl_XBEE_AT *rc_xbee_at;
-    void rcWorker();
+    RemoteControl_XBEE_API *rc_xbee_api;
 
     uint8_t manualMode;
     uint16_t autoMode;
