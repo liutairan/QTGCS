@@ -15,6 +15,10 @@
 #include "serialcommunication_xbee_api.h"
 #include "logmessage.h"
 
+#define USB_TIME_DELAY 150
+#define XBEE_AT_TIME_DELAY 200
+#define XBEE_API_TIME_DELAY 600
+
 class TelemetrySerialWorker : public QObject
 {
     Q_OBJECT
