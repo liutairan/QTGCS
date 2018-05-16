@@ -39,10 +39,6 @@ SerialCommunication_XBEE_API::~SerialCommunication_XBEE_API()
 
 void SerialCommunication_XBEE_API::send(int objInd, QByteArray data)
 {
-    //qDebug() << qsList.at(objInd)->address_long << data;
-    qDebug() << objInd;
-    qDebug() << qsList.length();
-    qDebug() << qsList.at(0)->address_long.toHex();
     xb->unicast(qsList.at(objInd)->address_long, data);
 }
 
@@ -53,12 +49,9 @@ void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
     {
         boxidsDownloadFlag[objInd] = false;
         QByteArray output;
-//        output.append("$M<");
-//        output.append(char(0xFF & 0));
-//        output.append(char(0xFF & cmd));
-//        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
+
         output = mspHandle1->processSendPacket(cmd);
-        //qDebug() << output;
+
         while (!boxidsDownloadFlag[objInd])
         {
             send(objInd, output);
