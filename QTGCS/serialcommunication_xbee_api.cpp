@@ -10,6 +10,8 @@ SerialCommunication_XBEE_API::SerialCommunication_XBEE_API(QSerialPort *ser, QLi
     xbee_api_portFound = false;
     serial = ser;
     qsList = tempObjList;
+    mspHandle1 = new MSP_V1(this);
+    mspHandle2 = new MSP_V2(this);
 
     xb = new QTXB(serial);
     QObject::connect(xb, SIGNAL(receivedATCommandResponse(ATCommandResponse*)), xb, SLOT(displayATCommandResponse(ATCommandResponse*)));
@@ -48,12 +50,14 @@ void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
     {
         boxidsDownloadFlag[objInd] = false;
         QByteArray output;
-        output.append("$M<");
-        output.append(char(0xFF & 0));
-        output.append(char(0xFF & cmd));
-        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
+//        output.append("$M<");
+//        output.append(char(0xFF & 0));
+//        output.append(char(0xFF & cmd));
+//        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
+        output = mspHandle1->processSendPacket(cmd);
         //qDebug() << output;
-        while (!boxidsDownloadFlag[objInd]) {
+        while (!boxidsDownloadFlag[objInd])
+        {
             send(objInd, output);
             QTime dieTime= QTime::currentTime().addMSecs(1000);
             while( QTime::currentTime() < dieTime )
@@ -72,10 +76,11 @@ void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
     default:
     {
         QByteArray output;
-        output.append("$M<");
-        output.append(char(0xFF & 0));
-        output.append(char(0xFF & cmd));
-        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
+//        output.append("$M<");
+//        output.append(char(0xFF & 0));
+//        output.append(char(0xFF & cmd));
+//        output.append((char(0xFF & 0) ^ char(0xFF & cmd)));
+        output = mspHandle1->processSendPacket(cmd);
         send(objInd, output);
         break;
     }
