@@ -8,6 +8,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
+#include "logmessage.h"
 #include "quadstates.h"
 #include "remotecontrol_xbee_at.h"
 #include "remotecontrol_xbee_api.h"
@@ -44,6 +45,7 @@ public:
     uint16_t autoMode;
 
 signals:
+    void logMessageRequest(LogMessage);
 
 public slots:
     void updateRCValues(QString msg);

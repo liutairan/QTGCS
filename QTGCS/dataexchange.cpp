@@ -232,6 +232,7 @@ void DataExchange::set_rcSerialOn(bool value)
             //    Serial port is opened in RemoteControl class at the beginning
             rcHandle = new RemoteControl(rcSerialPortName, rcConnectionMethod, rcAddressList);
 
+            connect(rcHandle, SIGNAL(logMessageRequest(LogMessage)), this, SLOT(logMessage(LogMessage)));
             // Server received data from network.
             connect(server, SIGNAL(inputReceived(QString)), rcHandle, SLOT(updateRCValues(QString)) );
         }

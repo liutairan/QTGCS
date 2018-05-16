@@ -219,6 +219,12 @@ void RemoteControl::rcSwitch()
     if (rcSerialReady)
     {
         rcWorker();
+
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Remote Control");
+        tempLogMessage.message = QString::number(manual_rc_values.rcData[2], 10);
+        emit logMessageRequest(tempLogMessage);
+        //
     }
 }
 

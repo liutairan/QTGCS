@@ -52,7 +52,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 {
-    QString styledString="<span style=\" color:#FF0c32;\" > ";
+    QString styledString="<br/><span style=\" color:#FF0c32;\" > ";
     styledString.append(tempMessage.id);
     styledString.append("</span>");
     styledString.append("<span style=\" color:#000c32;\" > ");
@@ -60,12 +60,22 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
     styledString.append("</span>");
 
     //textBrowser->setHtml(styledString);
-    QString currentString = ui->logTextBrowser->document()->toHtml();
-    currentString = currentString + styledString;
+//    QString currentString = ui->logTextBrowser->document()->toHtml();
+//    currentString = currentString + styledString;
+//    ui->logTextBrowser->setHtml(currentString);
+//    QScrollBar *sb = ui->logTextBrowser->verticalScrollBar();
+//    sb->setValue(sb->maximum());
+    //ui->logTextBrowser->append(tempStr);
+
+    logStringList.append(styledString);
+    QList<QString> currentStringList;
+    uint printLength = 100;
+    uint totalLength = logStringList.length();
+    currentStringList = logStringList.mid(totalLength-printLength, -1);
+    QString currentString = currentStringList.join("");
     ui->logTextBrowser->setHtml(currentString);
     QScrollBar *sb = ui->logTextBrowser->verticalScrollBar();
     sb->setValue(sb->maximum());
-    //ui->logTextBrowser->append(tempStr);
 }
 
 // update with quad states
