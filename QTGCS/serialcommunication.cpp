@@ -63,8 +63,9 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
     {
         for (int i=0; i<3; i++)
         {
-            if (addressList[i].length() > 2)
+            if (addressList[i] != "")
             {
+                connectedAddrList.append(addressList[i]);
                 QuadStates *tempQS;
                 tempQS = new QuadStates(QByteArray::fromHex(QString::number(i+1,10).toUtf8()),
                                         QByteArray::fromHex(addressList[i].toUtf8()),
@@ -123,9 +124,9 @@ void SerialCommunication::PreCheck()
     }
     else if (connectionMethod == "API")
     {
-        for (int i=0; i<3; i++)
+        for (uint i=0; i<connectedAddrList.length(); i++)
         {
-            if (addressList[i].length() > 2)
+            if (connectedAddrList.at(i) != "")
             {
                 //qDebug() << addressList[i];
                 sc_xbee_api->sendCMD(i, MSP_BOXIDS);
@@ -367,9 +368,9 @@ void SerialCommunication::RegularCheck()
     }
     else if (connectionMethod == "API")
     {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<connectedAddrList.length(); i++)
         {
-            if (addressList[i] != "")
+            if (connectedAddrList.at(i) != "")
             {
                 // MSP_IDENT
                 /*sc_xbee_api->sendCMD(i, MSP_IDENT);

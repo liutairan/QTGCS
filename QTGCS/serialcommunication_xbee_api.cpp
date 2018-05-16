@@ -40,6 +40,9 @@ SerialCommunication_XBEE_API::~SerialCommunication_XBEE_API()
 void SerialCommunication_XBEE_API::send(int objInd, QByteArray data)
 {
     //qDebug() << qsList.at(objInd)->address_long << data;
+    qDebug() << objInd;
+    qDebug() << qsList.length();
+    qDebug() << qsList.at(0)->address_long.toHex();
     xb->unicast(qsList.at(objInd)->address_long, data);
 }
 
