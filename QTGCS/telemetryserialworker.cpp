@@ -64,7 +64,14 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
         }
         else if (teleConnectionMethod == "API")
         {
-            teleTimer->setInterval(XBEE_API_TIME_DELAY);
+            for (uint i=0;i<3;i++)
+            {
+                if (teleAddressList[i] != "")
+                {
+                    objIds.append(i);
+                }
+            }
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
         }
         teleTimer->start();
 
@@ -141,7 +148,7 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
         }
         else if (teleConnectionMethod == "API")
         {
-            teleTimer->setInterval(XBEE_API_TIME_DELAY);
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
         }
         teleTimer->start();
     }
@@ -162,7 +169,7 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
         }
         else if (teleConnectionMethod == "API")
         {
-            teleTimer->setInterval(XBEE_API_TIME_DELAY);
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
         }
         teleTimer->start();
     }

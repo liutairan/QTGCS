@@ -37,6 +37,7 @@ public:
     SerialCommunication *scHandle;
     QString teleAddressList[3];
     Mission_list mi_list_air[3];
+    QVector<int> objIds;
     //LogMessage tempLogMessage;
     void uploadMissionMode();
     void downloadMissionMode();
