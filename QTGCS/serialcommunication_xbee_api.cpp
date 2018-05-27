@@ -44,12 +44,11 @@ void SerialCommunication_XBEE_API::send(int objInd, QByteArray data)
 
 void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
 {
+    QByteArray output;
     switch (cmd) {
     case MSP_BOXIDS:
     {
         boxidsDownloadFlag[objInd] = false;
-        QByteArray output;
-
         output = mspHandle1->processSendPacket(cmd);
 
         while (!boxidsDownloadFlag[objInd])
@@ -71,7 +70,7 @@ void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
     }
     default:
     {
-        QByteArray output;
+//        QByteArray output;
 //        output.append("$M<");
 //        output.append(char(0xFF & 0));
 //        output.append(char(0xFF & cmd));
@@ -86,97 +85,100 @@ void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd)
 void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd, Msp_rc_channels raw_rc)
 {
     QByteArray output;
-    char checksum = 0;
-    output.append("$M<");
-    output.append(char(0xFF & 16));
-    output.append(char(0xFF & cmd));
-    checksum = (char(0xFF & 16)) ^ (char(0xFF & cmd));
-    for (int i = 0; i < 8; i++)
-    {
-        uint16_t tempValue = raw_rc.rcData[i];
-        output.append(char(0xFF & tempValue));
-        checksum = checksum ^ (char(0xFF & tempValue));
-        output.append(char(0xFF & (tempValue >> 8)));
-        checksum = checksum ^ (char(0xFF & (tempValue >> 8)));
-    }
-    // checksum byte
-    output.append(checksum );
+    output = mspHandle1->processSendPacket(cmd,raw_rc);
+//    char checksum = 0;
+//    output.append("$M<");
+//    output.append(char(0xFF & 16));
+//    output.append(char(0xFF & cmd));
+//    checksum = (char(0xFF & 16)) ^ (char(0xFF & cmd));
+//    for (int i = 0; i < 8; i++)
+//    {
+//        uint16_t tempValue = raw_rc.rcData[i];
+//        output.append(char(0xFF & tempValue));
+//        checksum = checksum ^ (char(0xFF & tempValue));
+//        output.append(char(0xFF & (tempValue >> 8)));
+//        checksum = checksum ^ (char(0xFF & (tempValue >> 8)));
+//    }
+//    // checksum byte
+//    output.append(checksum );
     send(objInd, output);
 }
 
 void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd, int ind)
 {
     QByteArray output;
-    output.append("$M<");
-    output.append(char(0xFF & 1));
-    output.append(char(0xFF & cmd));
-    output.append(char(0xFF & ind));
-    // checksum byte
-    output.append((char(0xFF & 1) ^ char(0xFF & cmd)) ^ char(0xFF & ind) );
+    output = mspHandle1->processSendPacket(cmd, ind);
+//    output.append("$M<");
+//    output.append(char(0xFF & 1));
+//    output.append(char(0xFF & cmd));
+//    output.append(char(0xFF & ind));
+//    // checksum byte
+//    output.append((char(0xFF & 1) ^ char(0xFF & cmd)) ^ char(0xFF & ind) );
     send(objInd, output);
 }
 
 void SerialCommunication_XBEE_API::sendCMD(int objInd, int cmd, Mission tempMission)
 {
     QByteArray output;
-    char checksum = 0;
-    output.append("$M<");
-    output.append(char(0xFF & 21));
-    output.append(char(0xFF & cmd));
-    checksum = (char(0xFF & 21)) ^ (char(0xFF & cmd));
+    output = mspHandle1->processSendPacket(cmd, tempMission);
+//    char checksum = 0;
+//    output.append("$M<");
+//    output.append(char(0xFF & 21));
+//    output.append(char(0xFF & cmd));
+//    checksum = (char(0xFF & 21)) ^ (char(0xFF & cmd));
 
-    output.append(char(0xFF & tempMission.wp_no));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_no));
+//    output.append(char(0xFF & tempMission.wp_no));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_no));
 
-    output.append(char(0xFF & tempMission.wp_action));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_action));
+//    output.append(char(0xFF & tempMission.wp_action));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_action));
 
-    output.append(char(0xFF & tempMission.wp_lat));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_lat));
-    output.append(char(0xFF & (tempMission.wp_lat >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 8)));
-    output.append(char(0xFF & (tempMission.wp_lat >> 16)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 16)));
-    output.append(char(0xFF & (tempMission.wp_lat >> 24)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 24)));
+//    output.append(char(0xFF & tempMission.wp_lat));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_lat));
+//    output.append(char(0xFF & (tempMission.wp_lat >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 8)));
+//    output.append(char(0xFF & (tempMission.wp_lat >> 16)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 16)));
+//    output.append(char(0xFF & (tempMission.wp_lat >> 24)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lat >> 24)));
 
-    output.append(char(0xFF & tempMission.wp_lon));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_lon));
-    output.append(char(0xFF & (tempMission.wp_lon >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 8)));
-    output.append(char(0xFF & (tempMission.wp_lon >> 16)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 16)));
-    output.append(char(0xFF & (tempMission.wp_lon >> 24)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 24)));
+//    output.append(char(0xFF & tempMission.wp_lon));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_lon));
+//    output.append(char(0xFF & (tempMission.wp_lon >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 8)));
+//    output.append(char(0xFF & (tempMission.wp_lon >> 16)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 16)));
+//    output.append(char(0xFF & (tempMission.wp_lon >> 24)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_lon >> 24)));
 
-    output.append(char(0xFF & tempMission.wp_alt));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_alt));
-    output.append(char(0xFF & (tempMission.wp_alt >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 8)));
-    output.append(char(0xFF & (tempMission.wp_alt >> 16)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 16)));
-    output.append(char(0xFF & (tempMission.wp_alt >> 24)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 24)));
+//    output.append(char(0xFF & tempMission.wp_alt));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_alt));
+//    output.append(char(0xFF & (tempMission.wp_alt >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 8)));
+//    output.append(char(0xFF & (tempMission.wp_alt >> 16)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 16)));
+//    output.append(char(0xFF & (tempMission.wp_alt >> 24)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_alt >> 24)));
 
-    output.append(char(0xFF & tempMission.wp_p1));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_p1));
-    output.append(char(0xFF & (tempMission.wp_p1 >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_p1 >> 8)));
+//    output.append(char(0xFF & tempMission.wp_p1));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_p1));
+//    output.append(char(0xFF & (tempMission.wp_p1 >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_p1 >> 8)));
 
-    output.append(char(0xFF & tempMission.wp_p2));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_p2));
-    output.append(char(0xFF & (tempMission.wp_p2 >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_p2 >> 8)));
+//    output.append(char(0xFF & tempMission.wp_p2));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_p2));
+//    output.append(char(0xFF & (tempMission.wp_p2 >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_p2 >> 8)));
 
-    output.append(char(0xFF & tempMission.wp_p3));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_p3));
-    output.append(char(0xFF & (tempMission.wp_p3 >> 8)));
-    checksum = checksum ^ (char(0xFF & (tempMission.wp_p3 >> 8)));
+//    output.append(char(0xFF & tempMission.wp_p3));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_p3));
+//    output.append(char(0xFF & (tempMission.wp_p3 >> 8)));
+//    checksum = checksum ^ (char(0xFF & (tempMission.wp_p3 >> 8)));
 
-    output.append(char(0xFF & tempMission.wp_flag));
-    checksum = checksum ^ (char(0xFF & tempMission.wp_flag));
+//    output.append(char(0xFF & tempMission.wp_flag));
+//    checksum = checksum ^ (char(0xFF & tempMission.wp_flag));
 
-    output.append(checksum);
+//    output.append(checksum);
     send(objInd, output);
 }
 
@@ -783,19 +785,25 @@ void SerialCommunication_XBEE_API::readData(RXIndicator *digiMeshPacket)
              */
     QByteArray newPacket;
     unsigned startDelimiter = 0x24;
+    unsigned v1sign = 0x4d;
+    unsigned v2sign = 0x58;
     if ((unsigned char)packet.at(0) == (unsigned char)startDelimiter)
     {
         if (packet.length() > 4)
         {
-            unsigned length = packet.at(3)+6;
-            if((unsigned char)packet.size() >= (unsigned char)length){
-                newPacket.append(packet.left(length));
-                for (int i =0; i< qsList.length(); i++)
-                {
-                    if (qsList.at(i)->address_long == digiMeshPacket->getSrcAddr64())
+            //MSP V1
+            if (packet.at(1) == (unsigned char)v1sign)
+            {
+                unsigned length = packet.at(3)+6;
+                if((unsigned char)packet.size() >= (unsigned char)length){
+                    newPacket.append(packet.left(length));
+                    for (int i =0; i< qsList.length(); i++)
                     {
-                        processPacket(i, newPacket);
-                        break;
+                        if (qsList.at(i)->address_long == digiMeshPacket->getSrcAddr64())
+                        {
+                            processPacket(i, newPacket);
+                            break;
+                        }
                     }
                 }
             }
@@ -805,249 +813,288 @@ void SerialCommunication_XBEE_API::readData(RXIndicator *digiMeshPacket)
 
 void SerialCommunication_XBEE_API::processPacket(int ind, QByteArray packet)
 {
-    unsigned length = (unsigned char)packet.at(3);
-    unsigned cmdCode = (unsigned char)packet.at(4);
-    QByteArray data = packet.mid(5, length+1);
-
-    switch (cmdCode) {
-    case MSP_STATUS_EX:
+    unsigned v1sign = 0x4d;
+    unsigned v2sign = 0x58;
+    uint16_t payloadSize = 0;
+    uint16_t cmdCode = 0;
+    QByteArray data;
+    if (packet.at(1) == (unsigned char)v1sign)
     {
-        uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
-        int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
-        uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
-        uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
-        uint8_t configProfile = (0xFF & data.at(10));
-        uint16_t systemLoadPercent = ((0xFF & data.at(12)) << 8) + (0xFF & data.at(11));
-        uint16_t armingFlags = ((0xFF & data.at(14)) << 8) + (0xFF & data.at(13));
-        uint8_t accAxisFlags = (0xFF & data.at(15));
+        payloadSize = (uint16_t)packet.at(3);
+        cmdCode = (uint16_t)packet.at(4);
+        data = packet.mid(5, payloadSize+1);
         QuadStates *tempQS;
         tempQS = qsList.at(ind);
-        tempQS->msp_status_ex.cycletime = cycletime;
-        tempQS->msp_status_ex.i2cGetErrorCounter = i2cError;
-        tempQS->msp_status_ex.packSensorStatus = activeSensors;
-        tempQS->msp_status_ex.packFlightModeFlags = flightModes;
-        tempQS->msp_status_ex.getConfigProfile = configProfile;
-        tempQS->msp_status_ex.averageSystemLoadPercent = systemLoadPercent;
-        tempQS->msp_status_ex.armingFlags = armingFlags;
-        tempQS->msp_status_ex.accGetCalibrationAxisFlags = accAxisFlags;
-        //qDebug() << tempQS->msp_status_ex.packFlightModeFlags;
-        parseSensorStatus(tempQS);
-        parseFlightModeFlags(tempQS);
-        parseArmingFlags(tempQS);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_STATUS:
-    {
-        uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
-        int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
-        uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
-        uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
-        uint8_t configProfile = (0xFF & data.at(10));
-
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_status.cycletime = cycletime;
-        tempQS->msp_status.i2cGetErrorCounter = i2cError;
-        tempQS->msp_status.packSensorStatus = activeSensors;
-        tempQS->msp_status.packFlightModeFlags = flightModes;
-        tempQS->msp_status.getConfigProfile = configProfile;
-
-        parseSensorStatus(tempQS);
-        parseFlightModeFlags(tempQS);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_BOXIDS:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-
-        for (unsigned int i=0; i< length; i++)
+        QuadStates *resultQS;
+        resultQS = mspHandle1->processReceivePacket(packet, tempQS);
+        qsList.replace(ind, resultQS);
+        if (cmdCode == MSP_BOXIDS)
         {
-            tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
+            emit boxidsDownloaded(ind);
         }
-        qsList.replace(ind, tempQS);
-        emit boxidsDownloaded(ind);
-        break;
+        emit qsReady(&qsList);
     }
-    case MSP_ALTITUDE:
+    else if (packet.at(1) == (unsigned char)v2sign)
     {
+        cmdCode = (0xFF & buffer.at(4)) + ((0xFF & buffer.at(5)) << 8);
+        payloadSize = (0xFF & buffer.at(6)) + ((0xFF & buffer.at(7)) << 8);
+        data = packet.mid(8, payloadSize+1);
         QuadStates *tempQS;
         tempQS = qsList.at(ind);
-        tempQS->msp_altitude.estimatedActualPosition = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-        tempQS->msp_altitude.estimatedActualVelocity = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-        qsList.replace(ind, tempQS);
-        break;
+        QuadStates *resultQS;
+        resultQS = mspHandle2->processReceivePacket(packet, tempQS);
+        qsList.replace(ind, resultQS);
+        emit qsReady(&qsList);
     }
-    case MSP_SONAR_ALTITUDE:
+    else
     {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_sonar_altitude.rangefinderGetLatestAltitude = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_ATTITUDE:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_attitude.roll = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
-        tempQS->msp_attitude.pitch = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
-        tempQS->msp_attitude.yaw = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_RC:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        for (int i=0; i<8;i++)
-        {
-            tempQS->msp_rc_channels.rcData[i] = ((0xFF & data.at(2*i))) + ((0xFF & data.at(2*i+1)) << 8);
-        }
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_ANALOG:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_analog.vbat = (0xFF & data.at(0));
-        tempQS->msp_analog.mAhDrawn = (0xFF & data.at(1)) + ((0xFF & data.at(2)) << 8);
-        tempQS->msp_analog.rssi = (0xFF & data.at(3)) + ((0xFF & data.at(4)) << 8);
-        tempQS->msp_analog.amp = (0xFF & data.at(5)) + ((0xFF & data.at(6)) << 8);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_RAW_IMU:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_raw_imu.acc[0] = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
-        tempQS->msp_raw_imu.acc[1] = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
-        tempQS->msp_raw_imu.acc[2] = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-        tempQS->msp_raw_imu.gyro[0] = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8);
-        tempQS->msp_raw_imu.gyro[1] = ((0xFF & data.at(8))) + ((0xFF & data.at(9)) << 8);
-        tempQS->msp_raw_imu.gyro[2] = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
-        tempQS->msp_raw_imu.mag[0] = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
-        tempQS->msp_raw_imu.mag[1] = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-        tempQS->msp_raw_imu.mag[2] = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_MOTOR:
-    {
-        break;
-    }
-    case MSP_SENSOR_STATUS:
-    {
-        break;
-    }
-    case MSP_LOOP_TIME:
-    {
-        break;
-    }
-    case MSP_MISC:
-    {
-        break;
-    }
-    case MSP_MODE_RANGES:
-    {
-        break;
-    }
-    case MSP_RAW_GPS:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_raw_gps.gpsSol_fixType = (0xFF & data.at(0));
-        tempQS->msp_raw_gps.gpsSol_numSat = (0xFF & data.at(1));
-        tempQS->msp_raw_gps.gpsSol_llh_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-        tempQS->msp_raw_gps.gpsSol_llh_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-        tempQS->msp_raw_gps.gpsSol_llh_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
-        tempQS->msp_raw_gps.gpsSol_groundSpeed = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
-        tempQS->msp_raw_gps.gpsSol_groundCourse = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-        tempQS->msp_raw_gps.gpsSol_hdop = (0xFF & data.at(16));
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_COMP_GPS:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_comp_gps.gps_distanceToHome = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
-        tempQS->msp_comp_gps.gps_directionToHome = (0xFF & data.at(2)) + + ((0xFF & data.at(3)) << 8);
-        tempQS->msp_comp_gps.gpsSol_flags_gpsHeartbeat = (0xFF & data.at(4));
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_NAV_STATUS:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_nav_status.nav_status_mode = (0xFF & data.at(0));
-        tempQS->msp_nav_status.nav_status_state = (0xFF & data.at(1));
-        tempQS->msp_nav_status.nav_status_activeWPAction = (0xFF & data.at(2));
-        tempQS->msp_nav_status.nav_status_activeWPNumber = (0xFF & data.at(3));
-        tempQS->msp_nav_status.nav_status_error = (0xFF & data.at(4));
-        tempQS->msp_nav_status.MagHoldHeading = (0xFF & data.at(5));
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_GPSSVINFO:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_gps_svinfo.gpsSol_hdop1 = (0xFF & data.at(3));
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_GPSSTATISTICS:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_gps_statistics.gpsStats_lastMessageDt = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
-        tempQS->msp_gps_statistics.gpsStats_errors = (0xFF & data.at(2)) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-        tempQS->msp_gps_statistics.gpsStats_timeouts = (0xFF & data.at(6)) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-        tempQS->msp_gps_statistics.gpsStats_packetCount = (0xFF & data.at(10)) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_FEATURE:
-    {
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->msp_feature.featureMask = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
-        qsList.replace(ind, tempQS);
-        break;
-    }
-    case MSP_WP:
-    {
-        Mission tempMission;
-        tempMission.wp_no = (0xFF & data.at(0));
-        tempMission.wp_action = (0xFF & data.at(1));
-        tempMission.wp_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
-        tempMission.wp_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
-        tempMission.wp_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
-        tempMission.wp_p1 = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
-        tempMission.wp_p2 = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
-        tempMission.wp_p3 = ((0xFF & data.at(18))) + ((0xFF & data.at(19)) << 8);
-        tempMission.wp_flag = (0xFF & data.at(20));
-        QuadStates *tempQS;
-        tempQS = qsList.at(ind);
-        tempQS->temp_mission.mi = tempMission;
-        qsList.replace(ind, tempQS);
-        emit missionDownloaded(ind);
-        break;
-    }
-    default:
-    {
-        qDebug() << "Error:  Unknown Packet: " << packet.toHex();
-        break;
+        qDebug() << "Unrecognizable MSP format.";
     }
 
-    }  // end of switch
-    emit qsReady(&qsList);
+
+//    unsigned length = (unsigned char)packet.at(3);
+//    unsigned cmdCode = (unsigned char)packet.at(4);
+//    QByteArray data = packet.mid(5, length+1);
+
+//    switch (cmdCode) {
+//    case MSP_STATUS_EX:
+//    {
+//        uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
+//        int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
+//        uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
+//        uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
+//        uint8_t configProfile = (0xFF & data.at(10));
+//        uint16_t systemLoadPercent = ((0xFF & data.at(12)) << 8) + (0xFF & data.at(11));
+//        uint16_t armingFlags = ((0xFF & data.at(14)) << 8) + (0xFF & data.at(13));
+//        uint8_t accAxisFlags = (0xFF & data.at(15));
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_status_ex.cycletime = cycletime;
+//        tempQS->msp_status_ex.i2cGetErrorCounter = i2cError;
+//        tempQS->msp_status_ex.packSensorStatus = activeSensors;
+//        tempQS->msp_status_ex.packFlightModeFlags = flightModes;
+//        tempQS->msp_status_ex.getConfigProfile = configProfile;
+//        tempQS->msp_status_ex.averageSystemLoadPercent = systemLoadPercent;
+//        tempQS->msp_status_ex.armingFlags = armingFlags;
+//        tempQS->msp_status_ex.accGetCalibrationAxisFlags = accAxisFlags;
+//        //qDebug() << tempQS->msp_status_ex.packFlightModeFlags;
+//        parseSensorStatus(tempQS);
+//        parseFlightModeFlags(tempQS);
+//        parseArmingFlags(tempQS);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_STATUS:
+//    {
+//        uint16_t cycletime = ((0xFF & data.at(1)) << 8) + (0xFF & data.at(0));
+//        int i2cError = ((0xFF & data.at(3)) << 8) + (0xFF & data.at(2));
+//        uint16_t activeSensors = ((0xFF & data.at(5)) << 8) + (0xFF & data.at(4));
+//        uint32_t flightModes = ((0xFF & data.at(9)) << 24) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(7)) << 8) + (0xFF & data.at(6));
+//        uint8_t configProfile = (0xFF & data.at(10));
+
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_status.cycletime = cycletime;
+//        tempQS->msp_status.i2cGetErrorCounter = i2cError;
+//        tempQS->msp_status.packSensorStatus = activeSensors;
+//        tempQS->msp_status.packFlightModeFlags = flightModes;
+//        tempQS->msp_status.getConfigProfile = configProfile;
+
+//        parseSensorStatus(tempQS);
+//        parseFlightModeFlags(tempQS);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_BOXIDS:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+
+//        for (unsigned int i=0; i< length; i++)
+//        {
+//            tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
+//        }
+//        qsList.replace(ind, tempQS);
+//        emit boxidsDownloaded(ind);
+//        break;
+//    }
+//    case MSP_ALTITUDE:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_altitude.estimatedActualPosition = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
+//        tempQS->msp_altitude.estimatedActualVelocity = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_SONAR_ALTITUDE:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_sonar_altitude.rangefinderGetLatestAltitude = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_ATTITUDE:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_attitude.roll = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
+//        tempQS->msp_attitude.pitch = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
+//        tempQS->msp_attitude.yaw = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_RC:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        for (int i=0; i<8;i++)
+//        {
+//            tempQS->msp_rc_channels.rcData[i] = ((0xFF & data.at(2*i))) + ((0xFF & data.at(2*i+1)) << 8);
+//        }
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_ANALOG:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_analog.vbat = (0xFF & data.at(0));
+//        tempQS->msp_analog.mAhDrawn = (0xFF & data.at(1)) + ((0xFF & data.at(2)) << 8);
+//        tempQS->msp_analog.rssi = (0xFF & data.at(3)) + ((0xFF & data.at(4)) << 8);
+//        tempQS->msp_analog.amp = (0xFF & data.at(5)) + ((0xFF & data.at(6)) << 8);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_RAW_IMU:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_raw_imu.acc[0] = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8);
+//        tempQS->msp_raw_imu.acc[1] = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8);
+//        tempQS->msp_raw_imu.acc[2] = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
+//        tempQS->msp_raw_imu.gyro[0] = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8);
+//        tempQS->msp_raw_imu.gyro[1] = ((0xFF & data.at(8))) + ((0xFF & data.at(9)) << 8);
+//        tempQS->msp_raw_imu.gyro[2] = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
+//        tempQS->msp_raw_imu.mag[0] = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
+//        tempQS->msp_raw_imu.mag[1] = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
+//        tempQS->msp_raw_imu.mag[2] = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_MOTOR:
+//    {
+//        break;
+//    }
+//    case MSP_SENSOR_STATUS:
+//    {
+//        break;
+//    }
+//    case MSP_LOOP_TIME:
+//    {
+//        break;
+//    }
+//    case MSP_MISC:
+//    {
+//        break;
+//    }
+//    case MSP_MODE_RANGES:
+//    {
+//        break;
+//    }
+//    case MSP_RAW_GPS:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_raw_gps.gpsSol_fixType = (0xFF & data.at(0));
+//        tempQS->msp_raw_gps.gpsSol_numSat = (0xFF & data.at(1));
+//        tempQS->msp_raw_gps.gpsSol_llh_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
+//        tempQS->msp_raw_gps.gpsSol_llh_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
+//        tempQS->msp_raw_gps.gpsSol_llh_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8);
+//        tempQS->msp_raw_gps.gpsSol_groundSpeed = ((0xFF & data.at(12))) + ((0xFF & data.at(13)) << 8);
+//        tempQS->msp_raw_gps.gpsSol_groundCourse = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
+//        tempQS->msp_raw_gps.gpsSol_hdop = (0xFF & data.at(16));
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_COMP_GPS:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_comp_gps.gps_distanceToHome = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
+//        tempQS->msp_comp_gps.gps_directionToHome = (0xFF & data.at(2)) + + ((0xFF & data.at(3)) << 8);
+//        tempQS->msp_comp_gps.gpsSol_flags_gpsHeartbeat = (0xFF & data.at(4));
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_NAV_STATUS:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_nav_status.nav_status_mode = (0xFF & data.at(0));
+//        tempQS->msp_nav_status.nav_status_state = (0xFF & data.at(1));
+//        tempQS->msp_nav_status.nav_status_activeWPAction = (0xFF & data.at(2));
+//        tempQS->msp_nav_status.nav_status_activeWPNumber = (0xFF & data.at(3));
+//        tempQS->msp_nav_status.nav_status_error = (0xFF & data.at(4));
+//        tempQS->msp_nav_status.MagHoldHeading = (0xFF & data.at(5));
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_GPSSVINFO:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_gps_svinfo.gpsSol_hdop1 = (0xFF & data.at(3));
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_GPSSTATISTICS:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_gps_statistics.gpsStats_lastMessageDt = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8);
+//        tempQS->msp_gps_statistics.gpsStats_errors = (0xFF & data.at(2)) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
+//        tempQS->msp_gps_statistics.gpsStats_timeouts = (0xFF & data.at(6)) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
+//        tempQS->msp_gps_statistics.gpsStats_packetCount = (0xFF & data.at(10)) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_FEATURE:
+//    {
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->msp_feature.featureMask = (0xFF & data.at(0)) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
+//        qsList.replace(ind, tempQS);
+//        break;
+//    }
+//    case MSP_WP:
+//    {
+//        Mission tempMission;
+//        tempMission.wp_no = (0xFF & data.at(0));
+//        tempMission.wp_action = (0xFF & data.at(1));
+//        tempMission.wp_lat = ((0xFF & data.at(2))) + ((0xFF & data.at(3)) << 8) + ((0xFF & data.at(4)) << 16) + ((0xFF & data.at(5)) << 24);
+//        tempMission.wp_lon = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
+//        tempMission.wp_alt = ((0xFF & data.at(10))) + ((0xFF & data.at(11)) << 8) + ((0xFF & data.at(12)) << 16) + ((0xFF & data.at(13)) << 24);
+//        tempMission.wp_p1 = ((0xFF & data.at(14))) + ((0xFF & data.at(15)) << 8);
+//        tempMission.wp_p2 = ((0xFF & data.at(16))) + ((0xFF & data.at(17)) << 8);
+//        tempMission.wp_p3 = ((0xFF & data.at(18))) + ((0xFF & data.at(19)) << 8);
+//        tempMission.wp_flag = (0xFF & data.at(20));
+//        QuadStates *tempQS;
+//        tempQS = qsList.at(ind);
+//        tempQS->temp_mission.mi = tempMission;
+//        qsList.replace(ind, tempQS);
+//        emit missionDownloaded(ind);
+//        break;
+//    }
+//    default:
+//    {
+//        qDebug() << "Error:  Unknown Packet: " << packet.toHex();
+//        break;
+//    }
+
+//    }  // end of switch
+//    emit qsReady(&qsList);
 }
 
 void SerialCommunication_XBEE_API::boxidsDownloadedFlag(int objInd)

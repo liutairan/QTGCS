@@ -218,7 +218,6 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             for (uint i=0; i< length; i++)
             {
                 tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
-                //qDebug() << tempQS->active_boxids.box_id[i];
             }
             break;
         }

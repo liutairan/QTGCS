@@ -142,6 +142,7 @@ void MainWindow::logData(QList<QuadStates *> *tempObjList)
 
 void MainWindow::updateGUILabels(QList<QuadStates *> *tempObjList)
 {
+    // Update overview page labels
     updateOverviewLabels(tempObjList);
     if (quad1ConnSwitch == true)
     {
@@ -155,6 +156,8 @@ void MainWindow::updateGUILabels(QList<QuadStates *> *tempObjList)
     {
         updateQuad3Labels(tempObjList);
     }
+    // After all the updates, repaint
+    this->repaint();
 }
 
 void MainWindow::updateGPSonMap(QList<QuadStates *> *tempObjList)

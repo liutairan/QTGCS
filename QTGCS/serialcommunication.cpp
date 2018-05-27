@@ -128,7 +128,6 @@ void SerialCommunication::PreCheck()
         {
             if (connectedAddrList.at(i) != "")
             {
-                //qDebug() << addressList[i];
                 sc_xbee_api->sendCMD(i, MSP_BOXIDS);
                 QTime dieTime = QTime::currentTime().addMSecs(1000);
                 while( QTime::currentTime() < dieTime )

@@ -51,9 +51,11 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
         //    very large.
         scHandle->PreLoadInfo();
 
+
         // Create timer for telemetry.
         teleTimer = new QTimer();
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be filled.
+
         if (teleConnectionMethod == "USB")
         {
             teleTimer->setInterval(USB_TIME_DELAY);
@@ -150,6 +152,7 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
         {
             teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
         }
+
         teleTimer->start();
     }
     else if (mode > 0 && mode < 10)
@@ -171,6 +174,7 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
         {
             teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
         }
+
         teleTimer->start();
     }
     else if (mode > 10 && mode < 20)
