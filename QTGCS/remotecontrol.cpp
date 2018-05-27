@@ -13,6 +13,14 @@ RemoteControl::RemoteControl(QString portName, QString connectionName, QString a
     for (uint i=0;i<3;i++)
     {
         rcAddrList[i] = addrList[i];
+        if (addrList[i] != "")
+        {
+            rcConnectedDev[i] = true;
+        }
+        else if (addrList[i] == "")
+        {
+            rcConnectedDev[i] = false;
+        }
     }
 
     // remote control serial port is opened.
@@ -22,7 +30,15 @@ RemoteControl::RemoteControl(QString portName, QString connectionName, QString a
     // To do: the serial port name may changed, need to check
     //    the port name again.
     rcSerial->setPortName(rcSerialPortName);
-    rc_xbee_at = new RemoteControl_XBEE_AT(rcSerial);
+    if ((rcConnectionName == "USB") || (rcConnectionName == "AT"))
+    {
+        rc_xbee_at = new RemoteControl_XBEE_AT(rcSerial);
+    }
+    else if (rcConnectionName == "API")
+    {
+        rc_xbee_api = new RemoteControl_XBEE_API(rcSerial);
+    }
+
 
     // serial remote control output
     rcTimer = new QTimer();
@@ -203,6 +219,12 @@ void RemoteControl::rcSwitch()
     if (rcSerialReady)
     {
         rcWorker();
+
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Remote Control");
+        tempLogMessage.message = QString::number(manual_rc_values.rcData[2], 10);
+        emit logMessageRequest(tempLogMessage);
+        //
     }
 }
 
@@ -239,14 +261,6 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
             rc_values[0].rcData[i] = manual_rc_values.rcData[i];
         }
 
-        /*qDebug() << manual_rc_values.rcData[0]
-                 << manual_rc_values.rcData[1]
-                 << manual_rc_values.rcData[2]
-                 << manual_rc_values.rcData[3]
-                 << manual_rc_values.rcData[4]
-                 << manual_rc_values.rcData[5]
-                 << manual_rc_values.rcData[6]
-                 << manual_rc_values.rcData[7];*/
         // Send log info to main GUI
         /*LogMessage tempLogMessage;
         tempLogMessage.id = QString("Remote Control");
@@ -263,9 +277,6 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
         tempLogMessage.id = QString("Remote Control");
         tempLogMessage.message = "RC mode " + QString::number(rcMode, 10);
         emit logMessageRequest(tempLogMessage);*/
-        //
-        //rc_xbee_at = new RemoteControl_XBEE_AT(serial);
-        //rc_xbee_at->sendCMD(MSP_SET_RAW_RC, manual_rc_values);
         break;
     }
     case 2:
@@ -274,13 +285,6 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
         {
             rc_values[1].rcData[i] = manual_rc_values.rcData[i];
         }
-        // Send log info to main GUI
-//        LogMessage tempLogMessage;
-//        tempLogMessage.id = QString("Remote Control");
-//        tempLogMessage.message = QString("RC is not set on CH2.");
-//        emit logMessageRequest(tempLogMessage);
-        //
-        //qDebug() << "Not set 2";
         break;
     }
     case 3:
@@ -289,13 +293,6 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
         {
             rc_values[2].rcData[i] = manual_rc_values.rcData[i];
         }
-        // Send log info to main GUI
-//        LogMessage tempLogMessage;
-//        tempLogMessage.id = QString("Remote Control");
-//        tempLogMessage.message = QString("RC is not set on CH3.");
-//        emit logMessageRequest(tempLogMessage);
-        //
-        //qDebug() << "Not set 3";
         break;
     }
     default:
@@ -323,6 +320,10 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1000;
         break;
     }
+    case 2:  // 000 000 000 000 001 0  radio is off, but quad1 is armed. Invalid.
+    {
+        break;
+    }
     case 3:  // 000 000 000 000 001 1 radio is on, quad1 is armed but disnav
     {
         rc_values[0].rcData[0] = 1500;
@@ -335,7 +336,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1000;
         break;
     }
-    case 5:  // 000 000 000 000 010 1
+    case 4:  // 000 000 000 000 010 0  radio is off, but quad2 is armed. Invalid.
+    {
+        break;
+    }
+    case 5:  // 000 000 000 000 010 1  radio is on, quad2 is armed.
     {
         rc_values[1].rcData[0] = 1500;
         rc_values[1].rcData[1] = 1500;
@@ -345,6 +350,35 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[1].rcData[5] = 1000;
         rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1000;
+        break;
+    }
+    case 6:  // 000 000 000 000 011 0  radio is off, but quad1 and quad 2 are armed. Invalid.
+    {
+        break;
+    }
+    case 7:  // 000 000 000 000 011 1  radio is on, quad1 and quad2 are armed.
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1000;
+
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1000;
+        break;
+    }
+    case 8:  // 000 000 000 000 100 0  radio is off, but quad3 is armed. Invalid.
+    {
         break;
     }
     case 9:  // 000 000 000 000 100 1
@@ -394,7 +428,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     {
         break;
     }
-    case 127:  // 0111 1111 radio is on, all quads armed and naved
+    case 127:  // 000 000 000 111 111 1 radio is on, all quads armed and naved
     {
         break;
     }
@@ -408,6 +442,40 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[5] = 1000;
         rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
+        break;
+    }
+    case 911:  // 000 000 111 000 111 1  radio is on, all quads arm and rth. Max value allowed currently.
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1600;
+
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1600;
+        break;
+    }
+    case 1023: // 000 000 111 111 111 1  radio is on, all quads arm, nav, and rth. Invalid.
+    {
         break;
     }
     default:
@@ -428,7 +496,7 @@ void RemoteControl::sendCommand()
             uint8_t objInd = 0;
             for (uint i=0;i<3;i++)
             {
-                if (rcAddrList[i] != "")
+                if (rcConnectedDev[i] == true)
                 {
                     objInd = i;
                     continue;
@@ -437,6 +505,9 @@ void RemoteControl::sendCommand()
             rc_xbee_at->sendCMD(MSP_SET_RAW_RC, rc_values[objInd]);
         }
         else if (rcConnectionName == "API")
-        {}
+        {
+            // To do: how to deal with xbee address.
+            ;
+        }
     }
 }

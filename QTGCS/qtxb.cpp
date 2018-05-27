@@ -29,7 +29,9 @@ QTXB::QTXB(QObject *parent) :
     QObject(parent)
 {
 }
-QTXB::QTXB(QSerialPort *ser){
+
+QTXB::QTXB(QSerialPort *ser)
+{
 
     xbeeFound = false;
     serial = ser;
@@ -68,16 +70,24 @@ QTXB::~QTXB()
         qDebug() << "XBEE: Serial Port closed successfully";
     }
 }
-void QTXB::displayATCommandResponse(ATCommandResponse *digiMeshPacket){
+
+void QTXB::displayATCommandResponse(ATCommandResponse *digiMeshPacket)
+{
     qDebug() << "Received ATCommandResponse: " << digiMeshPacket->getPacket().toHex();
 }
-void QTXB::displayModemStatus(ModemStatus *digiMeshPacket){
+
+void QTXB::displayModemStatus(ModemStatus *digiMeshPacket)
+{
     qDebug() << "Received ModemStatus: " << digiMeshPacket->getPacket().toHex();
 }
-void QTXB::displayTransmitStatus(TransmitStatus *digiMeshPacket){
+
+void QTXB::displayTransmitStatus(TransmitStatus *digiMeshPacket)
+{
     //qDebug() << "Received TransmitStatus: " << digiMeshPacket->getPacket().toHex();
 }
-void QTXB::displayRXIndicator(RXIndicator *digiMeshPacket){
+
+void QTXB::displayRXIndicator(RXIndicator *digiMeshPacket)
+{
     /*
     qDebug() << "Received RXIndicator: "
              << digiMeshPacket->getSrcAddr64().toHex()
@@ -87,13 +97,19 @@ void QTXB::displayRXIndicator(RXIndicator *digiMeshPacket){
     //emit packetReady(digiMeshPacket->getData());
     emit packetReady(digiMeshPacket);
 }
-void QTXB::displayRXIndicatorExplicit(RXIndicatorExplicit *digiMeshPacket){
+
+void QTXB::displayRXIndicatorExplicit(RXIndicatorExplicit *digiMeshPacket)
+{
     qDebug() << "Received RXIndicatorExplicit: " << digiMeshPacket->getPacket().toHex();
 }
-void QTXB::displayNodeIdentificationIndicator(NodeIdentificationIndicator *digiMeshPacket){
+
+void QTXB::displayNodeIdentificationIndicator(NodeIdentificationIndicator *digiMeshPacket)
+{
     qDebug() << "Received NodeIdentificationIndicator: " << digiMeshPacket->getPacket().toHex();
 }
-void QTXB::displayRemoteCommandResponse(RemoteCommandResponse *digiMeshPacket){
+
+void QTXB::displayRemoteCommandResponse(RemoteCommandResponse *digiMeshPacket)
+{
     qDebug() << "Received RemoteCommandResponse: " << digiMeshPacket->getPacket().toHex();
 }
 
@@ -119,6 +135,7 @@ void QTXB::broadcast(QString data)
     request->setData(data.toLatin1());
     send(request);
 }
+
 void QTXB::unicast(QByteArray address, QString data){
     TXRequest *request = new TXRequest(this);
     request->setDestAddr64(address);
@@ -141,59 +158,77 @@ void QTXB::readData()
 
     QByteArray packet;
 
-    while((unsigned char)buffer.at(0) != (unsigned char)startDelimiter){
-        buffer.remove(0, 1);
-    }
-    if(buffer.size() > 2){
-        unsigned length = buffer.at(2)+4;
-        if((unsigned char)buffer.size() >= (unsigned char)length){
-            packet.append(buffer.left(length));
-            processPacket(packet);
-            buffer.remove(0, length);
+    if (buffer.size() >= 1)
+    {
+        while((unsigned char)buffer.at(0) != (unsigned char)startDelimiter)
+        {
+            buffer.remove(0, 1);
+            if (buffer.size() == 0)
+            {
+                break;
+            }
+        }
+        if(buffer.size() > 2){
+            unsigned length = buffer.at(2)+4;
+            if((unsigned char)buffer.size() >= (unsigned char)length){
+                packet.append(buffer.left(length));
+                processPacket(packet);
+                buffer.remove(0, length);
+            }
         }
     }
 }
-void QTXB::processPacket(QByteArray packet){
+
+void QTXB::processPacket(QByteArray packet)
+{
 
     unsigned packetType = (unsigned char)packet.at(3);
-    switch (packetType) {
-    case pATCommandResponse:{
+    switch (packetType)
+    {
+    case pATCommandResponse:
+    {
         ATCommandResponse *response = new ATCommandResponse(this);
         response->readPacket(packet);
         emit receivedATCommandResponse(response);
         break;
     }
-    case pModemStatus:{
+    case pModemStatus:
+    {
         ModemStatus *response = new ModemStatus(this);
         response->readPacket(packet);
         emit receivedModemStatus(response);
         break;
     }
-    case pTransmitStatus:{
+    case pTransmitStatus:
+    {
         TransmitStatus *response = new TransmitStatus(this);
         response->readPacket(packet);
         emit receivedTransmitStatus(response);
         break;
     }
-    case pRXIndicator:{
+    case pRXIndicator:
+    {
         RXIndicator *response = new RXIndicator(this);
         response->readPacket(packet);
         emit receivedRXIndicator(response);
         break;
     }
-    case pRXIndicatorExplicit:{
+    case pRXIndicatorExplicit:
+    {
         RXIndicatorExplicit *response = new RXIndicatorExplicit(this);
         response->readPacket(packet);
         emit receivedRXIndicatorExplicit(response);
         break;
     }
-    case pNodeIdentificationIndicator:{
+    case pNodeIdentificationIndicator:
+    {
         NodeIdentificationIndicator *response = new NodeIdentificationIndicator(this);
         response->readPacket(packet);
         emit receivedNodeIdentificationIndicator(response);
         break;
     }
-    case pRemoteCommandResponse:{
+    case pRemoteCommandResponse:
+    {
         RemoteCommandResponse *response = new RemoteCommandResponse(this);
         response->readPacket(packet);
         emit receivedRemoteCommandResponse(response);
@@ -201,8 +236,5 @@ void QTXB::processPacket(QByteArray packet){
     }
     default:
         qDebug() << "Error:  Unknown Packet: " << packet.toHex();
-
-
     }
-
 }

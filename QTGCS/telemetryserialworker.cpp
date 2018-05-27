@@ -46,13 +46,36 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
         // connect for log message
         connect(scHandle, SIGNAL(logMessageRequest(LogMessage)), this, SLOT(logMessage(LogMessage)));
 
-        // preload required info
+        // preload required info, run this preload info before the timer starts.
+        //    Since the preload info will only check once and this field might be
+        //    very large.
         scHandle->PreLoadInfo();
+
 
         // Create timer for telemetry.
         teleTimer = new QTimer();
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be filled.
-        teleTimer->start(200);
+
+        if (teleConnectionMethod == "USB")
+        {
+            teleTimer->setInterval(USB_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "AT")
+        {
+            teleTimer->setInterval(XBEE_AT_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "API")
+        {
+            for (uint i=0;i<3;i++)
+            {
+                if (teleAddressList[i] != "")
+                {
+                    objIds.append(i);
+                }
+            }
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
+        }
+        teleTimer->start();
 
         LogMessage tempLogMessage;
         tempLogMessage.id = QString("TelemetrySerial Worker");
@@ -117,7 +140,20 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
             teleTimer = new QTimer();
         }
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(overviewPageInfoMode())); // SLOT to be filled.
-        teleTimer->start(200);
+        if (teleConnectionMethod == "USB")
+        {
+            teleTimer->setInterval(USB_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "AT")
+        {
+            teleTimer->setInterval(XBEE_AT_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "API")
+        {
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
+        }
+
+        teleTimer->start();
     }
     else if (mode > 0 && mode < 10)
     {
@@ -126,7 +162,20 @@ void TelemetrySerialWorker::setTelemetryMode(int mode)
             teleTimer = new QTimer();
         }
         QObject::connect(teleTimer, SIGNAL(timeout()), this, SLOT(quadsPageInfoMode())); // SLOT to be changed.
-        teleTimer->start(200);
+        if (teleConnectionMethod == "USB")
+        {
+            teleTimer->setInterval(USB_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "AT")
+        {
+            teleTimer->setInterval(XBEE_AT_TIME_DELAY);
+        }
+        else if (teleConnectionMethod == "API")
+        {
+            teleTimer->setInterval(XBEE_API_TIME_DELAY * objIds.length());
+        }
+
+        teleTimer->start();
     }
     else if (mode > 10 && mode < 20)
     {

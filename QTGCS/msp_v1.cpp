@@ -1,5 +1,9 @@
 #include "msp_v1.h"
 
+// MSP_V1 is a pack, unpack and parse tool of MSP data flow.
+//    It doesn't handle sending or receiving data from
+//    serial port, but processes the data going to be
+//    sent or received from serial port.
 MSP_V1::MSP_V1(QObject *parent) :
     QObject(parent)
 {
@@ -214,7 +218,6 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
             for (uint i=0; i< length; i++)
             {
                 tempQS->active_boxids.box_id[i] = (0xFF & data.at(i));
-                //qDebug() << tempQS->active_boxids.box_id[i];
             }
             break;
         }

@@ -63,8 +63,9 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
     {
         for (int i=0; i<3; i++)
         {
-            if (addressList[i].length() > 2)
+            if (addressList[i] != "")
             {
+                connectedAddrList.append(addressList[i]);
                 QuadStates *tempQS;
                 tempQS = new QuadStates(QByteArray::fromHex(QString::number(i+1,10).toUtf8()),
                                         QByteArray::fromHex(addressList[i].toUtf8()),
@@ -123,11 +124,10 @@ void SerialCommunication::PreCheck()
     }
     else if (connectionMethod == "API")
     {
-        for (int i=0; i<3; i++)
+        for (uint i=0; i<connectedAddrList.length(); i++)
         {
-            if (addressList[i].length() > 2)
+            if (connectedAddrList.at(i) != "")
             {
-                //qDebug() << addressList[i];
                 sc_xbee_api->sendCMD(i, MSP_BOXIDS);
                 QTime dieTime = QTime::currentTime().addMSecs(1000);
                 while( QTime::currentTime() < dieTime )
@@ -206,7 +206,6 @@ void SerialCommunication::RegularCheck()
         }
 
         // MSP_SONAR_ALTITUDE
-        //qDebug() << quadstates_list.size();
         try
         {
             if( quadstates_list.at(0)->msp_sensor_flags.sonar)
@@ -244,7 +243,6 @@ void SerialCommunication::RegularCheck()
         }
 
         // MSP_RAW_GPS
-        //qDebug() << quadstates_list.size();
         try
         {
             if (quadstates_list.at(0)->msp_sensor_flags.gps)
@@ -267,8 +265,25 @@ void SerialCommunication::RegularCheck()
     }
     else if (connectionMethod == "AT")
     {
-        sc_xbee_at->sendCMD(MSP_STATUS_EX);
-        QTime dieTime1 = QTime::currentTime().addMSecs(10);
+        // MSP_IDENT
+        /*sc_xbee_at->sendCMD(MSP_IDENT);
+        QTime dieTime0 = QTime::currentTime().addMSecs(30);
+        while( QTime::currentTime() < dieTime0 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }*/
+
+        // MSP_STATUS_EX
+        try
+        {
+            sc_xbee_at->sendCMD(MSP_STATUS_EX);
+        }
+        catch (...)
+        {}
+
+        QTime dieTime1 = QTime::currentTime().addMSecs(20);
         while( QTime::currentTime() < dieTime1 )
         {
             QEventLoop loop;
@@ -276,8 +291,15 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
-        sc_xbee_at->sendCMD(MSP_ANALOG);
-        QTime dieTime2 = QTime::currentTime().addMSecs(10);
+        // MSP_ANALOG
+        try
+        {
+            sc_xbee_at->sendCMD(MSP_ANALOG);
+        }
+        catch (...)
+        {}
+
+        QTime dieTime2 = QTime::currentTime().addMSecs(20);
         while( QTime::currentTime() < dieTime2 )
         {
             QEventLoop loop;
@@ -285,19 +307,35 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
-        if( quadstates_list.at(0)->msp_sensor_flags.sonar)
+        // MSP_SONAR_ALTITUDE
+        try
         {
-            sc_xbee_at->sendCMD(MSP_SONAR_ALTITUDE);
-            QTime dieTime3 = QTime::currentTime().addMSecs(10);
-            while( QTime::currentTime() < dieTime3 )
+            if( quadstates_list.at(0)->msp_sensor_flags.sonar)
             {
-                QEventLoop loop;
-                QTimer::singleShot(1, &loop, SLOT(quit()));
-                loop.exec();
+                sc_xbee_at->sendCMD(MSP_SONAR_ALTITUDE);
+            }
+            else // if sonar is not available, still wait for 5ms
+            {
             }
         }
+        catch (...)
+        {}
+        QTime dieTime3 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime3 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
 
-        sc_xbee_at->sendCMD(MSP_ATTITUDE);
+        // MSP_ATTITUDE
+        try
+        {
+            sc_xbee_at->sendCMD(MSP_ATTITUDE);
+        }
+        catch (...)
+        {}
+
         QTime dieTime4 = QTime::currentTime().addMSecs(20);
         while( QTime::currentTime() < dieTime4 )
         {
@@ -306,27 +344,52 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
-        if (quadstates_list.at(0)->msp_sensor_flags.gps)
+        // MSP_RAW_GPS
+        try
         {
-            sc_xbee_at->sendCMD(MSP_RAW_GPS);
-            QTime dieTime5 = QTime::currentTime().addMSecs(10);
-            while( QTime::currentTime() < dieTime5 )
+            if (quadstates_list.at(0)->msp_sensor_flags.gps)
             {
-                QEventLoop loop;
-                QTimer::singleShot(1, &loop, SLOT(quit()));
-                loop.exec();
+                sc_xbee_at->sendCMD(MSP_RAW_GPS);
+            }
+            else // if gps is not available, still wait for 5ms
+            {
             }
         }
-
+        catch (...)
+        {}
+        QTime dieTime5 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime5 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
     }
     else if (connectionMethod == "API")
     {
-        for (int i=0; i<3; i++)
+        for (int i=0; i<connectedAddrList.length(); i++)
         {
-            if (addressList[i].length() > 2)
+            if (connectedAddrList.at(i) != "")
             {
-                sc_xbee_api->sendCMD(i, MSP_STATUS_EX);
-                QTime dieTime1 = QTime::currentTime().addMSecs(100);
+                // MSP_IDENT
+                /*sc_xbee_api->sendCMD(i, MSP_IDENT);
+                QTime dieTime0 = QTime::currentTime().addMSecs(30);
+                while( QTime::currentTime() < dieTime0 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }*/
+
+                // MSP_STATUS_EX
+                try
+                {
+                    sc_xbee_api->sendCMD(i, MSP_STATUS_EX);
+                }
+                catch (...)
+                {}
+
+                QTime dieTime1 = QTime::currentTime().addMSecs(30);
                 while( QTime::currentTime() < dieTime1 )
                 {
                     QEventLoop loop;
@@ -334,18 +397,74 @@ void SerialCommunication::RegularCheck()
                     loop.exec();
                 }
 
-                /*sc_xbee_api->sendCMD(i, MSP_ATTITUDE);
-                QTime dieTime2 = QTime::currentTime().addMSecs(100);
+                // MSP_ANALOG
+                try
+                {
+                    sc_xbee_api->sendCMD(i, MSP_ANALOG);
+                }
+                catch (...)
+                {}
+
+                QTime dieTime2 = QTime::currentTime().addMSecs(30);
                 while( QTime::currentTime() < dieTime2 )
                 {
                     QEventLoop loop;
                     QTimer::singleShot(1, &loop, SLOT(quit()));
                     loop.exec();
-                }*/
+                }
 
-                sc_xbee_api->sendCMD(i, MSP_RAW_GPS);
-                QTime dieTime3 = QTime::currentTime().addMSecs(100);
+                // MSP_SONAR_ALTITUDE
+                try
+                {
+                    if( quadstates_list.at(i)->msp_sensor_flags.sonar)
+                    {
+                        sc_xbee_api->sendCMD(i, MSP_SONAR_ALTITUDE);
+                    }
+                    else // if sonar is not available, still wait for 5ms
+                    {
+                    }
+                }
+                catch (...)
+                {}
+                QTime dieTime3 = QTime::currentTime().addMSecs(30);
                 while( QTime::currentTime() < dieTime3 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+
+                // MSP_ATTITUDE
+                try
+                {
+                    sc_xbee_api->sendCMD(i, MSP_ATTITUDE);
+                }
+                catch (...)
+                {}
+
+                QTime dieTime4 = QTime::currentTime().addMSecs(30);
+                while( QTime::currentTime() < dieTime4 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+
+                // MSP_RAW_GPS
+                try
+                {
+                    if (quadstates_list.at(i)->msp_sensor_flags.gps)
+                    {
+                        sc_xbee_api->sendCMD(i, MSP_RAW_GPS);
+                    }
+                    else // if gps is not available, still wait for 5ms
+                    {
+                    }
+                }
+                catch (...)
+                {}
+                QTime dieTime5 = QTime::currentTime().addMSecs(30);
+                while( QTime::currentTime() < dieTime5 )
                 {
                     QEventLoop loop;
                     QTimer::singleShot(1, &loop, SLOT(quit()));

@@ -232,6 +232,7 @@ private:
     void resetLabels();
     void logData(QList<QuadStates *> *tempObjList);
     QString logFilePath;
+    QList<QString> logStringList;
 protected:
     //void paintEvent(QPaintEvent *event);
 };

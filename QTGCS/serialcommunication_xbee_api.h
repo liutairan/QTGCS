@@ -77,6 +77,8 @@ private:
     bool missionDownloadFlag[3];
     bool missionUploadFlag[3];
     bool boxidsDownloadFlag[3];
+    MSP_V1 *mspHandle1;
+    MSP_V2 *mspHandle2;
 
 signals:
     void qsReady(QList<QuadStates *> *);
