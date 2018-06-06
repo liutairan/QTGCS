@@ -65,6 +65,7 @@ public:
     QList<QuadStates *> quadstates_list;
     QString addressList[3];
     QStringList connectedAddrList;
+    QList<int> connectedIndex;
     bool everRunFlag;
     QTime tReceive;
     //LogMessage tempLogMessage;

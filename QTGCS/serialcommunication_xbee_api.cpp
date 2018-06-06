@@ -493,7 +493,7 @@ void SerialCommunication_XBEE_API::downloadMission(int objInd, int id, QuadState
     while (!missionDownloadFlag[objInd])
     {
         sendCMD(objInd, MSP_WP, id);
-        QTime dieTime= QTime::currentTime().addMSecs(100);
+        QTime dieTime= QTime::currentTime().addMSecs(200);
         while( QTime::currentTime() < dieTime )
         {
             if (missionDownloadFlag[objInd])
@@ -831,6 +831,10 @@ void SerialCommunication_XBEE_API::processPacket(int ind, QByteArray packet)
         if (cmdCode == MSP_BOXIDS)
         {
             emit boxidsDownloaded(ind);
+        }
+        else if (cmdCode == MSP_WP)
+        {
+            emit missionDownloaded(ind);
         }
         emit qsReady(&qsList);
     }
