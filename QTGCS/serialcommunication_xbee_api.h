@@ -63,7 +63,8 @@ public:
     void disnav(QuadStates *);
 public slots:
     void readData(RXIndicator *response);
-    void missionDownloadedFlag(int objInd);
+    //void missionDownloadedFlag(int objInd);
+    void missionDownloadedFlag(int objInd, int missionId);
     void missionUploadedFlag(int objInd);
     void boxidsDownloadedFlag(int);
 
@@ -74,7 +75,8 @@ private:
     QList<QuadStates *> qsList;
     QByteArray buffer;
     void processPacket(int ind, QByteArray packet);
-    bool missionDownloadFlag[3];
+    //bool missionDownloadFlag[3];
+    bool missionDownloadFlag[3][100];
     bool missionUploadFlag[3];
     bool boxidsDownloadFlag[3];
     MSP_V1 *mspHandle1;
@@ -82,7 +84,8 @@ private:
 
 signals:
     void qsReady(QList<QuadStates *> *);
-    void missionDownloaded(int);
+    //void missionDownloaded(int);
+    void missionDownloaded(int, int);
     void missionUploaded(int);
     void boxidsDownloaded(int);
 

@@ -37,6 +37,7 @@ SerialCommunication_XBEE_API::~SerialCommunication_XBEE_API()
     */
 }
 
+// Here unicast is used instead of broadcast
 void SerialCommunication_XBEE_API::send(int objInd, QByteArray data)
 {
     xb->unicast(qsList.at(objInd)->address_long, data);
@@ -487,16 +488,16 @@ void SerialCommunication_XBEE_API::parseFlightModeFlags(QuadStates *tempQS)
 
 void SerialCommunication_XBEE_API::downloadMission(int objInd, int id, QuadStates *tempObj)
 {
-    qDebug() << "Start download mission";
-    missionDownloadFlag[objInd] = false;
-    connect(this, SIGNAL(missionDownloaded(int)), this, SLOT(missionDownloadedFlag(int)));
-    while (!missionDownloadFlag[objInd])
+    qDebug() << "Start download mission" << objInd << id;
+    missionDownloadFlag[objInd][id] = false;
+    connect(this, SIGNAL(missionDownloaded(int, int)), this, SLOT(missionDownloadedFlag(int, int)));
+    while (!missionDownloadFlag[objInd][id])
     {
         sendCMD(objInd, MSP_WP, id);
         QTime dieTime= QTime::currentTime().addMSecs(200);
         while( QTime::currentTime() < dieTime )
         {
-            if (missionDownloadFlag[objInd])
+            if (missionDownloadFlag[objInd][id])
             {
                 break;
             }
@@ -517,13 +518,23 @@ void SerialCommunication_XBEE_API::downloadMission(int objInd, int id, QuadState
              << tempObj->temp_mission.mi.wp_flag;
 }
 
-void SerialCommunication_XBEE_API::missionDownloadedFlag(int objInd)
+void SerialCommunication_XBEE_API::missionDownloadedFlag(int objInd, int missionId)
 {
-    missionDownloadFlag[objInd] = true;
+    missionDownloadFlag[objInd][missionId] = true;
 }
 
 void SerialCommunication_XBEE_API::downloadMissions(int objInd)
 {
+    // Here the objInd is actually the realInd, for example,
+    //    if the first quad is off, second quad is on,
+    //    then the objInd is 1, but when making the quadstates
+    //    objects, this is actually the first object in the list,
+    //    so the real index of this object in the list should be 0.
+    //    In SerialCommunication class, realInd is used to translate
+    //    this value.
+    //    Here the objInd stands for the realInd, which is right to
+    //    use.
+    qDebug() << "Start download all missions";
     QuadStates *tempQS;
     tempQS = qsList.at(objInd);
     int ind = 1;
@@ -545,7 +556,10 @@ void SerialCommunication_XBEE_API::downloadMissions(int objInd)
         }
         else
         {
-            ind = ind + 1;
+            if (missionDownloadFlag[objInd][ind] == true)
+            {
+                ind = ind + 1;
+            }
         }
     }
     qDebug() << "All missions downloaded";
@@ -834,7 +848,8 @@ void SerialCommunication_XBEE_API::processPacket(int ind, QByteArray packet)
         }
         else if (cmdCode == MSP_WP)
         {
-            emit missionDownloaded(ind);
+            int missionId = qsList.at(ind)->temp_mission.mi.wp_no;
+            emit missionDownloaded(ind, missionId);  // This ind is the index of object, not index of mission
         }
         emit qsReady(&qsList);
     }
