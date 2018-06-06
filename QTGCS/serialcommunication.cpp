@@ -66,6 +66,7 @@ SerialCommunication::SerialCommunication(QSerialPort *ser, QString connMethod, Q
             if (addressList[i] != "")
             {
                 connectedAddrList.append(addressList[i]);
+                connectedIndex.append(i);
                 QuadStates *tempQS;
                 tempQS = new QuadStates(QByteArray::fromHex(QString::number(i+1,10).toUtf8()),
                                         QByteArray::fromHex(addressList[i].toUtf8()),
@@ -82,9 +83,14 @@ SerialCommunication::~SerialCommunication()
 {
 }
 
-void SerialCommunication::send(TXRequest *request){}
-void SerialCommunication::broadcast(QString data){}
-void SerialCommunication::unicast(QByteArray address, QString data){}
+void SerialCommunication::send(TXRequest *request)
+{}
+
+void SerialCommunication::broadcast(QString data)
+{}
+
+void SerialCommunication::unicast(QByteArray address, QString data)
+{}
 
 void SerialCommunication::stopSerial()
 {}
@@ -513,11 +519,12 @@ void SerialCommunication::UploadMissions(int objInd, Mission_list tempMissionLis
     }
     else if (connectionMethod == "API")
     {
+        int realInd = connectedIndex.indexOf(objInd);
         QuadStates *tempQS;
-        tempQS = quadstates_list.at(objInd);
+        tempQS = quadstates_list.at(realInd);
         tempQS->mission_list = tempMissionList;
-        quadstates_list.replace(objInd, tempQS);
-        sc_xbee_api->uploadMissions(objInd);
+        quadstates_list.replace(realInd, tempQS);
+        sc_xbee_api->uploadMissions(realInd);
     }
 }
 
@@ -535,7 +542,9 @@ void SerialCommunication::DownloadMissions(int objInd)
     }
     else if (connectionMethod == "API")
     {
-        sc_xbee_api->downloadMissions(objInd);
+        qDebug() << "Download missions via XBEE API";
+        int realInd = connectedIndex.indexOf(objInd);
+        sc_xbee_api->downloadMissions(realInd);
     }
 }
 
