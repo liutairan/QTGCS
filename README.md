@@ -13,7 +13,7 @@ QTGCS is an open source project for multiple quadcopter ground control station m
 
 On the quadcopters, flight controllers with iNav firmware are used, while XBee is the only communication way for the whole flight process. By now, the connection structure is star structure, but XBees have the capability to form mesh or other structures.
 
-Currently, this project is still under construction and the focus point will be successfully running on macOS, iOS systems. But it has the possibility to run on Linux or Windows systems in the future. 
+Currently, this project is still under construction and the focus point will be successfully running on macOS, iOS systems. But it has the possibility to run on Linux or Windows systems in the future.
 
 This work is part of my research project. And this ground control station is meant to be working with my own AutonomousFlight firmware for the best performance. Most of the features are still pending to repeatable verification.
 
@@ -32,10 +32,10 @@ This work is part of my research project. And this ground control station is mea
     1. More features
 
 # Sample:
-Screenshot: 
-![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20171011_13.png "Sample image")
+Screenshot:
+![alt text](https://github.com/liutairan/QTGCS/blob/master/Pics/Snip20171011_13.png "Sample image")
 
-![alt text](https://github.com/liutairan/QTGCS/blob/dev/Pics/Snip20170426_3.png "Sample image")
+![alt text](https://github.com/liutairan/QTGCS/blob/master/Pics/Snip20170426_3.png "Sample image")
 
 # Related applications:
     1. QTGCS_Configurator: configure environment for QTGCS.
