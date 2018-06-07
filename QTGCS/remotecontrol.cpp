@@ -220,11 +220,11 @@ void RemoteControl::rcSwitch()
     {
         rcWorker();
 
-        LogMessage tempLogMessage;
-        tempLogMessage.id = QString("Remote Control");
-        tempLogMessage.message = QString::number(manual_rc_values.rcData[2], 10);
-        emit logMessageRequest(tempLogMessage);
-        //
+//        LogMessage tempLogMessage;
+//        tempLogMessage.id = QString("Remote Control");
+//        tempLogMessage.message = QString::number(manual_rc_values.rcData[2], 10);
+//        emit logMessageRequest(tempLogMessage);
+//        //
     }
 }
 
@@ -302,7 +302,7 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
 
 void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
-    //qDebug() << "Auto mode" << aMode;
+    qDebug() << "Auto mode" << aMode;
     switch (aMode) {
     case 0:  // 0000 0000 radio is off
     {
@@ -381,7 +381,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     {
         break;
     }
-    case 9:  // 000 000 000 000 100 1
+    case 9:  // 000 000 000 000 100 1  radio is on, quad3 is armed.
     {
         rc_values[2].rcData[0] = 1500;
         rc_values[2].rcData[1] = 1500;
@@ -420,16 +420,43 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1800;
         break;
     }
-    case 37:  // 0010 0101
+    case 37:  // 000 000 000 010 010 1 radio is on, quad2 is armed and naved
     {
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1800;
         break;
     }
-    case 81:  // 0100 1001
+    case 73:  // 000 000 000 100 100 1 radio is on, quad3 is armed and naved
     {
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1800;
         break;
     }
     case 127:  // 000 000 000 111 111 1 radio is on, all quads armed and naved
     {
+        for (uint i=0; i<3; i++)
+        {
+            rc_values[i].rcData[0] = 1500;
+            rc_values[i].rcData[1] = 1500;
+            rc_values[i].rcData[2] = 1000;
+            rc_values[i].rcData[3] = 1500;
+            rc_values[i].rcData[4] = 1350;
+            rc_values[i].rcData[5] = 1000;
+            rc_values[i].rcData[6] = 1000;
+            rc_values[i].rcData[7] = 1800;
+        }
         break;
     }
     case 131:  // 000 000 001 000 001 1 radio is on, quad 1 armed and rth
@@ -443,6 +470,92 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
         break;
+    }
+    case 261:  // 000 000 010 000 010 1 radio is on, quad 1 armed and rth
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+        break;
+    }
+    case 391:  // 000 000 011 000 011 1 radio is on, quad 1 and quad2 armed and rth
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1600;
+        break;
+    }
+    case 521:  // 000 000 100 000 100 1 radio is on, quad 1 armed and rth
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+        break;
+    }
+    case 651:  // 000 000 101 000 101 1 radio is on, quad 1 and quad 3 armed and rth
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1600;
+
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1600;
+        break;
+    }
+    case 781:  // 000 000 110 000 110 1  radio is on, quad2 and quad3 armed and rth
+    {
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1600;
+
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1600;
     }
     case 911:  // 000 000 111 000 111 1  radio is on, all quads arm and rth. Max value allowed currently.
     {
