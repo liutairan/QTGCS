@@ -304,11 +304,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
     qDebug() << "Auto mode" << aMode;
     switch (aMode) {
-    case 0:  // 0000 0000 radio is off
+    case 0:    // 000 000 000 000 000 0 radio is off
     {
         break;
     }
-    case 1:  // 000 000 000 000 000 1 radio is on, but arm disarm disnav
+    case 1:    // 000 000 000 000 000 1 radio is on, but arm disarm disnav
     {
         rc_values[0].rcData[0] = 1500;
         rc_values[0].rcData[1] = 1500;
@@ -320,11 +320,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1000;
         break;
     }
-    case 2:  // 000 000 000 000 001 0  radio is off, but quad1 is armed. Invalid.
+    case 2:    // 000 000 000 000 001 0  radio is off, but quad1 is armed. Invalid.
     {
         break;
     }
-    case 3:  // 000 000 000 000 001 1 radio is on, quad1 is armed but disnav
+    case 3:    // 000 000 000 000 001 1 radio is on, quad1 is armed but disnav
     {
         rc_values[0].rcData[0] = 1500;
         rc_values[0].rcData[1] = 1500;
@@ -336,11 +336,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1000;
         break;
     }
-    case 4:  // 000 000 000 000 010 0  radio is off, but quad2 is armed. Invalid.
+    case 4:    // 000 000 000 000 010 0  radio is off, but quad2 is armed. Invalid.
     {
         break;
     }
-    case 5:  // 000 000 000 000 010 1  radio is on, quad2 is armed.
+    case 5:    // 000 000 000 000 010 1  radio is on, quad2 is armed.
     {
         rc_values[1].rcData[0] = 1500;
         rc_values[1].rcData[1] = 1500;
@@ -352,11 +352,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[1].rcData[7] = 1000;
         break;
     }
-    case 6:  // 000 000 000 000 011 0  radio is off, but quad1 and quad 2 are armed. Invalid.
+    case 6:    // 000 000 000 000 011 0  radio is off, but quad1 and quad 2 are armed. Invalid.
     {
         break;
     }
-    case 7:  // 000 000 000 000 011 1  radio is on, quad1 and quad2 are armed.
+    case 7:    // 000 000 000 000 011 1  radio is on, quad1 and quad2 are armed.
     {
         rc_values[0].rcData[0] = 1500;
         rc_values[0].rcData[1] = 1500;
@@ -377,11 +377,11 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[1].rcData[7] = 1000;
         break;
     }
-    case 8:  // 000 000 000 000 100 0  radio is off, but quad3 is armed. Invalid.
+    case 8:    // 000 000 000 000 100 0  radio is off, but quad3 is armed. Invalid.
     {
         break;
     }
-    case 9:  // 000 000 000 000 100 1  radio is on, quad3 is armed.
+    case 9:    // 000 000 000 000 100 1  radio is on, quad3 is armed.
     {
         rc_values[2].rcData[0] = 1500;
         rc_values[2].rcData[1] = 1500;
@@ -393,7 +393,49 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[2].rcData[7] = 1000;
         break;
     }
-    case 15:  // 000 000 000 000 111 1 radio is on, all quads armed and disnaved
+    case 11:   // 000 000 000 000 101 1 radio is on, quad1 and quad3 armed.
+    {
+        rc_values[0].rcData[0] = 1500;
+        rc_values[0].rcData[1] = 1500;
+        rc_values[0].rcData[2] = 1000;
+        rc_values[0].rcData[3] = 1500;
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[5] = 1000;
+        rc_values[0].rcData[6] = 1000;
+        rc_values[0].rcData[7] = 1000;
+
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1000;
+        break;
+    }
+    case 13:   // 000 000 000 000 110 1 radio is on, quad2 and quad3 armed.
+    {
+        rc_values[1].rcData[0] = 1500;
+        rc_values[1].rcData[1] = 1500;
+        rc_values[1].rcData[2] = 1000;
+        rc_values[1].rcData[3] = 1500;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[5] = 1000;
+        rc_values[1].rcData[6] = 1000;
+        rc_values[1].rcData[7] = 1000;
+
+        rc_values[2].rcData[0] = 1500;
+        rc_values[2].rcData[1] = 1500;
+        rc_values[2].rcData[2] = 1000;
+        rc_values[2].rcData[3] = 1500;
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[5] = 1000;
+        rc_values[2].rcData[6] = 1000;
+        rc_values[2].rcData[7] = 1000;
+        break;
+    }
+    case 15:   // 000 000 000 000 111 1 radio is on, all quads armed and disnaved
     {
         for (uint i=0; i<3; i++)
         {
@@ -408,7 +450,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         }
         break;
     }
-    case 19:  // 000 000 000 001 001 1 radio is on, quad1 is armed and naved
+    case 19:   // 000 000 000 001 001 1 radio is on, quad1 is armed and naved
     {
         rc_values[0].rcData[0] = 1500;
         rc_values[0].rcData[1] = 1500;
@@ -420,7 +462,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[0].rcData[7] = 1800;
         break;
     }
-    case 37:  // 000 000 000 010 010 1 radio is on, quad2 is armed and naved
+    case 37:   // 000 000 000 010 010 1 radio is on, quad2 is armed and naved
     {
         rc_values[1].rcData[0] = 1500;
         rc_values[1].rcData[1] = 1500;
@@ -432,7 +474,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[1].rcData[7] = 1800;
         break;
     }
-    case 73:  // 000 000 000 100 100 1 radio is on, quad3 is armed and naved
+    case 73:   // 000 000 000 100 100 1 radio is on, quad3 is armed and naved
     {
         rc_values[2].rcData[0] = 1500;
         rc_values[2].rcData[1] = 1500;
@@ -607,7 +649,7 @@ void RemoteControl::sendCommand()
             // USB or AT mode, should only have one connection
             //    Find the first connection and send out command
             uint8_t objInd = 0;
-            for (uint i=0;i<3;i++)
+            for (uint i = 0; i < 3; i++)
             {
                 if (rcConnectedDev[i] == true)
                 {

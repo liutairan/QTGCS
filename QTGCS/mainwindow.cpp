@@ -1580,6 +1580,7 @@ void MainWindow::InitQuad1Page()
     // Start of Quad 1 page
     QStringList quad1AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad1AddressComboBox->addItems(quad1AddrList);
+    ui->quad1RCAddressComboBox->addItems(quad1AddrList);
 
     // Start of Quad 1 table
     model1 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
@@ -1617,6 +1618,7 @@ void MainWindow::InitQuad2Page()
     // Start of Quad 2 page
     QStringList quad2AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad2AddressComboBox->addItems(quad2AddrList);
+    ui->quad2RCAddressComboBox->addItems(quad2AddrList);
 
     // Start of Quad 2 table
     model2 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
@@ -1654,6 +1656,7 @@ void MainWindow::InitQuad3Page()
     // Start of Quad 3 page
     QStringList quad3AddrList = readXBeeAddrFile(xbeeAddrPath);
     ui->quad3AddressComboBox->addItems(quad3AddrList);
+    ui->quad3RCAddressComboBox->addItems(quad3AddrList);
 
     // Start of Quad 3 table
     model3 = new QStandardItemModel(30,7,this); //2 Rows and 3 Columns
@@ -2999,6 +3002,30 @@ void MainWindow::on_quad1ConnectButton_clicked()
     }
 }
 
+void MainWindow::on_quad1RCConnectButton_clicked()
+{
+    if (ui->quad1RCConnectButton->text() == "Connect")
+    {
+        ui->quad1RCConnectButton->setText("Disconnect");
+        quad1RCConnSwitch = true;
+        deHandle->rcAddressList[0] = ui->quad1RCAddressComboBox->currentText();
+        ui->quad1RCConnectionStatusOverview->setText("CONN");
+        ui->quad1RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad1RCConnectionStatus->setText("CONN");
+        ui->quad1RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+    }
+    else if (ui->quad1RCConnectButton->text() == "Disconnect")
+    {
+        ui->quad1RCConnectButton->setText("Connect");
+        quad1RCConnSwitch = false;
+        deHandle->rcAddressList[0] = "";
+        ui->quad1RCConnectionStatusOverview->setText("NO CON");
+        ui->quad1RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad1RCConnectionStatus->setText("NO CON");
+        ui->quad1RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    }
+}
+
 void MainWindow::on_quad1UploadButton_clicked()
 {
     if (deHandle->wp_list[0].wps.length() > 0)
@@ -3514,6 +3541,30 @@ void MainWindow::on_quad2ConnectButton_clicked()
         ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
         ui->quad2ConnectionStatus->setText("NO CON");
         ui->quad2ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    }
+}
+
+void MainWindow::on_quad2RCConnectButton_clicked()
+{
+    if (ui->quad2RCConnectButton->text() == "Connect")
+    {
+        ui->quad2RCConnectButton->setText("Disconnect");
+        quad2RCConnSwitch = true;
+        deHandle->rcAddressList[1] = ui->quad2RCAddressComboBox->currentText();
+        ui->quad2RCConnectionStatusOverview->setText("CONN");
+        ui->quad2RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad2RCConnectionStatus->setText("CONN");
+        ui->quad2RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+    }
+    else if (ui->quad2RCConnectButton->text() == "Disconnect")
+    {
+        ui->quad2RCConnectButton->setText("Connect");
+        quad2RCConnSwitch = false;
+        deHandle->rcAddressList[1] = "";
+        ui->quad2RCConnectionStatusOverview->setText("NO CON");
+        ui->quad2RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad2RCConnectionStatus->setText("NO CON");
+        ui->quad2RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     }
 }
 
@@ -4035,6 +4086,30 @@ void MainWindow::on_quad3ConnectButton_clicked()
     }
 }
 
+void MainWindow::on_quad3RCConnectButton_clicked()
+{
+    if (ui->quad3RCConnectButton->text() == "Connect")
+    {
+        ui->quad3RCConnectButton->setText("Disconnect");
+        quad3RCConnSwitch = true;
+        deHandle->rcAddressList[2] = ui->quad3RCAddressComboBox->currentText();
+        ui->quad3RCConnectionStatusOverview->setText("CONN");
+        ui->quad3RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+        ui->quad3RCConnectionStatus->setText("CONN");
+        ui->quad3RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
+    }
+    else if (ui->quad3RCConnectButton->text() == "Disconnect")
+    {
+        ui->quad3RCConnectButton->setText("Connect");
+        quad3RCConnSwitch = false;
+        deHandle->rcAddressList[2] = "";
+        ui->quad3RCConnectionStatusOverview->setText("NO CON");
+        ui->quad3RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+        ui->quad3RCConnectionStatus->setText("NO CON");
+        ui->quad3RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    }
+}
+
 void MainWindow::on_quad3UploadButton_clicked()
 {
     if (deHandle->wp_list[2].wps.length() > 0)
@@ -4190,3 +4265,8 @@ void MainWindow::on_expandButton_clicked()
         logDialog->hide();
     }
 }
+
+
+
+
+

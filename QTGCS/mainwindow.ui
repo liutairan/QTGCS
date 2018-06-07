@@ -553,7 +553,7 @@
       <property name="title">
        <string>Status</string>
       </property>
-      <widget class="QLabel" name="quad1StatusOverview">
+      <widget class="QLabel" name="quad1ConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -563,13 +563,13 @@
         </rect>
        </property>
        <property name="text">
-        <string>Quad 1</string>
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="quad1ConnectionStatusOverview">
+      <widget class="QLabel" name="quad1RCConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -713,7 +713,7 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="quad2StatusOverview">
+      <widget class="QLabel" name="quad2ConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -723,13 +723,13 @@
         </rect>
        </property>
        <property name="text">
-        <string>Quad 2</string>
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="quad3StatusOverview">
+      <widget class="QLabel" name="quad3ConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>150</x>
@@ -739,13 +739,13 @@
         </rect>
        </property>
        <property name="text">
-        <string>Quad 3</string>
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="quad2ConnectionStatusOverview">
+      <widget class="QLabel" name="quad2RCConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>80</x>
@@ -761,7 +761,7 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="quad3ConnectionStatusOverview">
+      <widget class="QLabel" name="quad3RCConnectionStatusOverview">
        <property name="geometry">
         <rect>
          <x>150</x>
@@ -1492,7 +1492,7 @@
       <property name="geometry">
        <rect>
         <x>340</x>
-        <y>5</y>
+        <y>2</y>
         <width>113</width>
         <height>32</height>
        </rect>
@@ -1505,7 +1505,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -1582,7 +1582,7 @@
       <property name="geometry">
        <rect>
         <x>140</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -1691,7 +1691,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -1816,7 +1816,7 @@
       <property name="geometry">
        <rect>
         <x>350</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -1844,7 +1844,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>40</y>
+         <y>60</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1860,7 +1860,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>80</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1876,7 +1876,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>80</y>
+         <y>100</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1892,7 +1892,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>100</y>
+         <y>120</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1908,7 +1908,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>120</y>
+         <y>140</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1924,7 +1924,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>140</y>
+         <y>160</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1940,7 +1940,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>160</y>
+         <y>180</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -1956,13 +1956,29 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>180</y>
+         <y>200</y>
          <width>50</width>
          <height>16</height>
         </rect>
        </property>
        <property name="text">
         <string>0.0 V</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="quad1RCConnectionStatus">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>50</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2056,6 +2072,29 @@
        <string>Save</string>
       </property>
      </widget>
+     <widget class="QComboBox" name="quad1RCAddressComboBox">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>30</y>
+        <width>241</width>
+        <height>26</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="quad1RCConnectButton">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>27</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Connect</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="quad2Tab">
      <attribute name="title">
@@ -2100,7 +2139,7 @@
       <property name="geometry">
        <rect>
         <x>350</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -2128,7 +2167,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>40</y>
+         <y>60</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2144,7 +2183,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>80</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2160,7 +2199,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>80</y>
+         <y>100</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2176,7 +2215,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>100</y>
+         <y>120</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2192,7 +2231,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>120</y>
+         <y>140</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2208,7 +2247,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>140</y>
+         <y>160</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2224,7 +2263,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>160</y>
+         <y>180</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2240,13 +2279,29 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>180</y>
+         <y>200</y>
          <width>50</width>
          <height>16</height>
         </rect>
        </property>
        <property name="text">
         <string>0.0 V</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="quad2RCConnectionStatus">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>50</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2280,7 +2335,7 @@
       <property name="geometry">
        <rect>
         <x>140</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -2389,7 +2444,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -2492,7 +2547,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -2630,7 +2685,7 @@
       <property name="geometry">
        <rect>
         <x>340</x>
-        <y>5</y>
+        <y>2</y>
         <width>113</width>
         <height>32</height>
        </rect>
@@ -2650,6 +2705,29 @@
       </property>
       <property name="text">
        <string>Edit</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="quad2RCConnectButton">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>27</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Connect</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="quad2RCAddressComboBox">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>30</y>
+        <width>241</width>
+        <height>26</height>
+       </rect>
       </property>
      </widget>
     </widget>
@@ -2696,7 +2774,7 @@
       <property name="geometry">
        <rect>
         <x>350</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -2724,7 +2802,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>40</y>
+         <y>60</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2740,7 +2818,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>60</y>
+         <y>80</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2756,7 +2834,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>80</y>
+         <y>100</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2772,7 +2850,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>100</y>
+         <y>120</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2788,7 +2866,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>120</y>
+         <y>140</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2804,7 +2882,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>140</y>
+         <y>160</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2820,7 +2898,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>160</y>
+         <y>180</y>
          <width>50</width>
          <height>16</height>
         </rect>
@@ -2836,13 +2914,29 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>180</y>
+         <y>200</y>
          <width>50</width>
          <height>16</height>
         </rect>
        </property>
        <property name="text">
         <string>0.0 V</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="quad3RCConnectionStatus">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>50</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>NO CON</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -2876,7 +2970,7 @@
       <property name="geometry">
        <rect>
         <x>140</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -2985,7 +3079,7 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>40</y>
+        <y>60</y>
         <width>120</width>
         <height>221</height>
        </rect>
@@ -3088,7 +3182,7 @@
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>40</y>
+        <y>60</y>
         <width>71</width>
         <height>221</height>
        </rect>
@@ -3226,7 +3320,7 @@
       <property name="geometry">
        <rect>
         <x>340</x>
-        <y>5</y>
+        <y>2</y>
         <width>113</width>
         <height>32</height>
        </rect>
@@ -3246,6 +3340,29 @@
       </property>
       <property name="text">
        <string>Edit</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="quad3RCConnectButton">
+      <property name="geometry">
+       <rect>
+        <x>340</x>
+        <y>27</y>
+        <width>113</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Connect</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="quad3RCAddressComboBox">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>30</y>
+        <width>241</width>
+        <height>26</height>
+       </rect>
       </property>
      </widget>
     </widget>

@@ -82,6 +82,9 @@ public:
     bool quad1ConnSwitch;
     bool quad2ConnSwitch;
     bool quad3ConnSwitch;
+    bool quad1RCConnSwitch;
+    bool quad2RCConnSwitch;
+    bool quad3RCConnSwitch;
 signals:
     void paintRequest();
     void updateQuad1TableViewRequest();
@@ -213,6 +216,12 @@ private slots:
     void on_ipRefreshButton_clicked();
 
     void on_expandButton_clicked();
+
+    void on_quad1RCConnectButton_clicked();
+
+    void on_quad2RCConnectButton_clicked();
+
+    void on_quad3RCConnectButton_clicked();
 
 private:
     Ui::MainWindow *ui;
