@@ -1716,26 +1716,41 @@ void MainWindow::on_ipRefreshButton_clicked()
 void MainWindow::resetLabels()
 {
     ui->quad1ConnectButton->setText("Connect");
+    ui->quad1RCConnectButton->setText("Connect");
     quad1ConnSwitch = false;
+    quad1RCConnSwitch = false;
     deHandle->teleAddressList[0] = "";
+    deHandle->rcAddressList[0] = "";
     ui->quad1ConnectionStatusOverview->setText("NO CON");
     ui->quad1ConnectionStatus->setText("NO CON");
+    ui->quad1RCConnectionStatusOverview->setText("NO CON");
+    ui->quad1RCConnectionStatus->setText("NO CON");
     ui->quad1VoltageOverview->setText("0.0 V");
     ui->quad1Voltage->setText("0.0 V");
 
     ui->quad2ConnectButton->setText("Connect");
+    ui->quad2RCConnectButton->setText("Connect");
     quad2ConnSwitch = false;
+    quad2RCConnSwitch = false;
     deHandle->teleAddressList[1] = "";
+    deHandle->rcAddressList[1] = "";
     ui->quad2ConnectionStatusOverview->setText("NO CON");
     ui->quad2ConnectionStatus->setText("NO CON");
+    ui->quad2RCConnectionStatusOverview->setText("NO CON");
+    ui->quad2RCConnectionStatus->setText("NO CON");
     ui->quad2VoltageOverview->setText("0.0 V");
     ui->quad2Voltage->setText("0.0 V");
 
     ui->quad3ConnectButton->setText("Connect");
+    ui->quad3RCConnectButton->setText("Connect");
     quad3ConnSwitch = false;
+    quad3RCConnSwitch = false;
     deHandle->teleAddressList[2] = "";
+    deHandle->rcAddressList[2] = "";
     ui->quad3ConnectionStatusOverview->setText("NO CON");
     ui->quad3ConnectionStatus->setText("NO CON");
+    ui->quad3RCConnectionStatusOverview->setText("NO CON");
+    ui->quad3RCConnectionStatus->setText("NO CON");
     ui->quad3VoltageOverview->setText("0.0 V");
     ui->quad3Voltage->setText("0.0 V");
 
@@ -1749,6 +1764,7 @@ void MainWindow::resetLabels()
     ui->quad1HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad1ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1767,6 +1783,7 @@ void MainWindow::resetLabels()
     ui->quad2HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad2ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1785,6 +1802,7 @@ void MainWindow::resetLabels()
     ui->quad3HWOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad3ConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3ARMModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3LEVELModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3ALTModeOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1803,6 +1821,7 @@ void MainWindow::resetLabels()
     ui->quad1HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad1ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad1ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1821,6 +1840,7 @@ void MainWindow::resetLabels()
     ui->quad2HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad2ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad2ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1839,6 +1859,7 @@ void MainWindow::resetLabels()
     ui->quad3HW->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
 
     ui->quad3ConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3ARMMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3LEVELMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
     ui->quad3ALTMode->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
@@ -1919,7 +1940,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     auxSerialConnectButtonText = ui->auxSerialConnectButton->text();
     if (auxSerialConnectButtonText == "Connect")
     {
-        if ( deHandle->teleAddressList[0] == "" && deHandle->teleAddressList[1] == "" && deHandle->teleAddressList[2] == "")
+        if ( deHandle->rcAddressList[0] == "" && deHandle->rcAddressList[1] == "" && deHandle->rcAddressList[2] == "")
         {
             QMessageBox msgBox;
             msgBox.setText("No agent is connected.");
@@ -1928,6 +1949,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         }
         else
         {
+            qDebug() << deHandle->rcAddressList[0] << deHandle->rcAddressList[1] << deHandle->rcAddressList[2];
             deHandle->rcSerialPortName = ui->auxSerialPortComboBox->currentText();
             deHandle->rcConnectionMethod = ui->comMethodComboBox->currentText();
             deHandle->set_rcSerialOn(true);
@@ -1956,6 +1978,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         tempLogMessage.message = QString("RC disconnected.");
         logMessage(tempLogMessage);
         //
+        ui->manualOffRadioButton->setEnabled(true);
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
@@ -1963,6 +1986,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     }
 }
 
+// Manual RC control functions
 
 void MainWindow::on_manualOffRadioButton_clicked()
 {
@@ -2011,6 +2035,7 @@ void MainWindow::on_manual3RadioButton_clicked()
     //deHandle->set_manualMode(3);
 }
 
+// Voice service
 
 void MainWindow::on_voiceButton_clicked()
 {
@@ -2028,6 +2053,8 @@ void MainWindow::on_voiceButton_clicked()
         this->repaint();
     }
 }
+
+// Auto RC control functions
 
 void MainWindow::on_radioButton_clicked()  // more work on different cases needed
 {
@@ -4062,6 +4089,9 @@ void MainWindow::updateQuad3TableView()
     emit paintRequest();
 }
 
+// Currently, this function will only take care
+//    of the module in charge of telemetry when
+//    using API mode.
 void MainWindow::on_quad3ConnectButton_clicked()
 {
     if (ui->quad3ConnectButton->text() == "Connect")
