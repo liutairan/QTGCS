@@ -2013,13 +2013,21 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         tempLogMessage.message = QString("RC disconnected.");
         logMessage(tempLogMessage);
         //
+        // Reset manual mode and radio buttons
         ui->manualOffRadioButton->setEnabled(true);
         ui->manualOffRadioButton->setChecked(true);
         deHandle->set_manualMode(0);
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
-        qDebug() << "End" << deHandle->get_manualMode() << deHandle->get_rcMode();
+        // Reset auto mode and buttons
+        deHandle->set_rcMode(0);
+        ui->radioButton->setText("ON");
+        ui->armAllButton->setText("ARM");
+        ui->arm1Button->setText("ARM");
+        ui->nav1Button->setText("NAV");
+        ui->rth1Button->setText("RTH");
+        //qDebug() << "End" << deHandle->get_manualMode() << deHandle->get_rcMode();
         this->repaint();
     }
 }
