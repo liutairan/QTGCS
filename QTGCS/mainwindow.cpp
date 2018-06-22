@@ -2014,10 +2014,12 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         logMessage(tempLogMessage);
         //
         ui->manualOffRadioButton->setEnabled(true);
+        ui->manualOffRadioButton->setChecked(true);
         deHandle->set_manualMode(0);
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
+        qDebug() << "End" << deHandle->get_manualMode() << deHandle->get_rcMode();
         this->repaint();
     }
 }
