@@ -1712,8 +1712,35 @@ void MainWindow::on_ipRefreshButton_clicked()
     }
 }
 
+void MainWindow::resetRCLabels()
+{
+    ui->quad1RCConnectButton->setText("Connect");
+    quad1RCConnSwitch = false;
+    deHandle->rcAddressList[0] = "";
+    ui->quad1RCConnectionStatusOverview->setText("NO CON");
+    ui->quad1RCConnectionStatus->setText("NO CON");
 
-void MainWindow::resetLabels()
+    ui->quad2RCConnectButton->setText("Connect");
+    quad2RCConnSwitch = false;
+    deHandle->rcAddressList[1] = "";
+    ui->quad2RCConnectionStatusOverview->setText("NO CON");
+    ui->quad2RCConnectionStatus->setText("NO CON");
+
+    ui->quad3RCConnectButton->setText("Connect");
+    quad3RCConnSwitch = false;
+    deHandle->rcAddressList[2] = "";
+    ui->quad3RCConnectionStatusOverview->setText("NO CON");
+    ui->quad3RCConnectionStatus->setText("NO CON");
+
+    ui->quad1RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3RCConnectionStatusOverview->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad1RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad2RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+    ui->quad3RCConnectionStatus->setStyleSheet("QLabel {background-color : rgba(217,217,217,1);}");
+}
+
+void MainWindow::resetTeleLabels()
 {
     ui->quad1ConnectButton->setText("Connect");
     quad1ConnSwitch = false;
@@ -1883,6 +1910,34 @@ void MainWindow::on_serialConnectButton_clicked()
     }
 }
 
+void MainWindow::updateAuxSerialInfo(bool value)
+{
+    if (value == true)
+    {
+        ui->auxSerialConnectButton->setText("Disconnect");
+        // Send log info to main GUI
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("RC Serial");
+        tempLogMessage.message = QString("Connected.");
+        logMessage(tempLogMessage);
+        //
+        this->repaint();
+    }
+    else if(value == false)
+    {
+        ui->auxSerialConnectButton->setText("Connect");
+        resetRCLabels();
+        //qDebug() << "Disconnected";
+        // Send log info to main GUI
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("RC Serial");
+        tempLogMessage.message = QString("Disconnected.");
+        logMessage(tempLogMessage);
+        //
+        this->repaint();
+    }
+}
+
 void MainWindow::updateSerialInfo(bool value)
 {
     //qDebug()<< "Data received" << value;
@@ -1901,7 +1956,7 @@ void MainWindow::updateSerialInfo(bool value)
     else if(value == false)
     {
         ui->serialConnectButton->setText("Connect");
-        resetLabels();
+        resetTeleLabels();
         //qDebug() << "Disconnected";
         // Send log info to main GUI
         LogMessage tempLogMessage;
@@ -1919,7 +1974,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     auxSerialConnectButtonText = ui->auxSerialConnectButton->text();
     if (auxSerialConnectButtonText == "Connect")
     {
-        if ( deHandle->teleAddressList[0] == "" && deHandle->teleAddressList[1] == "" && deHandle->teleAddressList[2] == "")
+        if ( deHandle->rcAddressList[0] == "" && deHandle->rcAddressList[1] == "" && deHandle->rcAddressList[2] == "")
         {
             QMessageBox msgBox;
             msgBox.setText("No agent is connected.");
@@ -1928,6 +1983,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         }
         else
         {
+            //qDebug() << deHandle->rcAddressList[0] << deHandle->rcAddressList[1] << deHandle->rcAddressList[2];
             deHandle->rcSerialPortName = ui->auxSerialPortComboBox->currentText();
             deHandle->rcConnectionMethod = ui->comMethodComboBox->currentText();
             deHandle->set_rcSerialOn(true);
@@ -1949,6 +2005,7 @@ void MainWindow::on_auxSerialConnectButton_clicked()
     {
         deHandle->set_rcSerialOn(false);
         ui->auxSerialConnectButton->setText("Connect");
+        updateAuxSerialInfo(false);
         //qDebug() << "Aux disconnected";
         // Send to main GUI log window
         LogMessage tempLogMessage;
@@ -1956,13 +2013,26 @@ void MainWindow::on_auxSerialConnectButton_clicked()
         tempLogMessage.message = QString("RC disconnected.");
         logMessage(tempLogMessage);
         //
+        // Reset manual mode and radio buttons
+        ui->manualOffRadioButton->setEnabled(true);
+        ui->manualOffRadioButton->setChecked(true);
+        deHandle->set_manualMode(0);
         ui->manual1RadioButton->setEnabled(false);
         ui->manual2RadioButton->setEnabled(false);
         ui->manual3RadioButton->setEnabled(false);
+        // Reset auto mode and buttons
+        deHandle->set_rcMode(0);
+        ui->radioButton->setText("ON");
+        ui->armAllButton->setText("ARM");
+        ui->arm1Button->setText("ARM");
+        ui->nav1Button->setText("NAV");
+        ui->rth1Button->setText("RTH");
+        //qDebug() << "End" << deHandle->get_manualMode() << deHandle->get_rcMode();
         this->repaint();
     }
 }
 
+// Manual RC control functions
 
 void MainWindow::on_manualOffRadioButton_clicked()
 {
@@ -2011,6 +2081,7 @@ void MainWindow::on_manual3RadioButton_clicked()
     //deHandle->set_manualMode(3);
 }
 
+// Voice service
 
 void MainWindow::on_voiceButton_clicked()
 {
@@ -2028,6 +2099,8 @@ void MainWindow::on_voiceButton_clicked()
         this->repaint();
     }
 }
+
+// Auto RC control functions
 
 void MainWindow::on_radioButton_clicked()  // more work on different cases needed
 {
@@ -4062,6 +4135,9 @@ void MainWindow::updateQuad3TableView()
     emit paintRequest();
 }
 
+// Currently, this function will only take care
+//    of the module in charge of telemetry when
+//    using API mode.
 void MainWindow::on_quad3ConnectButton_clicked()
 {
     if (ui->quad3ConnectButton->text() == "Connect")

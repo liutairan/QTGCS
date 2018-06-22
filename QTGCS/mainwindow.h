@@ -93,6 +93,7 @@ signals:
     void updateLog(QString);
 public slots:
     void updateSerialInfo(bool value);
+    void updateAuxSerialInfo(bool value);
     void logMessage(LogMessage);
     void updatePaint();
     void updateQuad1TableView();
@@ -238,7 +239,8 @@ private:
     int quad3WP_inside;
     Mission_list WPsToMissions(WP_list);
     int insideWP(QPoint, WP_list);
-    void resetLabels();
+    void resetTeleLabels();
+    void resetRCLabels();
     void logData(QList<QuadStates *> *tempObjList);
     QString logFilePath;
     QList<QString> logStringList;
