@@ -347,23 +347,9 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 7:    // 000 000 000 000 011 1  radio is on, quad1 and quad2 are armed.
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
         break;
     }
     case 8:    // 000 000 000 000 100 0  radio is off, but quad3 is armed. Invalid.
@@ -372,465 +358,265 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 9:    // 000 000 000 000 100 1  radio is on, quad3 is armed.
     {
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 11:   // 000 000 000 000 101 1 radio is on, quad1 and quad3 armed.
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 13:   // 000 000 000 000 110 1 radio is on, quad2 and quad3 armed.
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 15:   // 000 000 000 000 111 1 radio is on, all quads armed and disnaved
     {
-        for (uint i=0; i<3; i++)
-        {
-            rc_values[i].rcData[0] = 1500;
-            rc_values[i].rcData[1] = 1500;
-            rc_values[i].rcData[2] = 1000;
-            rc_values[i].rcData[3] = 1500;
-            rc_values[i].rcData[4] = 1350;
-            rc_values[i].rcData[5] = 1000;
-            rc_values[i].rcData[6] = 1000;
-            rc_values[i].rcData[7] = 1000;
-        }
+        rc_values[0].rcData[4] = 1350;
+
+        rc_values[1].rcData[4] = 1350;
+
+        rc_values[2].rcData[4] = 1350;
         break;
     }
     case 19:   // 000 000 000 001 001 1 radio is on, quad1 is armed and naved
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1800;
         break;
     }
     case 23:   // 000 000 000 001 011 1 radio is on, quad1 is armed and naved, quad2 is armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1800;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
         break;
     }
     case 27:   // 000 000 000 001 101 1 radio is on, quad1 is armed and naved, quad3 is armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1800;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 31:   // 000 000 000 001 111 1 radio is on, quad1 is armed and naved, quad2 and quad3 are armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1800;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 37:   // 000 000 000 010 010 1 radio is on, quad2 is armed and naved
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1800;
         break;
     }
     case 39:   // 000 000 000 010 011 1 radio is on, quad2 is armed and naved, quad1 is armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1800;
         break;
     }
     case 45:   // 000 000 000 010 110 1 radio is on, quad2 is armed and naved, quad3 is armed
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1800;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
     case 47:   // 000 000 000 010 111 1 radio is on, quad2 is armed and naved, quad1 and quad3 are armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1800;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
-        rc_values[2].rcData[7] = 1000;
         break;
     }
+    case 55:   // 000 000 000 011 011 1
+    {}
+    case 63:   // 000 000 000 011 111 1
+    {}
     case 73:   // 000 000 000 100 100 1 radio is on, quad3 is armed and naved
     {
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1800;
         break;
     }
     case 75:   // 000 000 000 100 101 1 radio is on, quad3 is armed and naved, quad1 is armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1800;
         break;
     }
     case 77:   // 000 000 000 100 110 1 radio is on, quad3 is armed and naved, quad2 is armed
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1800;
         break;
     }
     case 79:   // 000 000 000 100 111 1 radio is on, quad3 is armed and naved, quad1 and quad2 are armed
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1800;
         break;
     }
+    case 91:   // 000 000 000 101 101 1
+    {}
+    case 95:   // 000 000 000 101 111 1
+    {}
+    case 109:  // 000 000 000 110 110 1
+    {}
+    case 111:  // 000 000 000 110 111 1
+    {}
     case 127:  // 000 000 000 111 111 1 radio is on, all quads armed and naved
     {
-        for (uint i=0; i<3; i++)
-        {
-            rc_values[i].rcData[0] = 1500;
-            rc_values[i].rcData[1] = 1500;
-            rc_values[i].rcData[2] = 1000;
-            rc_values[i].rcData[3] = 1500;
-            rc_values[i].rcData[4] = 1350;
-            rc_values[i].rcData[5] = 1000;
-            rc_values[i].rcData[6] = 1000;
-            rc_values[i].rcData[7] = 1800;
-        }
+        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[7] = 1800;
+
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[7] = 1800;
+
+        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[7] = 1800;
         break;
     }
     case 131:  // 000 000 001 000 001 1 radio is on, quad 1 armed and rth
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
         break;
     }
+    case 135:  // 000 000 001 000 011 1
+    {}
+    case 139:  // 000 000 001 000 101 1
+    {}
+    case 143:  // 000 000 001 000 111 1
+    {}
+    case 167:  // 000 000 001 010 011 1
+    {}
+    case 175:  // 000 000 001 010 111 1
+    {}
+    case 203:  // 000 000 001 100 101 1
+    {}
+    case 207:  // 000 000 001 100 111 1
+    {}
+    case 239:  // 000 000 001 110 111 1
+    {}
     case 261:  // 000 000 010 000 010 1 radio is on, quad 1 armed and rth
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
-        rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1600;
+        rc_values[1].rcData[4] = 1350;
+        rc_values[1].rcData[7] = 1600;
         break;
     }
+    case 263:  // 000 000 010 000 011 1
+    {}
+    case 269:  // 000 000 010 000 110 1
+    {}
+    case 271:  // 000 000 010 000 111 1
+    {}
+    case 279:  // 000 000 010 001 011 1
+    {}
+    case 287:  // 000 000 010 001 111 1
+    {}
+    case 333:  // 000 000 010 100 110 1
+    {}
+    case 335:  // 000 000 010 100 111 1
+    {}
+    case 351:  // 000 000 010 101 111 1
+    {}
     case 391:  // 000 000 011 000 011 1 radio is on, quad 1 and quad2 armed and rth
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1600;
         break;
     }
+    case 399:  // 000 000 011 000 111 1
+    {}
+    case 463:  // 000 000 011 100 111 1
+    {}
     case 521:  // 000 000 100 000 100 1 radio is on, quad 1 armed and rth
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
         break;
     }
+    case 523:  // 000 000 100 000 101 1
+    {}
+    case 525:  // 000 000 100 000 110 1
+    {}
+    case 527:  // 000 000 100 000 111 1
+    {}
+    case 539:  // 000 000 100 001 101 1
+    {}
+    case 543:  // 000 000 100 001 111 1
+    {}
+    case 557:  // 000 000 100 010 110 1
+    {}
+    case 559:  // 000 000 100 010 111 1
+    {}
+    case 575:  // 000 000 100 011 111 1
+    {}
     case 651:  // 000 000 101 000 101 1 radio is on, quad 1 and quad 3 armed and rth
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1600;
         break;
     }
+    case 655:  // 000 000 101 000 111 1
+    {}
+    case 687:  // 000 000 101 010 111 1
+    {}
     case 781:  // 000 000 110 000 110 1  radio is on, quad2 and quad3 armed and rth
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1600;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1600;
     }
+    case 783:  // 000 000 110 000 111 1
+    {}
+    case 799:  // 000 000 110 001 111 1
+    {}
     case 911:  // 000 000 111 000 111 1  radio is on, all quads arm and rth. Max value allowed currently.
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
         rc_values[0].rcData[7] = 1600;
 
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
         rc_values[1].rcData[7] = 1600;
 
-        rc_values[2].rcData[0] = 1500;
-        rc_values[2].rcData[1] = 1500;
-        rc_values[2].rcData[2] = 1000;
-        rc_values[2].rcData[3] = 1500;
         rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[5] = 1000;
-        rc_values[2].rcData[6] = 1000;
         rc_values[2].rcData[7] = 1600;
         break;
     }
