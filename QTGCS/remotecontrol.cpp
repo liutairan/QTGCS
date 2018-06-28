@@ -303,6 +303,17 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
 void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
     qDebug() << "Auto mode" << aMode;
+    for (uint i=0;i<3;i++)
+    {
+        rc_values[i].rcData[0] = 1500;
+        rc_values[i].rcData[1] = 1500;
+        rc_values[i].rcData[2] = 1000;
+        rc_values[i].rcData[3] = 1500;
+        rc_values[i].rcData[4] = 1000;
+        rc_values[i].rcData[5] = 1000;
+        rc_values[i].rcData[6] = 1000;
+        rc_values[i].rcData[7] = 1000;
+    }
     switch (aMode) {
     case 0:    // 000 000 000 000 000 0 radio is off
     {
@@ -310,14 +321,6 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 1:    // 000 000 000 000 000 1 radio is on, but arm disarm disnav
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
-        rc_values[0].rcData[4] = 1000;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
         break;
     }
     case 2:    // 000 000 000 000 001 0  radio is off, but quad1 is armed. Invalid.
@@ -326,14 +329,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 3:    // 000 000 000 000 001 1 radio is on, quad1 is armed but disnav
     {
-        rc_values[0].rcData[0] = 1500;
-        rc_values[0].rcData[1] = 1500;
-        rc_values[0].rcData[2] = 1000;
-        rc_values[0].rcData[3] = 1500;
         rc_values[0].rcData[4] = 1350;
-        rc_values[0].rcData[5] = 1000;
-        rc_values[0].rcData[6] = 1000;
-        rc_values[0].rcData[7] = 1000;
         break;
     }
     case 4:    // 000 000 000 000 010 0  radio is off, but quad2 is armed. Invalid.
@@ -342,14 +338,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 5:    // 000 000 000 000 010 1  radio is on, quad2 is armed.
     {
-        rc_values[1].rcData[0] = 1500;
-        rc_values[1].rcData[1] = 1500;
-        rc_values[1].rcData[2] = 1000;
-        rc_values[1].rcData[3] = 1500;
         rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[5] = 1000;
-        rc_values[1].rcData[6] = 1000;
-        rc_values[1].rcData[7] = 1000;
         break;
     }
     case 6:    // 000 000 000 000 011 0  radio is off, but quad1 and quad 2 are armed. Invalid.
