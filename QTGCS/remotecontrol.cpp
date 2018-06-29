@@ -642,22 +642,84 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
         rc_values[1].rcData[7] = RTH_VALUE;
         break;
     }
-    case 263:  // 000 000 010 000 011 1
-    {}
-    case 269:  // 000 000 010 000 110 1
-    {}
-    case 271:  // 000 000 010 000 111 1
-    {}
-    case 279:  // 000 000 010 001 011 1
-    {}
-    case 287:  // 000 000 010 001 111 1
-    {}
-    case 333:  // 000 000 010 100 110 1
-    {}
-    case 335:  // 000 000 010 100 111 1
-    {}
-    case 351:  // 000 000 010 101 111 1
-    {}
+    case 263:  // 000 000 010 000 011 1  radio is on, quad1 quad2 armed, quad2 rth
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+        break;
+    }
+    case 269:  // 000 000 010 000 110 1  radio is on, quad2 quad3 armed, quad2 rth
+    {
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        break;
+    }
+    case 271:  // 000 000 010 000 111 1  radio is on, all quads armed, quad2 rth
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        break;
+    }
+    case 279:  // 000 000 010 001 011 1  radio is on, quad1 quad2 armed, quad1 nav, quad2 rth
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = NAV_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+        break;
+    }
+    case 287:  // 000 000 010 001 111 1  radio is on, all quads armed, quad1 nav, quad2 rth
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = NAV_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        break;
+    }
+    case 333:  // 000 000 010 100 110 1  radio is on, quad2 quad3 armed, quad2 rth, quad3 nav
+    {
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = NAV_VALUE;
+        break;
+    }
+    case 335:  // 000 000 010 100 111 1  radio is on, all quads armed, quad2 rth, quad3 nav
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = NAV_VALUE;
+        break;
+    }
+    case 351:  // 000 000 010 101 111 1  radio is on, all quads armed, quad1 quad3 nav, quad2 rth
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = NAV_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = RTH_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = NAV_VALUE;
+        break;
+    }
     case 391:  // 000 000 011 000 011 1  radio is on, quad 1 and quad2 armed and rth
     {
         rc_values[0].rcData[4] = 1350;
