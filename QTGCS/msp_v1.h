@@ -145,6 +145,17 @@
 
 #define INFO_WP 400
 
+// MSP RC Channel values:
+#define ARM_VALUE 1350
+#define DISARM_VALUE 1000
+
+#define ALTHOLD_VALUE 1800
+
+#define NAV_VALUE 1800
+#define RTH_VALUE 1600
+#define POSHOLD_VALUE 1400
+#define POSOFF_VALUE 1000
+
 class MSP_V1 : public QObject
 {
     Q_OBJECT
