@@ -10,6 +10,7 @@
 
 #include "logmessage.h"
 #include "quadstates.h"
+#include "msp_v1.h"
 #include "remotecontrol_xbee_at.h"
 #include "remotecontrol_xbee_api.h"
 
