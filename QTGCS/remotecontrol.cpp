@@ -127,7 +127,7 @@ void RemoteControl::updateRCValues(QString msg)
         }
         else if (msgFields.at(0) == "yaw")
         {
-            int tempValue = msgFields.at(1).toFloat();
+            float tempValue = msgFields.at(1).toFloat();
             if ( (tempValue >= -180.0) && (tempValue <= 180.0) )
             {
                 manual_rc_values.rcData[3] = mapAngleToPWM(tempValue, -180.0, 180.0, 1000, 2000);
@@ -135,7 +135,7 @@ void RemoteControl::updateRCValues(QString msg)
         }
         else if (msgFields.at(0) == "pitch")
         {
-            int tempValue = msgFields.at(1).toFloat();
+            float tempValue = msgFields.at(1).toFloat();
             if ( (tempValue >= -90.0) && (tempValue <= 90.0) )
             {
                 manual_rc_values.rcData[1] = mapAngleToPWM(tempValue, -90.0, 90.0, 1000, 2000);
@@ -143,7 +143,7 @@ void RemoteControl::updateRCValues(QString msg)
         }
         else if (msgFields.at(0) == "roll")
         {
-            int tempValue = msgFields.at(1).toFloat();
+            float tempValue = msgFields.at(1).toFloat();
             if ( (tempValue >= -90.0) && (tempValue <= 90.0) )
             {
                 manual_rc_values.rcData[0] = mapAngleToPWM(tempValue, -90.0, 90.0, 1000, 2000);
@@ -199,6 +199,10 @@ void RemoteControl::updateRCValues(QString msg)
             else if (tempValue == 3)
             {
                 manual_rc_values.rcData[7] = 1400;
+            }
+            else if (tempValue == 4)
+            {
+                manual_rc_values.rcData[7] = 1200;
             }
             else if (tempValue == 0)
             {

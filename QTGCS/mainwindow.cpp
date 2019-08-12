@@ -157,7 +157,12 @@ void MainWindow::updateGUILabels(QList<QuadStates *> *tempObjList)
         updateQuad3Labels(tempObjList);
     }
     // After all the updates, repaint
-    this->repaint();
+    // this->repaint();
+    // Remove this repaint line, otherwise the app will take more
+    // than 100% CPU when running, and the app will not respond
+    // to operations immediately.
+    // After removing this line, then all the operations start to
+    // work correctly.
 }
 
 void MainWindow::updateGPSonMap(QList<QuadStates *> *tempObjList)
@@ -2129,9 +2134,140 @@ void MainWindow::on_radioButton_clicked()  // more work on different cases neede
         ui->radioButton->setText("ON");
         ui->armAllButton->setText("ARM");
         ui->arm1Button->setText("ARM");
+        ui->arm2Button->setText("ARM");
+        ui->arm3Button->setText("ARM");
+
+        ui->navAllButton->setText("NAV");
         ui->nav1Button->setText("NAV");
+        ui->nav2Button->setText("NAV");
+        ui->nav3Button->setText("NAV");
+
+        ui->rthAllButton->setText("RTH");
         ui->rth1Button->setText("RTH");
+        ui->rth2Button->setText("RTH");
+        ui->rth3Button->setText("RTH");
+
         deHandle->set_rcMode(newStatus);
+    }
+    this->repaint();
+}
+
+void MainWindow::on_functionButton_clicked()
+{
+    if (ui->functionButton->text() == "ON")
+    {
+        if (deHandle->get_rcSerialOn() == true)  // radioButton used to be working with main serial, but assigned to aux serial now.
+        {
+            int tempStatus = deHandle->get_rcMode();
+            // Activate bits
+            int newStatus1 = (tempStatus | (1 << 13)  );
+            // Deactivate bits
+            int newStatus = (newStatus1 & (0xFFFF ^ ( (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9))) );
+            ui->functionButton->setText("OFF");
+            ui->navAllButton->setText("NAV");
+            ui->nav1Button->setText("NAV");
+            ui->nav2Button->setText("NAV");
+            ui->nav3Button->setText("NAV");
+            ui->rthAllButton->setText("RTH");
+            ui->rth1Button->setText("RTH");
+            ui->rth2Button->setText("RTH");
+            ui->rth3Button->setText("RTH");
+            deHandle->set_rcMode(newStatus);
+        }
+        else if (deHandle->get_rcSerialOn() == false)
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Serial Communication Port is not open.\nCannot use radio services.");
+            msgBox.setIcon(QMessageBox::Critical);
+            msgBox.exec();
+        }
+    }
+    else if (ui->functionButton->text() == "OFF")
+    {
+        int tempStatus = deHandle->get_rcMode();
+        // Deactivate Operation bit
+        int newStatus1 = (tempStatus & (0xFFFF ^ (1 << 13)));
+        // Deactivate all NAV and RTH bits
+        int newStatus2 = (newStatus1 & (0xFFFF ^ ((1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) | (1 << 8) | (1 << 9) )) );
+
+        int finalStatus = newStatus2;
+
+        // Check which one is armed
+        int armStatus = (tempStatus & ( (1 << 3) | (1 << 2) | (1 << 1) | (1 << 0) ) );
+
+        // Activate NAV bits (or RTH, depends on the procedure, suffer from future changes)
+        // Current configuration is: if User Defined function is OFF, then turn on NAV for those ARMed.
+        switch (armStatus)
+        {
+        case 1:   // 0001, none armed
+        {
+            break;
+        }
+        case 3:   // 0011
+        {
+            finalStatus = (newStatus2 | (1 << 4) );
+            ui->nav1Button->setText("DISNAV");
+            break;
+        }
+        case 5:   // 0101
+        {
+            finalStatus = (newStatus2 | (1 << 5) );
+            ui->nav2Button->setText("DISNAV");
+            break;
+        }
+        case 7:   // 0111
+        {
+            finalStatus = (newStatus2 | (1 << 4) | (1 << 5) );
+            ui->nav1Button->setText("DISNAV");
+            ui->nav2Button->setText("DISNAV");
+            break;
+        }
+        case 9:   // 1001
+        {
+            finalStatus = (newStatus2 | (1 << 6) );
+            ui->nav3Button->setText("DISNAV");
+            break;
+        }
+        case 11:  // 1011
+        {
+            finalStatus = (newStatus2 | (1 << 4) | (1 << 6) );
+            ui->nav1Button->setText("DISNAV");
+            ui->nav3Button->setText("DISNAV");
+            break;
+        }
+        case 13:  // 1101
+        {
+            finalStatus = (newStatus2 | (1 << 5) | (1 << 6) );
+            ui->nav2Button->setText("DISNAV");
+            ui->nav3Button->setText("DISNAV");
+            break;
+        }
+        case 15:  // 1111, all three armed, then activate NAV for all three.
+        {
+            finalStatus = (newStatus2 | (1 << 4) | (1 << 5) | (1 << 6) );
+            ui->navAllButton->setText("DISNAV");
+            ui->nav1Button->setText("DISNAV");
+            ui->nav2Button->setText("DISNAV");
+            ui->nav3Button->setText("DISNAV");
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+        ui->functionButton->setText("ON");
+
+//        ui->navAllButton->setText("DISNAV");
+//        ui->nav1Button->setText("DISNAV");
+//        ui->nav2Button->setText("DISNAV");
+//        ui->nav3Button->setText("DISNAV");
+//        ui->rthAllButton->setText("DISRTH");
+//        ui->rth1Button->setText("DISRTH");
+//        ui->rth2Button->setText("DISRTH");
+//        ui->rth3Button->setText("DISRTH");
+
+        deHandle->set_rcMode(finalStatus);
     }
     this->repaint();
 }
@@ -2170,7 +2306,9 @@ void MainWindow::on_navAllButton_clicked()  // to do
     if (ui->navAllButton->text() == "NAV")
     {
         int tempStatus = deHandle->get_rcMode();
+        // Activate All NAV
         int newStatus1 = (tempStatus | (1 << 4) | (1 << 5) | (1 << 6));
+        // Deactivate All RTH
         int newStatus = (newStatus1 & (0xFFFF ^ ((1 << 7) | (1 << 8) | (1 << 9))) );
         ui->navAllButton->setText("DISNAV");
         ui->nav1Button->setText("DISNAV");
@@ -4341,8 +4479,4 @@ void MainWindow::on_expandButton_clicked()
         logDialog->hide();
     }
 }
-
-
-
-
 

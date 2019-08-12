@@ -101,5 +101,5 @@ FORMS    += \
     mainwindow.ui \
     logdialog.ui
 
-QMAKE_MAC_SDK = macosx10.13
-QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13.4
+#QMAKE_MAC_SDK = macosx10.13
+#QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13.4

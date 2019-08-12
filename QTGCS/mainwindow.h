@@ -224,6 +224,8 @@ private slots:
 
     void on_quad3RCConnectButton_clicked();
 
+    void on_functionButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     LogDialog *logDialog;
