@@ -154,6 +154,7 @@
 #define NAV_VALUE 1800
 #define RTH_VALUE 1600
 #define POSHOLD_VALUE 1400
+#define FN_VALUE 1200
 #define POSOFF_VALUE 1000
 
 class MSP_V1 : public QObject
