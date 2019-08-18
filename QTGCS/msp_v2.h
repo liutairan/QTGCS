@@ -148,7 +148,7 @@ class MSP_V2 : public QObject
 {
     Q_OBJECT
 public:
-    explicit MSP_V2(QObject *parent = 0);
+    explicit MSP_V2(QObject *parent = nullptr);
     MSP_V2();
     ~MSP_V2();
     uint8_t crc8_dvb_s2(uint8_t crc, unsigned char a);

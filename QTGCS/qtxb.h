@@ -24,7 +24,7 @@ class QTXB : public QObject
 {
     Q_OBJECT
 public:
-    explicit QTXB(QObject *parent = 0);
+    explicit QTXB(QObject *parent = nullptr);
     QTXB(QSerialPort *ser);
     void send(TXRequest *request);
     void broadcast(QString data);

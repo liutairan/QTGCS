@@ -161,7 +161,7 @@ class MSP_V1 : public QObject
 {
     Q_OBJECT
 public:
-    explicit MSP_V1(QObject *parent = 0);
+    explicit MSP_V1(QObject *parent = nullptr);
     MSP_V1();
     ~MSP_V1();
     QByteArray processSendPacket(int cmd);

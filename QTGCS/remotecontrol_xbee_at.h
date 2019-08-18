@@ -16,7 +16,7 @@ class RemoteControl_XBEE_AT : public QObject
 {
     Q_OBJECT
 public:
-    explicit RemoteControl_XBEE_AT(QObject *parent = 0);
+    explicit RemoteControl_XBEE_AT(QObject *parent = nullptr);
     RemoteControl_XBEE_AT(QSerialPort *ser);
     ~RemoteControl_XBEE_AT();
 

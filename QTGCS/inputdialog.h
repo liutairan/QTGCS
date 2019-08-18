@@ -22,7 +22,7 @@ class InputDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit InputDialog(QWidget *parent = 0);
+    explicit InputDialog(QWidget *parent = nullptr);
     virtual ~InputDialog();
     QLabel *idLabel;
     QLineEdit *idLineEdit;

@@ -19,7 +19,7 @@ class SerialCommunication_XBEE_AT : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialCommunication_XBEE_AT(QObject *parent = 0);
+    explicit SerialCommunication_XBEE_AT(QObject *parent = nullptr);
     SerialCommunication_XBEE_AT(QSerialPort *ser, QList<QuadStates *> tempObjList);
     ~SerialCommunication_XBEE_AT();
 

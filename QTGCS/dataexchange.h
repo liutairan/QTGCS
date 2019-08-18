@@ -32,7 +32,7 @@ class DataExchange : public QObject
     Q_PROPERTY(bool rcSerialOn READ get_rcSerialOn WRITE set_rcSerialOn NOTIFY rcSerialOnChanged)
     Q_PROPERTY(int manualMode READ get_manualMode WRITE set_manualMode NOTIFY manualModeChanged)
 public:
-    DataExchange(QObject *parent = 0);
+    DataExchange(QObject *parent = nullptr);
     ~DataExchange();
 
     QString teleSerialPortName;

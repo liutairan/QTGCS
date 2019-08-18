@@ -19,7 +19,7 @@ class RemoteControl : public QObject
     Q_OBJECT
 public:
     explicit RemoteControl(QObject *parent = nullptr);
-    RemoteControl(QString, QString, QString addr[], QObject *parent = 0);
+    RemoteControl(QString, QString, QString addr[], QObject *parent = nullptr);
     void stop();
     uint16_t mapAngleToPWM(float realAngle, float minAngle, float maxAngle, uint16_t minPWM, uint16_t maxPWM);
     Msp_rc_channels manual_rc_values;
