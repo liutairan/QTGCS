@@ -214,7 +214,7 @@ void RemoteControl::updateRCValues(QString msg)
 
 uint16_t RemoteControl::mapAngleToPWM(float realAngle, float minAngle, float maxAngle, uint16_t minPWM, uint16_t maxPWM)
 {
-    uint16_t realPWM = int((maxPWM - minPWM)*(realAngle - minAngle)/(maxAngle - minAngle) + minPWM);
+    uint16_t realPWM = uint16_t((maxPWM - minPWM)*(realAngle - minAngle)/(maxAngle - minAngle) + minPWM);
     return realPWM;
 }
 
