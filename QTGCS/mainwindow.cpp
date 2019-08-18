@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //logDialog->move(availableRect.width()-270, availableRect.y());
     connect(this, &MainWindow::updateLog, logDialog, &LogDialog::updateData);
     connect(deHandle, &DataExchange::logMessageRequest, this, &MainWindow::logMessage);
+    connect(deHandle, &DataExchange::logDataRequest, this, &MainWindow::logDataToLogDialog);
+    connect(this, &MainWindow::logDataRequest, logDialog, &LogDialog::updateData);
 }
 
 MainWindow::~MainWindow()
@@ -76,6 +78,14 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
     ui->logTextBrowser->setHtml(currentString);
     QScrollBar *sb = ui->logTextBrowser->verticalScrollBar();
     sb->setValue(sb->maximum());
+}
+
+void MainWindow::logDataToLogDialog(LogMessage tempMessage)
+{
+    QString outputStr = "";
+    outputStr = outputStr + tempMessage.id;
+    outputStr = outputStr + tempMessage.message;
+    emit updateLog(outputStr);
 }
 
 // update with quad states
@@ -1903,15 +1913,22 @@ void MainWindow::on_serialConnectButton_clicked()
             deHandle->set_teleSerialOn(true);
         }
 
-
-        //tempLogMessage.id = "MainWindow";
-        //tempLogMessage.message = "Connected";
-        //logMessage(tempLogMessage);
+        // Send to main GUI log window
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "MainWindow";
+        tempLogMessage.message = QString("Tele connected: "+ deHandle->teleSerialPortName);
+        logMessage(tempLogMessage);
         //qDebug() << ui->comMethodComboBox->currentText();
     }
     else if (serialConnectButtonText == "Disconnect")
     {
         deHandle->set_teleSerialOn(false);
+
+        // Send to main GUI log window
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Main Window");
+        tempLogMessage.message = QString("Tele disconnected.");
+        logMessage(tempLogMessage);
     }
 }
 

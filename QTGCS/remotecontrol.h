@@ -47,6 +47,7 @@ public:
 
 signals:
     void logMessageRequest(LogMessage);
+    void logDataRequest(LogMessage);
 
 public slots:
     void updateRCValues(QString msg);
