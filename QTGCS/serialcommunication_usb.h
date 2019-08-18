@@ -18,7 +18,7 @@ class SerialCommunication_USB : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialCommunication_USB(QObject *parent = 0);
+    explicit SerialCommunication_USB(QObject *parent = nullptr);
     SerialCommunication_USB(QSerialPort *ser, QList<QuadStates *> tempObjList);
     ~SerialCommunication_USB();
 

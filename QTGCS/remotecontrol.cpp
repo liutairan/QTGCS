@@ -308,7 +308,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
     LogMessage tempLogMessage;
     tempLogMessage.id = QString("Remote Control");
-    tempLogMessage.message = QString("Auto mode") + QString::number(aMode, 10);
+    tempLogMessage.message = QString("Auto mode ") + QString::number(aMode, 10);
     emit logDataRequest(tempLogMessage);
 
 //    qDebug() << "Auto mode" << aMode;
@@ -427,34 +427,34 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 37:   // 000 000 000 010 010 1  radio is on, quad2 is armed and naved
     {
-        rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[7] = 1800;
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = NAV_VALUE;
         break;
     }
     case 39:   // 000 000 000 010 011 1  radio is on, quad2 is armed and naved, quad1 is armed
     {
-        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[4] = ARM_VALUE;
 
-        rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[7] = 1800;
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = NAV_VALUE;
         break;
     }
     case 45:   // 000 000 000 010 110 1  radio is on, quad2 is armed and naved, quad3 is armed
     {
-        rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[7] = 1800;
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = NAV_VALUE;
 
-        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[4] = ARM_VALUE;
         break;
     }
     case 47:   // 000 000 000 010 111 1  radio is on, quad2 is armed and naved, quad1 and quad3 are armed
     {
-        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[4] = ARM_VALUE;
 
-        rc_values[1].rcData[4] = 1350;
-        rc_values[1].rcData[7] = 1800;
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = NAV_VALUE;
 
-        rc_values[2].rcData[4] = 1350;
+        rc_values[2].rcData[4] = ARM_VALUE;
         break;
     }
     case 55:   // 000 000 000 011 011 1  radio is on, quad1 and quad2 armed and naved
@@ -479,16 +479,16 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     }
     case 73:   // 000 000 000 100 100 1  radio is on, quad3 is armed and naved
     {
-        rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[7] = 1800;
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = NAV_VALUE;
         break;
     }
     case 75:   // 000 000 000 100 101 1  radio is on, quad3 is armed and naved, quad1 is armed
     {
-        rc_values[0].rcData[4] = 1350;
+        rc_values[0].rcData[4] = ARM_VALUE;
 
-        rc_values[2].rcData[4] = 1350;
-        rc_values[2].rcData[7] = 1800;
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = NAV_VALUE;
         break;
     }
     case 77:   // 000 000 000 100 110 1  radio is on, quad3 is armed and naved, quad2 is armed
@@ -925,6 +925,27 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     {
         break;
     }
+    case 8199: // 001 000 000 000 011 1  radio is on, quads 1 and 2 armed, fn is on.
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = FN_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = FN_VALUE;
+        break;
+    }
+    case 8207: // 001 000 000 000 111 1  radio is on, all quads armed, fn is on.
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = FN_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = FN_VALUE;
+
+        rc_values[2].rcData[4] = ARM_VALUE;
+        rc_values[2].rcData[7] = FN_VALUE;
+        break;
+    }
     default:
     {
         break;
@@ -941,7 +962,7 @@ void RemoteControl::sendCommand()
             // USB or AT mode, should only have one connection
             //    Find the first connection and send out command
             uint8_t objInd = 0;
-            for (uint i = 0; i < 3; i++)
+            for (uint8_t i = 0; i < 3; i++)
             {
                 if (rcConnectedDev[i] == true)
                 {

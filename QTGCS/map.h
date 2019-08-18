@@ -117,7 +117,7 @@ class Map : public QObject
     double _centerLat;
     double _centerLon;
 public:
-    Map(double, double, int, int, int, QObject *parent = 0);
+    Map(double, double, int, int, int, QObject *parent = nullptr);
 
     int _zoomlevel;
 

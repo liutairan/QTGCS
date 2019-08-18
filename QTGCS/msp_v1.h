@@ -154,13 +154,14 @@
 #define NAV_VALUE 1800
 #define RTH_VALUE 1600
 #define POSHOLD_VALUE 1400
+#define FN_VALUE 1200
 #define POSOFF_VALUE 1000
 
 class MSP_V1 : public QObject
 {
     Q_OBJECT
 public:
-    explicit MSP_V1(QObject *parent = 0);
+    explicit MSP_V1(QObject *parent = nullptr);
     MSP_V1();
     ~MSP_V1();
     QByteArray processSendPacket(int cmd);

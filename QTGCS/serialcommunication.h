@@ -33,7 +33,7 @@ class SerialCommunication : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialCommunication(QObject *parent = 0);
+    explicit SerialCommunication(QObject *parent = nullptr);
     SerialCommunication(QSerialPort *ser, QString connMethod, QString addrList[]);
     ~SerialCommunication();
     void send(TXRequest *request);

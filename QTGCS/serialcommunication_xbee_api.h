@@ -36,7 +36,7 @@ class SerialCommunication_XBEE_API : public QObject
 {
     Q_OBJECT
 public:
-    explicit SerialCommunication_XBEE_API(QObject *parent = 0);
+    explicit SerialCommunication_XBEE_API(QObject *parent = nullptr);
     SerialCommunication_XBEE_API(QSerialPort *ser, QList<QuadStates *> tempObjList);
     ~SerialCommunication_XBEE_API();
 
