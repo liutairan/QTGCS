@@ -71,8 +71,8 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 
     logStringList.append(styledString);
     QList<QString> currentStringList;
-    uint printLength = 100;
-    uint totalLength = logStringList.length();
+    int printLength = 100;
+    int totalLength = logStringList.length();
     currentStringList = logStringList.mid(totalLength-printLength, -1);
     QString currentString = currentStringList.join("");
     ui->logTextBrowser->setHtml(currentString);
@@ -305,7 +305,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
             ui->quad1FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage1 = tempObjList->at(0)->msp_analog.vbat/10.0;
+        double tempVoltage1 = tempObjList->at(0)->msp_analog.vbat/10.0;
         ui->quad1VoltageOverview->setText(QString::number(tempVoltage1, 'f', 1) + "V");
         if (tempVoltage1 >= 11.7)
         {
@@ -332,7 +332,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
 
     if (quad2ConnSwitch == true)
     {
-        uint qsObjInd = 1;
+        int qsObjInd = 1;
         if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
         {
             qsObjInd = 0;
@@ -461,7 +461,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
             ui->quad2FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        double tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad2VoltageOverview->setText(QString::number(tempVoltage2, 'f', 1) + "V");
         if (tempVoltage2 >= 11.7)
         {
@@ -487,7 +487,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
 
     if (quad3ConnSwitch == true)
     {
-        uint qsObjInd = 2;
+        int qsObjInd = 2;
         if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
         {
             qsObjInd = 0;
@@ -620,7 +620,7 @@ void MainWindow::updateOverviewLabels(QList<QuadStates *> *tempObjList)
             ui->quad3FAILModeOverview->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        double tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad3VoltageOverview->setText(QString::number(tempVoltage3, 'f', 1) + "V");
         if (tempVoltage3 >= 11.7)
         {
@@ -652,7 +652,7 @@ void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad1ConnSwitch == true)
     {
-        uint qsObjInd = 0;
+        int qsObjInd = 0;
         if (tempObjList->at(0)->msp_sensor_flags.acc == true)
         {
             ui->quad1ACC->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
@@ -768,7 +768,7 @@ void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
             ui->quad1FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage1 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        double tempVoltage1 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad1Voltage->setText(QString::number(tempVoltage1, 'f', 1) + "V");
         if (tempVoltage1 >= 11.7)
         {
@@ -810,7 +810,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad2ConnSwitch == true)
     {
-        uint qsObjInd = 1;
+        int qsObjInd = 1;
         if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
         {
             qsObjInd = 0;
@@ -939,7 +939,7 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
             ui->quad2FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        double tempVoltage2 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad2Voltage->setText(QString::number(tempVoltage2, 'f', 1) + "V");
         if (tempVoltage2 >= 11.7)
         {
@@ -980,7 +980,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
 {
     if (quad3ConnSwitch == true)
     {
-        uint qsObjInd = 2;
+        int qsObjInd = 2;
         if ((deHandle->teleConnectionMethod == "USB") || (deHandle->teleConnectionMethod == "AT"))
         {
             qsObjInd = 0;
@@ -1113,7 +1113,7 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
             ui->quad3FAILMode->setStyleSheet("QLabel {background-color : rgba(0,255,0,1);}");
         }
 
-        float tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
+        double tempVoltage3 = tempObjList->at(qsObjInd)->msp_analog.vbat/10.0;
         ui->quad3Voltage->setText(QString::number(tempVoltage3, 'f', 1) + "V");
         if (tempVoltage3 >= 11.7)
         {
@@ -3145,11 +3145,11 @@ void MainWindow::Quad1LoadWP()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
@@ -3293,11 +3293,11 @@ void MainWindow::on_quad1LoadButton_clicked()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
@@ -3687,11 +3687,11 @@ void MainWindow::Quad2LoadWP()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
@@ -3835,11 +3835,11 @@ void MainWindow::on_quad2LoadButton_clicked()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
@@ -4229,11 +4229,11 @@ void MainWindow::Quad3LoadWP()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
@@ -4380,11 +4380,11 @@ void MainWindow::on_quad3LoadButton_clicked()
             {
                 QStringList fields = tempStr.split(',');
                 WP tempWP;
-                tempWP.wp_no = fields.at(0).toUInt();
+                tempWP.wp_no = fields.at(0).toInt();
                 tempWP.wp_action = fields.at(1);
                 tempWP.wp_lat = fields.at(2).toDouble();
                 tempWP.wp_lon = fields.at(3).toDouble();
-                tempWP.wp_alt = fields.at(4).toFloat();
+                tempWP.wp_alt = fields.at(4).toDouble();
                 tempWP.wp_p1 = fields.at(5).toInt();
                 tempWP.wp_p2 = fields.at(6).toInt();
                 tempWP.wp_p3 = fields.at(7).toInt();
