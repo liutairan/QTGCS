@@ -1903,15 +1903,22 @@ void MainWindow::on_serialConnectButton_clicked()
             deHandle->set_teleSerialOn(true);
         }
 
-
-        //tempLogMessage.id = "MainWindow";
-        //tempLogMessage.message = "Connected";
-        //logMessage(tempLogMessage);
+        // Send to main GUI log window
+        LogMessage tempLogMessage;
+        tempLogMessage.id = "MainWindow";
+        tempLogMessage.message = QString("Tele connected: "+ deHandle->teleSerialPortName);
+        logMessage(tempLogMessage);
         //qDebug() << ui->comMethodComboBox->currentText();
     }
     else if (serialConnectButtonText == "Disconnect")
     {
         deHandle->set_teleSerialOn(false);
+
+        // Send to main GUI log window
+        LogMessage tempLogMessage;
+        tempLogMessage.id = QString("Main Window");
+        tempLogMessage.message = QString("Tele disconnected.");
+        logMessage(tempLogMessage);
     }
 }
 
