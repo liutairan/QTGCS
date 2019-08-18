@@ -847,10 +847,10 @@ void SerialCommunication_USB::radioControl(int radioMode)
         msp_raw_rc.rcData[1] = 1500;
         msp_raw_rc.rcData[2] = 1000;
         msp_raw_rc.rcData[3] = 1500;
-        msp_raw_rc.rcData[4] = 1350;
+        msp_raw_rc.rcData[4] = ARM_VALUE;
         msp_raw_rc.rcData[5] = 1000;
         msp_raw_rc.rcData[6] = 1000;
-        msp_raw_rc.rcData[7] = 1600;
+        msp_raw_rc.rcData[7] = RTH_VALUE;
         sendCMD(MSP_SET_RAW_RC, msp_raw_rc);
         break;
     }
