@@ -108,7 +108,7 @@ void RemoteControl::updateRCValues(QString msg)
                 int tempValue = msgFields.at(1).toInt();
                 if ( (tempValue >= 1000) && (tempValue <= 2000) )
                 {
-                    manual_rc_values.rcData[2] = tempValue;
+                    manual_rc_values.rcData[2] = uint16_t(tempValue);
                 }
             }
             catch (...)
@@ -306,7 +306,12 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
 
 void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
-    qDebug() << "Auto mode" << aMode;
+    LogMessage tempLogMessage;
+    tempLogMessage.id = QString("Remote Control");
+    tempLogMessage.message = QString("Auto mode") + QString::number(aMode, 10);
+    emit logMessageRequest(tempLogMessage);
+
+//    qDebug() << "Auto mode" << aMode;
     for (uint i=0;i<3;i++)
     {
         rc_values[i].rcData[0] = 1500;
