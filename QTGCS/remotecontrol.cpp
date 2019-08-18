@@ -925,6 +925,15 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
     {
         break;
     }
+    case 8199: // 001 000 000 000 011 1  radio is on, quads 1 and 2 armed, fn is on.
+    {
+        rc_values[0].rcData[4] = ARM_VALUE;
+        rc_values[0].rcData[7] = FN_VALUE;
+
+        rc_values[1].rcData[4] = ARM_VALUE;
+        rc_values[1].rcData[7] = FN_VALUE;
+        break;
+    }
     case 8207: // 001 000 000 000 111 1  radio is on, all quads armed, fn is on.
     {
         rc_values[0].rcData[4] = ARM_VALUE;
