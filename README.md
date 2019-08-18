@@ -41,3 +41,5 @@ Screenshot:
     1. QTGCS_Configurator: configure environment for QTGCS.
     2. QTGCS_MapManager: local map image management, pre-download map images, update new map images, etc.
     3. AutonomousFlight: dialected flight control firmware works with QTGCS.
+    4. AutonomousFlight-Configurator: configure settings for the firmware.
+    5. Joysticks: manual control with iPhone.
