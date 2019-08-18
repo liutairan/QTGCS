@@ -91,10 +91,12 @@ signals:
     void updateQuad2TableViewRequest();
     void updateQuad3TableViewRequest();
     void updateLog(QString);
+    void logDataRequest(QString);
 public slots:
     void updateSerialInfo(bool value);
     void updateAuxSerialInfo(bool value);
     void logMessage(LogMessage);
+    void logDataToLogDialog(LogMessage);
     void updatePaint();
     void updateQuad1TableView();
     void updateQuad2TableView();

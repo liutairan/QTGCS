@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     //logDialog->move(availableRect.width()-270, availableRect.y());
     connect(this, &MainWindow::updateLog, logDialog, &LogDialog::updateData);
     connect(deHandle, &DataExchange::logMessageRequest, this, &MainWindow::logMessage);
+    connect(deHandle, &DataExchange::logDataRequest, this, &MainWindow::logDataToLogDialog);
+    connect(this, &MainWindow::logDataRequest, logDialog, &LogDialog::updateData);
 }
 
 MainWindow::~MainWindow()
@@ -76,6 +78,14 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
     ui->logTextBrowser->setHtml(currentString);
     QScrollBar *sb = ui->logTextBrowser->verticalScrollBar();
     sb->setValue(sb->maximum());
+}
+
+void MainWindow::logDataToLogDialog(LogMessage tempMessage)
+{
+    QString outputStr = "";
+    outputStr = outputStr + tempMessage.id;
+    outputStr = outputStr + tempMessage.message;
+    emit updateLog(outputStr);
 }
 
 // update with quad states
