@@ -354,14 +354,14 @@ struct Msp_gps_statistics
 
 struct WP
 {
-    uint8_t wp_no;
+    int wp_no;  // uint8_t
     QString wp_action;
     double wp_lat;
     double wp_lon;
     double wp_alt; // unit: cm
-    int16_t wp_p1;
-    int16_t wp_p2;
-    int16_t wp_p3;
+    int wp_p1;  // int16_t
+    int wp_p2;  // int16_t
+    int wp_p3;  // int16_t
     uint8_t wp_flag;
 };
 
@@ -411,14 +411,14 @@ struct Msp_nav_poshold
 // missions
 struct Mission
 {
-    uint8_t wp_no;
+    int wp_no;  // uint8_t
     uint8_t wp_action;
     int32_t wp_lat;
     int32_t wp_lon;
     int32_t wp_alt; // unit: cm
-    int16_t wp_p1;
-    int16_t wp_p2;
-    int16_t wp_p3;
+    int wp_p1;  // int16_t
+    int wp_p2;  // int16_t
+    int wp_p3;  // int16_t
     uint8_t wp_flag;
 };
 
