@@ -83,7 +83,7 @@ void MainWindow::logMessage(LogMessage tempMessage /*QString tempStr*/)
 void MainWindow::logDataToLogDialog(LogMessage tempMessage)
 {
     QString outputStr = "";
-    outputStr = outputStr + tempMessage.id;
+    outputStr = outputStr + tempMessage.id + ": ";
     outputStr = outputStr + tempMessage.message;
     emit updateLog(outputStr);
 }
