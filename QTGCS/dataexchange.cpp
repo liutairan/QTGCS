@@ -233,6 +233,7 @@ void DataExchange::set_rcSerialOn(bool value)
             rcHandle = new RemoteControl(rcSerialPortName, rcConnectionMethod, rcAddressList);
 
             connect(rcHandle, SIGNAL(logMessageRequest(LogMessage)), this, SLOT(logMessage(LogMessage)));
+            connect(rcHandle, SIGNAL(logDataRequest(LogMessage)), this, SLOT(logData(LogMessage)));
             // Server received data from network.
             connect(server, SIGNAL(inputReceived(QString)), rcHandle, SLOT(updateRCValues(QString)) );
         }
@@ -290,4 +291,9 @@ void DataExchange::updateQuadsStates(QList<QuadStates *> *tempObjList)
 void DataExchange::logMessage(LogMessage tempMessage)
 {
     emit logMessageRequest(tempMessage);
+}
+
+void DataExchange::logData(LogMessage tempMessage)
+{
+    emit logDataRequest(tempMessage);
 }

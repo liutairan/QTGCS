@@ -89,9 +89,11 @@ signals:
     void manualModeChanged(int);
     void quadsStatesChangeRequest(QList<QuadStates *> *);  // update quads states
     void logMessageRequest(LogMessage);
+    void logDataRequest(LogMessage);
 public slots:
     void updateQuadsStates(QList<QuadStates *> *);  // update quads states
     void logMessage(LogMessage);
+    void logData(LogMessage);
     //void updateRCValues(QString msg);
     //void rcSwitch();
     void teleModeUpdateFB(int);
