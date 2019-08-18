@@ -962,7 +962,7 @@ void RemoteControl::sendCommand()
             // USB or AT mode, should only have one connection
             //    Find the first connection and send out command
             uint8_t objInd = 0;
-            for (uint i = 0; i < 3; i++)
+            for (uint8_t i = 0; i < 3; i++)
             {
                 if (rcConnectedDev[i] == true)
                 {
