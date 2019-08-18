@@ -308,7 +308,7 @@ void RemoteControl::setValuesFromAuto(uint16_t aMode)
 {
     LogMessage tempLogMessage;
     tempLogMessage.id = QString("Remote Control");
-    tempLogMessage.message = QString("Auto mode") + QString::number(aMode, 10);
+    tempLogMessage.message = QString("Auto mode ") + QString::number(aMode, 10);
     emit logDataRequest(tempLogMessage);
 
 //    qDebug() << "Auto mode" << aMode;
