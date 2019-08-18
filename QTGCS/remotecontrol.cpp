@@ -266,21 +266,23 @@ void RemoteControl::setValuesFromManual(uint8_t mMode)
         }
 
         // Send log info to main GUI
-        /*LogMessage tempLogMessage;
-        tempLogMessage.id = QString("Remote Control");
-        tempLogMessage.message = "<br/> R " + QString::number(manual_rc_values.rcData[0], 10)
-                               + " P " + QString::number(manual_rc_values.rcData[1], 10)
-                               + " T " + QString::number(manual_rc_values.rcData[2], 10)
-                               + " Y " + QString::number(manual_rc_values.rcData[3], 10)
-                               + "<br/> 5 " + QString::number(manual_rc_values.rcData[4], 10)
-                               + " 6 " + QString::number(manual_rc_values.rcData[5], 10)
-                               + " 7 " + QString::number(manual_rc_values.rcData[6], 10)
-                               + " 8 " + QString::number(manual_rc_values.rcData[7], 10);
-        emit logMessageRequest(tempLogMessage);
+        // Using this block of code can successfully send data to the main GUI, but it will
+        //     cause the main GUI not responding.
+//        LogMessage tempLogMessage;
+//        tempLogMessage.id = QString("Remote Control");
+//        tempLogMessage.message = "<br/> R " + QString::number(manual_rc_values.rcData[0], 10)
+//                               + " P " + QString::number(manual_rc_values.rcData[1], 10)
+//                               + " T " + QString::number(manual_rc_values.rcData[2], 10)
+//                               + " Y " + QString::number(manual_rc_values.rcData[3], 10)
+//                               + "<br/> 5 " + QString::number(manual_rc_values.rcData[4], 10)
+//                               + " 6 " + QString::number(manual_rc_values.rcData[5], 10)
+//                               + " 7 " + QString::number(manual_rc_values.rcData[6], 10)
+//                               + " 8 " + QString::number(manual_rc_values.rcData[7], 10);
+//        emit logMessageRequest(tempLogMessage);
 
-        tempLogMessage.id = QString("Remote Control");
-        tempLogMessage.message = "RC mode " + QString::number(rcMode, 10);
-        emit logMessageRequest(tempLogMessage);*/
+//        tempLogMessage.id = QString("Remote Control");
+//        tempLogMessage.message = "RC mode " + QString::number(mMode, 10);
+//        emit logMessageRequest(tempLogMessage);
         break;
     }
     case 2:
