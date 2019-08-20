@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1150</width>
-    <height>690</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -36,7 +36,7 @@
       <x>10</x>
       <y>640</y>
       <width>30</width>
-      <height>20</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
@@ -49,7 +49,7 @@
       <x>35</x>
       <y>640</y>
       <width>30</width>
-      <height>20</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
@@ -62,7 +62,7 @@
       <x>60</x>
       <y>640</y>
       <width>90</width>
-      <height>20</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
@@ -75,7 +75,7 @@
       <x>145</x>
       <y>640</y>
       <width>100</width>
-      <height>20</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
@@ -3425,7 +3425,7 @@
       <x>380</x>
       <y>640</y>
       <width>30</width>
-      <height>20</height>
+      <height>32</height>
      </rect>
     </property>
     <property name="text">
