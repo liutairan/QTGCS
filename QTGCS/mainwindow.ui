@@ -1477,9 +1477,9 @@
       <property name="geometry">
        <rect>
         <x>5</x>
-        <y>5</y>
+        <y>1</y>
         <width>30</width>
-        <height>20</height>
+        <height>32</height>
        </rect>
       </property>
       <property name="text">
