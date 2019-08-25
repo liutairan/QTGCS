@@ -142,7 +142,8 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
         unsigned cmdCode = (unsigned char)packet.at(4);
         QByteArray data = packet.mid(5, length+1);
 
-        switch (cmdCode) {
+        switch (cmdCode)
+        {
         case MSP_STATUS_EX:
         {
             if (data.length() < 16)
