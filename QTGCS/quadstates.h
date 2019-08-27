@@ -245,8 +245,9 @@ struct Msp_sensor_flags
 
 struct Msp_altitude
 {
-    uint32_t estimatedActualPosition;
-    uint16_t estimatedActualVelocity;
+    int32_t estimatedActualPosition;  // unit: cm
+    int16_t estimatedActualVelocity;
+    int32_t baroAltitude;
 };
 
 struct Msp_sonar_altitude
