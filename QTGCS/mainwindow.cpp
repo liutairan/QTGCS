@@ -127,20 +127,20 @@ void MainWindow::logData(QList<QuadStates *> *tempObjList)
             QString outputStr = "";
             outputStr = outputStr + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ", ";
             outputStr = outputStr + tempObjList->at(i)->address_long.toHex() + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_numSat, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_fixType, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lat, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lon, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_alt, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_hdop, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_attitude.roll, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_attitude.pitch, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_attitude.yaw, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10) + ", ";
-            outputStr = outputStr + QString::number(tempObjList->at(0)->msp_analog.vbat, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_status_ex.cycletime, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_numSat, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_fixType, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_llh_lat, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_llh_lon, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_llh_alt, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_raw_gps.gpsSol_hdop, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.roll, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.pitch, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.yaw, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_analog.vbat, 10) + ", ";
             outputStr = outputStr + "\n";
 
             QFile file(logFilePath);
@@ -795,7 +795,8 @@ void MainWindow::updateQuad1Labels(QList<QuadStates *> *tempObjList)
         ui->quad1Roll->setText("Roll: " + QString::number(tempObjList->at(0)->msp_attitude.roll/10.0, 'f', 1));
         ui->quad1Pitch->setText("Pitch: " + QString::number(tempObjList->at(0)->msp_attitude.pitch/10.0, 'f', 1));
         ui->quad1Yaw->setText("Yaw: " + QString::number(tempObjList->at(0)->msp_attitude.yaw, 10));
-        ui->quad1SensorAlt->setText("Alt: " + QString::number(tempObjList->at(0)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10));
+        ui->quad1SensorAlt->setText("Alt: " + QString::number(tempObjList->at(0)->msp_altitude.estimatedActualPosition, 10));
+//        ui->quad1SensorAlt->setText("Alt: " + QString::number(tempObjList->at(0)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10));
         // outer
         ui->quad1Lat->setText("Lat: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
         ui->quad1Lon->setText("Lon: " + QString::number(tempObjList->at(0)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
