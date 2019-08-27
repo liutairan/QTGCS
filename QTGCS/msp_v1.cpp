@@ -226,8 +226,8 @@ QuadStates* MSP_V1::processReceivePacket(QByteArray packet, QuadStates *tempQS)
         {
             tempQS->msp_altitude.estimatedActualPosition = ((0xFF & data.at(0))) + ((0xFF & data.at(1)) << 8) + ((0xFF & data.at(2)) << 16) + ((0xFF & data.at(3)) << 24);
             tempQS->msp_altitude.estimatedActualVelocity = ((0xFF & data.at(4))) + ((0xFF & data.at(5)) << 8);
-            // To do, another 4 bytes left.
             // Barometer
+            tempQS->msp_altitude.baroAltitude = ((0xFF & data.at(6))) + ((0xFF & data.at(7)) << 8) + ((0xFF & data.at(8)) << 16) + ((0xFF & data.at(9)) << 24);
             break;
         }
         case MSP_SONAR_ALTITUDE:
