@@ -97,6 +97,10 @@ QuadStates::QuadStates(QByteArray frameid, QByteArray addr_long, QByteArray addr
     msp_attitude.roll = 0;
     msp_attitude.yaw = 0;
 
+    msp_altitude.estimatedActualPosition = 0;
+    msp_altitude.estimatedActualVelocity = 0;
+    msp_altitude.baroAltitude = 0;
+
     msp_sonar_altitude.rangefinderGetLatestAltitude = 0;
 
     msp_raw_gps.gpsSol_llh_lat = 0;
