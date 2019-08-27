@@ -66,7 +66,7 @@ void TelemetrySerialWorker::setTelemetrySerialOn(bool value)
         }
         else if (teleConnectionMethod == "API")
         {
-            for (uint i=0;i<3;i++)
+            for (int i=0;i<3;i++)
             {
                 if (teleAddressList[i] != "")
                 {
