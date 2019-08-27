@@ -117,12 +117,16 @@ void MainWindow::updateQuadsStates(QList<QuadStates *> *tempObjList)
 
 void MainWindow::logData(QList<QuadStates *> *tempObjList)
 {
+//    qDebug() << tempObjList->length() << " ,";
     for(int i=0; i< tempObjList->length(); i++)
     {
+//        QString tempString = tempObjList->at(i)->address_long.toHex();
+//        qDebug() << tempObjList->at(i)->address_long << tempString;
         if (tempObjList->at(i)->address_long.length() > 0)
         {
             QString outputStr = "";
             outputStr = outputStr + QDateTime::currentDateTime().toString("yyyy_MM_dd_hh_mm_ss_zzz") + ", ";
+            outputStr = outputStr + tempObjList->at(i)->address_long.toHex() + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.cycletime, 10) + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.armingFlags, 2).rightJustified(16, '0') + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(0)->msp_status_ex.packFlightModeFlags, 2).rightJustified(32, '0') + ", ";
