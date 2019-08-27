@@ -248,6 +248,27 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
+        // MSP_ALTITUDE
+        try
+        {
+            if (quadstates_list.at(0)->msp_sensor_flags.baro)
+            {
+                sc_usb->sendCMD(MSP_ALTITUDE);
+            }
+            else // if gps is not available, still wait for 5ms
+            {
+            }
+        }
+        catch (...)
+        {}
+        QTime dieTime5 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime5 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+
         // MSP_RAW_GPS
         try
         {
@@ -261,8 +282,8 @@ void SerialCommunication::RegularCheck()
         }
         catch (...)
         {}
-        QTime dieTime5 = QTime::currentTime().addMSecs(20);
-        while( QTime::currentTime() < dieTime5 )
+        QTime dieTime6 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime6 )
         {
             QEventLoop loop;
             QTimer::singleShot(1, &loop, SLOT(quit()));
@@ -350,6 +371,27 @@ void SerialCommunication::RegularCheck()
             loop.exec();
         }
 
+        // MSP_ALTITUDE
+        try
+        {
+            if (quadstates_list.at(0)->msp_sensor_flags.baro)
+            {
+                sc_xbee_at->sendCMD(MSP_ALTITUDE);
+            }
+            else // if gps is not available, still wait for 5ms
+            {
+            }
+        }
+        catch (...)
+        {}
+        QTime dieTime5 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime5 )
+        {
+            QEventLoop loop;
+            QTimer::singleShot(1, &loop, SLOT(quit()));
+            loop.exec();
+        }
+
         // MSP_RAW_GPS
         try
         {
@@ -363,8 +405,8 @@ void SerialCommunication::RegularCheck()
         }
         catch (...)
         {}
-        QTime dieTime5 = QTime::currentTime().addMSecs(20);
-        while( QTime::currentTime() < dieTime5 )
+        QTime dieTime6 = QTime::currentTime().addMSecs(20);
+        while( QTime::currentTime() < dieTime6 )
         {
             QEventLoop loop;
             QTimer::singleShot(1, &loop, SLOT(quit()));
@@ -456,6 +498,27 @@ void SerialCommunication::RegularCheck()
                     loop.exec();
                 }
 
+                // MSP_ALTITUDE
+                try
+                {
+                    if (quadstates_list.at(i)->msp_sensor_flags.baro)
+                    {
+                        sc_xbee_api->sendCMD(i, MSP_ALTITUDE);
+                    }
+                    else // if gps is not available, still wait for 5ms
+                    {
+                    }
+                }
+                catch (...)
+                {}
+                QTime dieTime5 = QTime::currentTime().addMSecs(30);
+                while( QTime::currentTime() < dieTime5 )
+                {
+                    QEventLoop loop;
+                    QTimer::singleShot(1, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+
                 // MSP_RAW_GPS
                 try
                 {
@@ -469,8 +532,8 @@ void SerialCommunication::RegularCheck()
                 }
                 catch (...)
                 {}
-                QTime dieTime5 = QTime::currentTime().addMSecs(30);
-                while( QTime::currentTime() < dieTime5 )
+                QTime dieTime6 = QTime::currentTime().addMSecs(30);
+                while( QTime::currentTime() < dieTime6 )
                 {
                     QEventLoop loop;
                     QTimer::singleShot(1, &loop, SLOT(quit()));
