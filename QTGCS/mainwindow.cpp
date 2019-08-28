@@ -139,6 +139,9 @@ void MainWindow::logData(QList<QuadStates *> *tempObjList)
             outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.roll, 10) + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.pitch, 10) + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(i)->msp_attitude.yaw, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_altitude.estimatedActualPosition, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_altitude.estimatedActualVelocity, 10) + ", ";
+            outputStr = outputStr + QString::number(tempObjList->at(i)->msp_altitude.baroAltitude, 10) + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(i)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10) + ", ";
             outputStr = outputStr + QString::number(tempObjList->at(i)->msp_analog.vbat, 10) + ", ";
             outputStr = outputStr + "\n";
