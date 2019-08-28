@@ -970,6 +970,8 @@ void MainWindow::updateQuad2Labels(QList<QuadStates *> *tempObjList)
         ui->quad2Roll->setText("Roll: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.roll/10.0, 'f', 1));
         ui->quad2Pitch->setText("Pitch: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.pitch/10.0, 'f', 1));
         ui->quad2Yaw->setText("Yaw: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.yaw, 10));
+        ui->quad2SensorAlt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_altitude.estimatedActualPosition, 10));
+//        ui->quad2SensorAlt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10));
         // outer
         ui->quad2Lat->setText("Lat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
         ui->quad2Lon->setText("Lon: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
@@ -1144,6 +1146,8 @@ void MainWindow::updateQuad3Labels(QList<QuadStates *> *tempObjList)
         ui->quad3Roll->setText("Roll: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.roll/10.0, 'f', 1));
         ui->quad3Pitch->setText("Pitch: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.pitch/10.0, 'f', 1));
         ui->quad3Yaw->setText("Yaw: " + QString::number(tempObjList->at(qsObjInd)->msp_attitude.yaw, 10));
+        ui->quad3SensorAlt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_altitude.estimatedActualPosition, 10));
+//        ui->quad3SensorAlt->setText("Alt: " + QString::number(tempObjList->at(qsObjInd)->msp_sonar_altitude.rangefinderGetLatestAltitude, 10));
         // outer
         ui->quad3Lat->setText("Lat: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lat/qPow(10.0,7), 'f', 7));
         ui->quad3Lon->setText("Lon: " + QString::number(tempObjList->at(qsObjInd)->msp_raw_gps.gpsSol_llh_lon/qPow(10.0,7), 'f', 7));
